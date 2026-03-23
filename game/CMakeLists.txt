@@ -1,6 +1,6 @@
 ##
-## Capture The Flag - game logic source
-## gameaxp.dll
+## single player game logic source
+## game.dll
 set( GAME_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/g_ai.c
     ${CMAKE_CURRENT_SOURCE_DIR}/game.h
@@ -74,8 +74,6 @@ set( GAME_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/p_trail.c
     ${CMAKE_CURRENT_SOURCE_DIR}/p_view.c
     ${CMAKE_CURRENT_SOURCE_DIR}/p_weapon.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h
     )
 
 set( GAME_SOURCE_DEF ${CMAKE_CURRENT_SOURCE_DIR}/game.def )
@@ -83,13 +81,16 @@ set( GAME_SOURCE_DEF ${CMAKE_CURRENT_SOURCE_DIR}/game.def )
 #set the library souce
 add_library( game SHARED ${GAME_SOURCES} ) #TODO: append on source on windows platforms 
 
-#set the game game specific definitions
+#set lib shared sources
+target_link_libraries( game qShared )
+
+#set the game specific definitions
 target_compile_definitions( game PRIVATE __GAME_DLL__ ) 
 
 #set the sound root dir as include
 target_include_directories( game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
-# set the precompiled header
+#set the precompiled header
 target_precompile_headers( game 
 	PUBLIC
         <stdio.h>
@@ -102,10 +103,7 @@ target_precompile_headers( game
         <math.h>
         <string.h>
         <time.h>
-
 	PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h 
+        ${CMAKE_SOURCE_DIR}/shared/q_shared.h
 		${CMAKE_CURRENT_SOURCE_DIR}/g_local.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/game.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/g_ctf.h
 	) 
