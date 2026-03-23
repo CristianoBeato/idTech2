@@ -32,14 +32,15 @@ set( CTF_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/p_trail.c
     ${CMAKE_CURRENT_SOURCE_DIR}/p_view.c
     ${CMAKE_CURRENT_SOURCE_DIR}/p_weapon.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h
     )
 
 set( CTF_SOURCE_DEF ${CMAKE_CURRENT_SOURCE_DIR}/ctf.def )
 
 #set the library souce
 add_library( gameaxp SHARED ${CTF_SOURCES} ) #TODO: append on source on windows platforms 
+
+#set lib shared sources
+target_link_libraries( gameaxp qShared )
 
 #set the gameaxp game specific definitions
 target_compile_definitions( gameaxp PRIVATE __GAME_AXP_DLL__ ) 
@@ -62,8 +63,6 @@ target_precompile_headers( gameaxp
         <time.h>
 
 	PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h 
+        ${CMAKE_SOURCE_DIR}/shared/q_shared.h
 		${CMAKE_CURRENT_SOURCE_DIR}/g_local.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/game.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/g_ctf.h
 	) 
