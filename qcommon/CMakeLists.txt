@@ -1,7 +1,7 @@
 ##
 ## Engine common lib sources 
 ## qCommon.so
-set( SERVER_SOURCES 
+set( COMMON_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/cmd.c
     ${CMAKE_CURRENT_SOURCE_DIR}/cmodel.c
     ${CMAKE_CURRENT_SOURCE_DIR}/common.c
@@ -17,7 +17,7 @@ set( SERVER_SOURCES
     )
 
 #set the library souce
-add_library( qCommon STATIC ${SERVER_SOURCES} )
+add_library( qCommon STATIC ${COMMON_SOURCES} )
 
 #set the library specific definitions
 target_compile_definitions( qCommon PRIVATE __COMMON_SO__ ) 

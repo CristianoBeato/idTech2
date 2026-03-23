@@ -203,7 +203,7 @@ a seperate file.
 */
 int file_from_pak = 0;
 #ifndef NO_ADDONS
-int FS_FOpenFile (char *filename, FILE **file)
+int FS_FOpenFile ( const char *filename, FILE **file)
 {
 	searchpath_t	*search;
 	char			netpath[MAX_OSPATH];
@@ -391,7 +391,7 @@ Filename are reletive to the quake search path
 a null buffer will just return the file length without loading
 ============
 */
-int FS_LoadFile (char *path, void **buffer)
+int FS_LoadFile ( const char *path, void **buffer )
 {
 	FILE	*h;
 	byte	*buf;
@@ -552,7 +552,7 @@ FS_Gamedir
 Called to find where to write a file (demos, savegames, etc)
 ============
 */
-char *FS_Gamedir (void)
+const char *FS_Gamedir (void)
 {
 	return fs_gamedir;
 }
@@ -684,11 +684,11 @@ void FS_Link_f (void)
 /*
 ** FS_ListFiles
 */
-char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned canthave )
+const char **FS_ListFiles( const char *findname, int *numfiles, unsigned musthave, unsigned canthave )
 {
-	char *s;
+	const char *s = NULL;
 	int nfiles = 0;
-	char **list = 0;
+	const char **list = 0;
 
 	s = Sys_FindFirst( findname, musthave, canthave );
 	while ( s )
@@ -732,11 +732,11 @@ char **FS_ListFiles( char *findname, int *numfiles, unsigned musthave, unsigned 
 */
 void FS_Dir_f( void )
 {
-	char	*path = NULL;
-	char	findname[1024];
-	char	wildcard[1024] = "*.*";
-	char	**dirnames;
-	int		ndirs;
+	const char	*path = NULL;
+	const char	findname[1024];
+	const char	wildcard[1024] = "*.*";
+	const char	**dirnames;
+	int			ndirs;
 
 	if ( Cmd_Argc() != 1 )
 	{
@@ -811,7 +811,7 @@ FS_NextPath
 Allows enumerating all of the directories in the search path
 ================
 */
-char *FS_NextPath (char *prevpath)
+const char *FS_NextPath ( const char *prevpath )
 {
 	searchpath_t	*s;
 	char			*prev;
