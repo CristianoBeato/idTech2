@@ -133,7 +133,7 @@ int SWimp_Init( void *hInstance, void *wndProc )
 ** The necessary width and height parameters are grabbed from
 ** vid.width and vid.height.
 */
-static qboolean SWimp_InitGraphics( qboolean fullscreen )
+static bool SWimp_InitGraphics( bool fullscreen )
 {
 	// free resources in use
 	SWimp_Shutdown ();
@@ -263,7 +263,7 @@ void SWimp_EndFrame (void)
 /*
 ** SWimp_SetMode
 */
-rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen )
 {
 	const char *win_fs[] = { "W", "FS" };
 	rserr_t retval = rserr_ok;
@@ -375,7 +375,7 @@ void SWimp_Shutdown( void )
 /*
 ** SWimp_AppActivate
 */
-void SWimp_AppActivate( qboolean active )
+void SWimp_AppActivate( bool active )
 {
 	if ( active )
 	{

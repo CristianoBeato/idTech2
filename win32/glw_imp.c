@@ -36,15 +36,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "glw_win.h"
 #include "winquake.h"
 
-static qboolean GLimp_SwitchFullscreen( int width, int height );
-qboolean GLimp_InitGL (void);
+static bool GLimp_SwitchFullscreen( int width, int height );
+int GLimp_InitGL (void);
 
 glwstate_t glw_state;
 
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_ref;
 
-static qboolean VerifyDriver( void )
+static bool VerifyDriver( void )
 {
 	char buffer[1024];
 
@@ -61,7 +61,7 @@ static qboolean VerifyDriver( void )
 */
 #define	WINDOW_CLASS_NAME	"Quake 2"
 
-qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
+bool VID_CreateWindow( int width, int height, bool fullscreen )
 {
 	WNDCLASS		wc;
 	RECT			r;
@@ -156,7 +156,7 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+int GLimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen )
 {
 	int width, height;
 	const char *win_fs[] = { "W", "FS" };
@@ -344,7 +344,7 @@ void GLimp_Shutdown( void )
 ** of OpenGL.  Under Win32 this means dealing with the pixelformats and
 ** doing the wgl interface stuff.
 */
-qboolean GLimp_Init( void *hinstance, void *wndproc )
+int GLimp_Init( void *hinstance, void *wndproc )
 {
 #define OSR2_BUILD_NUMBER 1111
 
@@ -387,7 +387,7 @@ qboolean GLimp_Init( void *hinstance, void *wndproc )
 	return true;
 }
 
-qboolean GLimp_InitGL (void)
+int GLimp_InitGL (void)
 {
     PIXELFORMATDESCRIPTOR pfd = 
 	{
@@ -601,7 +601,7 @@ void GLimp_EndFrame (void)
 /*
 ** GLimp_AppActivate
 */
-void GLimp_AppActivate( qboolean active )
+void GLimp_AppActivate( bool active )
 {
 	if ( active )
 	{

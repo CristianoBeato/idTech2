@@ -100,7 +100,7 @@ void SockadrToNetadr (struct sockaddr *s, netadr_t *a)
 }
 
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+bool	NET_CompareAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
 		return false;
@@ -130,7 +130,7 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
+bool	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
 		return false;
@@ -185,7 +185,7 @@ idnewt:28000
 	sscanf (copy, "%x", &val);	\
 	((struct sockaddr_ipx *)sadr)->dest = val
 
-qboolean	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
+bool	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
 {
 	struct hostent	*h;
 	char	*colon;
@@ -254,7 +254,7 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean	NET_StringToAdr (char *s, netadr_t *a)
+bool	NET_StringToAdr (char *s, netadr_t *a)
 {
 	struct sockaddr sadr;
 	
@@ -274,7 +274,7 @@ qboolean	NET_StringToAdr (char *s, netadr_t *a)
 }
 
 
-qboolean	NET_IsLocalAddress (netadr_t adr)
+bool	NET_IsLocalAddress (netadr_t adr)
 {
 	return adr.type == NA_LOOPBACK;
 }
@@ -287,7 +287,7 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 =============================================================================
 */
 
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
+bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
 	int		i;
 	loopback_t	*loop;
@@ -328,7 +328,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, void *data, netadr_t to)
 
 //=============================================================================
 
-qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
+bool	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
 	int 	ret;
 	struct sockaddr from;
@@ -468,7 +468,7 @@ int NET_IPSocket (char *net_interface, int port)
 {
 	int					newsocket;
 	struct sockaddr_in	address;
-	qboolean			_true = true;
+	unsigned long		_true = true;
 	int					i = 1;
 	int					err;
 
@@ -578,7 +578,7 @@ int NET_IPXSocket (int port)
 {
 	int					newsocket;
 	struct sockaddr_ipx	address;
-	int					_true = 1;
+	unsigned long		_true = 1;
 	int					err;
 
 	if ((newsocket = socket (PF_IPX, SOCK_DGRAM, NSPROTO_IPX)) == -1)
@@ -590,7 +590,7 @@ int NET_IPXSocket (int port)
 	}
 
 	// make it non-blocking
-	if (ioctlsocket (newsocket, FIONBIO, &_true) == -1)
+	if (ioctlsocket (newsocket, FIONBIO, &_true ) == -1)
 	{
 		Com_Printf ("WARNING: IPX_Socket: ioctl FIONBIO: %s\n", NET_ErrorString());
 		return 0;
@@ -675,10 +675,10 @@ NET_Config
 A single player game will only use the loopback code
 ====================
 */
-void	NET_Config (qboolean multiplayer)
+void	NET_Config (bool multiplayer)
 {
 	int		i;
-	static	qboolean	old_config;
+	static	bool	old_config;
 
 	if (old_config == multiplayer)
 		return;

@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include <float.h>
 
-#include "../client/client.h"
-#include "../client/snd_loc.h"
+#include "client/client.h"
+#include "client/snd_loc.h"
 #include "winquake.h"
 
 #define iDirectSoundCreate(a,b,c)	pDirectSoundCreate(a,b,c)
@@ -37,10 +37,10 @@ typedef enum {SIS_SUCCESS, SIS_FAILURE, SIS_NOTAVAIL} sndinitstat;
 
 cvar_t	*s_wavonly;
 
-static qboolean	dsound_init;
-static qboolean	wav_init;
-static qboolean	snd_firsttime = true, snd_isdirect, snd_iswave;
-static qboolean	primary_format_set;
+static bool	dsound_init;
+static bool	wav_init;
+static bool	snd_firsttime = true, snd_isdirect, snd_iswave;
+static bool	primary_format_set;
 
 // starts at 0 for disabled
 static int	snd_buffer_count = 0;
@@ -72,8 +72,8 @@ LPDIRECTSOUNDBUFFER pDSBuf, pDSPBuf;
 
 HINSTANCE hInstDS;
 
-qboolean SNDDMA_InitDirect (void);
-qboolean SNDDMA_InitWav (void);
+bool SNDDMA_InitDirect (void);
+bool SNDDMA_InitWav (void);
 
 void FreeSound( void );
 
@@ -97,7 +97,7 @@ static const char *DSoundError( int error )
 /*
 ** DS_CreateBuffers
 */
-static qboolean DS_CreateBuffers( void )
+static bool DS_CreateBuffers( void )
 {
 	DSBUFFERDESC	dsbuf;
 	DSBCAPS			dsbcaps;
@@ -441,7 +441,7 @@ SNDDM_InitWav
 Crappy windows multimedia base
 ==================
 */
-qboolean SNDDMA_InitWav (void)
+bool SNDDMA_InitWav (void)
 {
 	WAVEFORMATEX  format; 
 	int				i;
@@ -730,7 +730,7 @@ void SNDDMA_BeginPainting (void)
 	reps = 0;
 	dma.buffer = NULL;
 
-	while ((hresult = pDSBuf->lpVtbl->Lock(pDSBuf, 0, gSndBufSize, &pbuf, &locksize, 
+	while ((hresult = pDSBuf->lpVtbl->Lock(pDSBuf, 0, gSndBufSize, &pbuf, (void**)&locksize, 
 								   &pbuf2, &dwSize2, 0)) != DS_OK)
 	{
 		if (hresult != DSERR_BUFFERLOST)
@@ -841,7 +841,7 @@ The window have been destroyed and recreated
 between a deactivate and an activate.
 ===========
 */
-void S_Activate (qboolean active)
+void S_Activate (bool active)
 {
 	if ( active )
 	{

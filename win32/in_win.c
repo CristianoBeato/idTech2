@@ -79,7 +79,7 @@ cvar_t	*joy_yawsensitivity;
 cvar_t	*joy_upthreshold;
 cvar_t	*joy_upsensitivity;
 
-qboolean	joy_avail, joy_advancedinit, joy_haspov;
+bool	joy_avail, joy_advancedinit, joy_haspov;
 DWORD		joy_oldbuttonstate, joy_oldpovstate;
 
 int			joy_id;
@@ -88,7 +88,7 @@ DWORD		joy_numbuttons;
 
 static JOYINFOEX	ji;
 
-qboolean	in_appactive;
+bool	in_appactive;
 
 // forward-referenced functions
 void IN_StartupJoystick (void);
@@ -106,7 +106,7 @@ void IN_JoyMove (usercmd_t *cmd);
 // mouse variables
 cvar_t	*m_filter;
 
-qboolean	mlooking;
+bool	mlooking;
 
 void IN_MLookDown (void) { mlooking = true; }
 void IN_MLookUp (void) {
@@ -122,12 +122,12 @@ int			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
 
 int			old_x, old_y;
 
-qboolean	mouseactive;	// false when not focus app
+bool	mouseactive;	// false when not focus app
 
-qboolean	restore_spi;
-qboolean	mouseinitialized;
+bool	restore_spi;
+bool	mouseinitialized;
 int		originalmouseparms[3], newmouseparms[3] = {0, 0, 1};
-qboolean	mouseparmsvalid;
+bool	mouseparmsvalid;
 
 int			window_center_x, window_center_y;
 RECT		window_rect;
@@ -403,7 +403,7 @@ The window may have been destroyed and recreated
 between a deactivate and an activate.
 ===========
 */
-void IN_Activate (qboolean active)
+void IN_Activate (bool active)
 {
 	in_appactive = active;
 	mouseactive = !active;		// force a new window check or turn off
@@ -721,7 +721,7 @@ void IN_Commands (void)
 IN_ReadJoystick
 =============== 
 */  
-qboolean IN_ReadJoystick (void)
+bool IN_ReadJoystick (void)
 {
 
 	memset (&ji, 0, sizeof(ji));

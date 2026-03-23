@@ -39,7 +39,7 @@ static const char *DDrawError( int code );
 **
 ** Builds our DDRAW stuff
 */
-qboolean DDRAW_Init( unsigned char **ppbuffer, int *ppitch )
+bool DDRAW_Init( unsigned char **ppbuffer, int *ppitch )
 {
 	HRESULT ddrval;
 	DDSURFACEDESC ddsd;

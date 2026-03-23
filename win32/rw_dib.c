@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #  error You should not be trying to compile this file on this platform
 #endif
 
-static qboolean s_systemcolors_saved;
+static bool s_systemcolors_saved;
 
 static HGDIOBJ previously_selected_GDI_obj;
 
@@ -60,7 +60,7 @@ static int s_syspalindices[] =
 
 #define NUM_SYS_COLORS ( sizeof( s_syspalindices ) / sizeof( int ) )
 
-static int s_oldsyscolors[NUM_SYS_COLORS];
+static DWORD s_oldsyscolors[NUM_SYS_COLORS];
 
 typedef struct dibinfo
 {
@@ -85,7 +85,7 @@ static void DIB_RestoreSystemColors( void );
 **
 ** Builds our DIB section
 */
-qboolean DIB_Init( unsigned char **ppbuffer, int *ppitch )
+bool DIB_Init( unsigned char **ppbuffer, int *ppitch )
 {
 	dibinfo_t   dibheader;
 	BITMAPINFO *pbmiDIB = ( BITMAPINFO * ) &dibheader;

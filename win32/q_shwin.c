@@ -188,7 +188,7 @@ const char *Sys_FindFirst ( const char *path, unsigned musthave, unsigned cantha
 	return findpath;
 }
 
-char *Sys_FindNext ( unsigned musthave, unsigned canthave )
+const char *Sys_FindNext ( unsigned int musthave, unsigned int canthave )
 {
 	struct _finddata_t findinfo;
 

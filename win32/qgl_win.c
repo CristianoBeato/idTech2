@@ -3015,7 +3015,7 @@ void QGL_Shutdown( void )
 }
 
 #	pragma warning (disable : 4113 4133 4047 )
-#	define GPA( a ) GetProcAddress( glw_state.hinstOpenGL, a )
+#	define GPA( a ) (void*)GetProcAddress( glw_state.hinstOpenGL, a )
 
 /*
 ** QGL_Init
@@ -3027,7 +3027,7 @@ void QGL_Shutdown( void )
 ** might be.
 ** 
 */
-qboolean QGL_Init( const char *dllname )
+bool QGL_Init( const char *dllname )
 {
 	// update 3Dfx gamma irrespective of underlying DLL
 	{
@@ -3422,7 +3422,7 @@ qboolean QGL_Init( const char *dllname )
 	return true;
 }
 
-void GLimp_EnableLogging( qboolean enable )
+void GLimp_EnableLogging( bool enable )
 {
 	if ( enable )
 	{
