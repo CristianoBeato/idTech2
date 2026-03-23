@@ -15,6 +15,7 @@ set( RENDERER_GL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_rmisc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_rsurf.c
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_warp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/qgl.c
     ${CMAKE_CURRENT_SOURCE_DIR}/qgl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/warpsin.h
     )
@@ -29,6 +30,9 @@ target_compile_definitions( ref_gl PRIVATE __RENDERER_GL_DLL__ )
 
 #set the sound root dir as include
 target_include_directories( ref_gl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
+
+# Link openGL Libraries
+target_link_libraries( ref_gl PRIVATE qShared OpenGL::GL )
 
 # set the precompiled header
 target_precompile_headers( ref_gl 
@@ -45,7 +49,7 @@ target_precompile_headers( ref_gl
         <string.h>
         <time.h>
 	PRIVATE
-        #${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h 
+        ${CMAKE_SOURCE_DIR}/shared/q_shared.h 
 		#${CMAKE_CURRENT_SOURCE_DIR}/g_local.h
         #${CMAKE_CURRENT_SOURCE_DIR}/game.h
         #${CMAKE_CURRENT_SOURCE_DIR}/g_ctf.h

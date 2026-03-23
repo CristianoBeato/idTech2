@@ -31,8 +31,8 @@ cvar_t		*intensity;
 
 unsigned	d_8to24table[256];
 
-qboolean GL_Upload8 (byte *data, int width, int height,  qboolean mipmap, qboolean is_sky );
-qboolean GL_Upload32 (unsigned *data, int width, int height,  qboolean mipmap);
+bool GL_Upload8 (byte *data, int width, int height,  bool mipmap, bool is_sky );
+bool GL_Upload32 (unsigned *data, int width, int height,  bool mipmap);
 
 
 int		gl_solid_format = 3;
@@ -67,7 +67,7 @@ void GL_SetTexturePalette( unsigned palette[256] )
 	}
 }
 
-void GL_EnableMultitexture( qboolean enable )
+void GL_EnableMultitexture( bool enable )
 {
 	if ( !qglSelectTextureSGIS )
 		return;
@@ -350,7 +350,7 @@ void	GL_ImageList_f (void)
 
 int			scrap_allocated[MAX_SCRAPS][BLOCK_WIDTH];
 byte		scrap_texels[MAX_SCRAPS][BLOCK_WIDTH*BLOCK_HEIGHT];
-qboolean	scrap_dirty;
+bool	scrap_dirty;
 
 // returns a texture number and the position inside it
 int Scrap_AllocBlock (int w, int h, int *x, int *y)
@@ -862,7 +862,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void GL_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma )
+void GL_LightScaleTexture (unsigned *in, int inwidth, int inheight, bool only_gamma )
 {
 	if ( only_gamma )
 	{
@@ -951,9 +951,9 @@ void GL_BuildPalettedTexture( unsigned char *paletted_texture, unsigned char *sc
 }
 
 int		upload_width, upload_height;
-qboolean uploaded_paletted;
+bool uploaded_paletted;
 
-qboolean GL_Upload32 (unsigned *data, int width, int height,  qboolean mipmap)
+bool GL_Upload32 (unsigned *data, int width, int height,  bool mipmap)
 {
 	int			samples;
 	unsigned	scaled[256*256];
@@ -1146,7 +1146,7 @@ Returns has_alpha
 ===============
 */
 /*
-static qboolean IsPowerOf2( int value )
+static bool IsPowerOf2( int value )
 {
 	int i = 1;
 
@@ -1162,7 +1162,7 @@ static qboolean IsPowerOf2( int value )
 }
 */
 
-qboolean GL_Upload8 (byte *data, int width, int height,  qboolean mipmap, qboolean is_sky )
+bool GL_Upload8 (byte *data, int width, int height,  bool mipmap, bool is_sky )
 {
 	unsigned	trans[512*256];
 	int			i, s;
@@ -1511,7 +1511,7 @@ void	GL_InitImages (void)
 
 	if ( qglColorTableEXT )
 	{
-		ri.FS_LoadFile( "pics/16to8.dat", &gl_state.d_16to8table );
+		ri.FS_LoadFile( "pics/16to8.dat", (void**)&gl_state.d_16to8table );
 		if ( !gl_state.d_16to8table )
 			ri.Sys_Error( ERR_FATAL, "Couldn't load pics/16to8.pcx");
 	}

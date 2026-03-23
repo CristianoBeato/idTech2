@@ -98,10 +98,10 @@ typedef struct image_s
 	struct msurface_s	*texturechain;	// for sort-by-texture world drawing
 	unsigned int		texnum;						// gl texture binding
 	float	sl, tl, sh, th;				// 0,0 - 1,1 unless part of the scrap
-	qboolean	scrap;
-	qboolean	has_alpha;
+	bool	scrap;
+	bool	has_alpha;
 
-	qboolean paletted;
+	bool	paletted;
 } image_t;
 
 #define	TEXNUM_LIGHTMAPS	1024
@@ -258,7 +258,7 @@ void R_TranslatePlayerSkin (int playernum);
 void GL_Bind (int texnum);
 void GL_MBind( GLenum target, int texnum );
 void GL_TexEnv( GLenum value );
-void GL_EnableMultitexture( qboolean enable );
+void GL_EnableMultitexture( bool enable );
 void GL_SelectTexture( GLenum );
 
 void R_LightPoint (vec3_t p, vec3_t color);
@@ -291,7 +291,7 @@ void R_RenderBrushPoly (msurface_t *fa);
 void R_InitParticleTexture (void);
 void Draw_InitLocal (void);
 void GL_SubdivideSurface (msurface_t *fa);
-qboolean R_CullBox (vec3_t mins, vec3_t maxs);
+bool R_CullBox (vec3_t mins, vec3_t maxs);
 void R_RotateForEntity (entity_t *e);
 void R_MarkLeaves (void);
 
@@ -405,13 +405,13 @@ typedef struct
 	const char *version_string;
 	const char *extensions_string;
 
-	qboolean	allow_cds;
+	bool	allow_cds;
 } glconfig_t;
 
 typedef struct
 {
 	float inverse_intensity;
-	qboolean fullscreen;
+	bool fullscreen;
 
 	int     prev_mode;
 
@@ -423,7 +423,7 @@ typedef struct
 	int currenttmu;
 
 	float camera_separation;
-	qboolean stereo_enabled;
+	bool stereo_enabled;
 
 	unsigned char originalRedGammaTable[256];
 	unsigned char originalGreenGammaTable[256];
@@ -456,12 +456,13 @@ void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( void *hinstance, void *hWnd );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen );
-void		GLimp_AppActivate( qboolean active );
-void		GLimp_EnableLogging( qboolean enable );
+int     	GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, bool fullscreen );
+void		GLimp_AppActivate( bool active );
+void		GLimp_EnableLogging( bool enable );
 void		GLimp_LogNewFrame( void );
 
 // BEATO Begin:
+#ifndef _WIN32 
 inline char* strlwr( char* str ) 
 {
     unsigned char* p = (unsigned char*)str;
@@ -472,6 +473,7 @@ inline char* strlwr( char* str )
     }
     return str;
 }
+#endif
 // BEATO End
 
 #endif //

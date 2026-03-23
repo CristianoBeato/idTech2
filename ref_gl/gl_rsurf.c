@@ -59,8 +59,8 @@ static gllightmapstate_t gl_lms;
 
 
 static void		LM_InitBlock( void );
-static void		LM_UploadBlock( qboolean dynamic );
-static qboolean	LM_AllocBlock (int w, int h, int *x, int *y);
+static void		LM_UploadBlock( bool dynamic );
+static bool	LM_AllocBlock (int w, int h, int *x, int *y);
 
 extern void R_SetCacheState( msurface_t *surf );
 extern void R_BuildLightMap (msurface_t *surf, byte *dest, int stride);
@@ -478,7 +478,7 @@ void R_RenderBrushPoly (msurface_t *fa)
 {
 	int			maps;
 	image_t		*image;
-	qboolean is_dynamic = false;
+	bool is_dynamic = false;
 
 	c_brush_polys++;
 
@@ -703,7 +703,7 @@ static void GL_RenderLightmappedPoly( msurface_t *surf )
 	int		map;
 	float	*v;
 	image_t *image = R_TextureAnimation( surf->texinfo );
-	qboolean is_dynamic = false;
+	bool is_dynamic = false;
 	unsigned lmtex = surf->lightmaptexturenum;
 	glpoly_t *p;
 
@@ -955,7 +955,7 @@ void R_DrawBrushModel (entity_t *e)
 {
 	vec3_t		mins, maxs;
 	int			i;
-	qboolean	rotated;
+	bool	rotated;
 
 	if (currentmodel->nummodelsurfaces == 0)
 		return;
@@ -1353,7 +1353,7 @@ static void LM_InitBlock( void )
 	memset( gl_lms.allocated, 0, sizeof( gl_lms.allocated ) );
 }
 
-static void LM_UploadBlock( qboolean dynamic )
+static void LM_UploadBlock( bool dynamic )
 {
 	int texture;
 	int height = 0;
@@ -1405,7 +1405,7 @@ static void LM_UploadBlock( qboolean dynamic )
 }
 
 // returns a texture number and the position inside it
-static qboolean LM_AllocBlock (int w, int h, int *x, int *y)
+static bool LM_AllocBlock (int w, int h, int *x, int *y)
 {
 	int		i, j;
 	int		best, best2;
