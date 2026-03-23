@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // disable data conversion warnings
 
+#ifndef __GL_LOCAL_H__
+#define __GL_LOCAL_H__
+
 #if 0
 #pragma warning(disable : 4244)     // MIPS
 #pragma warning(disable : 4136)     // X86
@@ -93,7 +96,7 @@ typedef struct image_s
 	int		upload_width, upload_height;	// after power of two and picmip
 	int		registration_sequence;		// 0 = free
 	struct msurface_s	*texturechain;	// for sort-by-texture world drawing
-	int		texnum;						// gl texture binding
+	unsigned int		texnum;						// gl texture binding
 	float	sl, tl, sh, th;				// 0,0 - 1,1 unless part of the scrap
 	qboolean	scrap;
 	qboolean	has_alpha;
@@ -453,8 +456,22 @@ void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( void *hinstance, void *hWnd );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen );
+int     	GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen );
 void		GLimp_AppActivate( qboolean active );
 void		GLimp_EnableLogging( qboolean enable );
 void		GLimp_LogNewFrame( void );
 
+// BEATO Begin:
+inline char* strlwr( char* str ) 
+{
+    unsigned char* p = (unsigned char*)str;
+    while (*p) 
+	{
+        *p = tolower((unsigned char)*p);
+        p++;
+    }
+    return str;
+}
+// BEATO End
+
+#endif //

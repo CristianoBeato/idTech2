@@ -1564,7 +1564,7 @@ void	GL_ShutdownImages (void)
 		if (!image->registration_sequence)
 			continue;		// free image_t slot
 		// free it
-		qglDeleteTextures (1, &image->texnum);
+		qglDeleteTextures( 1, &image->texnum );
 		memset (image, 0, sizeof(*image));
 	}
 }
