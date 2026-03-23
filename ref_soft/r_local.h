@@ -65,7 +65,7 @@ typedef struct image_s
 	char    name[MAX_QPATH];        // game path, including extension
 	imagetype_t     type;
 	int             width, height;
-	qboolean        transparent;    // true if any 255 pixels in image
+	bool        	transparent;    // true if any 255 pixels in image
 	int             registration_sequence;  // 0 = free
 	byte		*pixels[4];				// mip levels
 } image_t;
@@ -301,16 +301,16 @@ typedef struct finalvert_s {
 typedef struct
 {
 	void                            *pskin;
-	int                                     pskindesc;
-	int                                     skinwidth;
-	int                                     skinheight;
+	int								pskindesc;
+	int								skinwidth;
+	int								skinheight;
 	dtriangle_t                     *ptriangles;
 	finalvert_t                     *pfinalverts;
-	int                                     numtriangles;
-	int                                     drawtype;
-	int                                     seamfixupX16;
-	qboolean                        do_vis_thresh;
-	int                                     vis_thresh;
+	int								numtriangles;
+	int								drawtype;
+	int								seamfixupX16;
+	bool                        	do_vis_thresh;
+	int								vis_thresh;
 } affinetridesc_t;
 
 typedef struct
@@ -409,7 +409,7 @@ typedef struct surf_s
 	msurface_t      *msurf;
 	entity_t        *entity;
 	float           nearzi;                         // nearest 1/z on surface, for mipmapping
-	qboolean        insubmodel;
+	bool        	insubmodel;
 	float           d_ziorigin, d_zistepu, d_zistepv;
 
 	int                     pad[2];                         // to 64 bytes
@@ -441,7 +441,7 @@ extern int              r_framecount;           // sequence # of current frame s
 									//  started
 extern float    r_aliasuvscale;         // scale-up factor for screen u and v
 									//  on Alias vertices passed to driver
-extern qboolean r_dowarp;
+extern bool r_dowarp;
 
 extern affinetridesc_t  r_affinetridesc;
 
@@ -472,7 +472,7 @@ extern byte             r_warpbuffer[WARP_WIDTH * WARP_HEIGHT];
 
 extern float    scale_for_mip;
 
-extern qboolean         d_roverwrapped;
+extern bool         	d_roverwrapped;
 extern surfcache_t      *sc_rover;
 extern surfcache_t      *d_initial_rover;
 
@@ -611,7 +611,7 @@ void R_DrawPolyList (void);
 //
 // current entity info
 //
-extern  qboolean                insubmodel;
+extern  bool			insubmodel;
 
 void R_DrawAlphaSurfaces( void );
 
@@ -723,14 +723,14 @@ extern float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 extern float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
 extern int              r_frustum_indexes[4*6];
 extern int              r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
-extern qboolean r_surfsonstack;
+extern bool 	r_surfsonstack;
 
 extern	mleaf_t		*r_viewleaf;
 extern	int			r_viewcluster, r_oldviewcluster;
 
 extern int              r_clipflags;
 extern int              r_dlightframecount;
-extern qboolean r_fov_greater_than_90;
+extern bool			 r_fov_greater_than_90;
 
 extern  image_t         *r_notexture_mip;
 extern  model_t         *r_worldmodel;
@@ -760,7 +760,7 @@ void R_NewMap (void);
 void R_Register (void);
 void R_UnRegister (void);
 void Draw_InitLocal (void);
-qboolean R_Init( void *hInstance, void *wndProc );
+bool R_Init( void *hInstance, void *wndProc );
 void R_Shutdown (void);
 void R_InitCaches (void);
 void D_FlushCaches (void);
@@ -809,7 +809,7 @@ void R_InitSkyBox (void);
 
 typedef struct swstate_s
 {
-	qboolean fullscreen;
+	bool fullscreen;
 	int      prev_mode;				// last valid SW mode
 
 	byte		gammatable[256];
@@ -844,6 +844,6 @@ void		SWimp_EndFrame (void);
 int			SWimp_Init( void *hInstance, void *wndProc );
 void		SWimp_SetPalette( const unsigned char *palette);
 void		SWimp_Shutdown( void );
-rserr_t		SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen );
-void		SWimp_AppActivate( qboolean active );
+rserr_t		SWimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen );
+void		SWimp_AppActivate( bool active );
 
