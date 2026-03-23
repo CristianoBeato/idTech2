@@ -176,7 +176,7 @@ void Com_Error (int code, char *fmt, ...)
 {
 	va_list		argptr;
 	static char		msg[MAXPRINTMSG];
-	static	qboolean	recursive;
+	static	bool	recursive;
 
 	if (recursive)
 		Sys_Error ("recursive error after: %s", msg);
@@ -471,7 +471,7 @@ Writes part of a packetentities message.
 Can delta from either a baseline or a previous packet_entity
 ==================
 */
-void MSG_WriteDeltaEntity (entity_state_t *from, entity_state_t *to, sizebuf_t *msg, qboolean force, qboolean newentity)
+void MSG_WriteDeltaEntity (entity_state_t *from, entity_state_t *to, sizebuf_t *msg, bool force, bool newentity)
 {
 	int		bits;
 

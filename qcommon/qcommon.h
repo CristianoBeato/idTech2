@@ -19,15 +19,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // qcommon.h -- definitions common between client and server, but not game.dll
+#ifndef __QCOMMON_H__
+#define __QCOMMON_H__
 
-#include "../game/q_shared.h"
+#include "../shared/q_shared.h"
 
 
 #define	VERSION		3.19
 
 #define	BASEDIRNAME	"baseq2"
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #ifdef NDEBUG
 #define BUILDSTRING "Win32 RELEASE"
@@ -35,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BUILDSTRING "Win32 DEBUG"
 #endif
 
-#ifdef _M_IX86
+#ifdef _WIN64
+#define	CPUSTRING	"x64"
+#else
 #define	CPUSTRING	"x86"
-#elif defined _M_ALPHA
-#define	CPUSTRING	"AXP"
 #endif
 
 #elif defined __linux__
@@ -74,8 +76,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct sizebuf_s
 {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed
+	bool	allowoverflow;	// if false, do a Com_Error
+	bool	overflowed;		// set to true if the buffer size failed
 	byte	*data;
 	int		maxsize;
 	int		cursize;
@@ -104,7 +106,7 @@ void MSG_WritePos (sizebuf_t *sb, vec3_t pos);
 void MSG_WriteAngle (sizebuf_t *sb, float f);
 void MSG_WriteAngle16 (sizebuf_t *sb, float f);
 void MSG_WriteDeltaUsercmd (sizebuf_t *sb, struct usercmd_s *from, struct usercmd_s *cmd);
-void MSG_WriteDeltaEntity (struct entity_state_s *from, struct entity_state_s *to, sizebuf_t *msg, qboolean force, qboolean newentity);
+void MSG_WriteDeltaEntity (struct entity_state_s *from, struct entity_state_s *to, sizebuf_t *msg, bool force, bool newentity);
 void MSG_WriteDir (sizebuf_t *sb, vec3_t vector);
 
 
@@ -130,7 +132,7 @@ void	MSG_ReadData (sizebuf_t *sb, void *buffer, int size);
 
 //============================================================================
 
-extern	qboolean		bigendien;
+extern	bool		bigendien;
 
 extern	short	BigShort (short l);
 extern	short	LittleShort (short l);
@@ -371,10 +373,10 @@ void Cbuf_InsertText (char *text);
 void Cbuf_ExecuteText (int exec_when, char *text);
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
-void Cbuf_AddEarlyCommands (qboolean clear);
+void Cbuf_AddEarlyCommands (bool clear);
 // adds all the +set commands from the command line
 
-qboolean Cbuf_AddLateCommands (void);
+bool Cbuf_AddLateCommands (void);
 // adds all the remaining + commands from the command line
 // Returns true if any late commands were added, which
 // will keep the demoloop from immediately starting
@@ -411,7 +413,7 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function);
 // as a clc_stringcmd instead of executed locally
 void	Cmd_RemoveCommand (char *cmd_name);
 
-qboolean Cmd_Exists (char *cmd_name);
+bool Cmd_Exists (char *cmd_name);
 // used by the cvar code to check for cvar / command name overlap
 
 char 	*Cmd_CompleteCommand (char *partial);
@@ -425,7 +427,7 @@ char	*Cmd_Args (void);
 // functions. Cmd_Argv () will return an empty string, not a NULL
 // if arg > argc, so string operations are always safe.
 
-void	Cmd_TokenizeString (char *text, qboolean macroExpand);
+void	Cmd_TokenizeString (char *text, bool macroExpand);
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
 
@@ -491,7 +493,7 @@ char 	*Cvar_CompleteVariable (char *partial);
 void	Cvar_GetLatchedVars (void);
 // any CVAR_LATCHED variables that have been set will now take effect
 
-qboolean Cvar_Command (void);
+bool Cvar_Command (void);
 // called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
@@ -508,7 +510,7 @@ char	*Cvar_Userinfo (void);
 char	*Cvar_Serverinfo (void);
 // returns an info string containing all the CVAR_SERVERINFO cvars
 
-extern	qboolean	userinfo_modified;
+extern	bool	userinfo_modified;
 // this is set each time a CVAR_USERINFO variable is changed
 // so that the client knows to send it to the server
 
@@ -544,16 +546,16 @@ typedef struct
 void		NET_Init (void);
 void		NET_Shutdown (void);
 
-void		NET_Config (qboolean multiplayer);
+void		NET_Config (bool multiplayer);
 
-qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message);
+bool	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message);
 void		NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to);
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
-qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
-qboolean	NET_IsLocalAddress (netadr_t adr);
+bool	NET_CompareAdr (netadr_t a, netadr_t b);
+bool	NET_CompareBaseAdr (netadr_t a, netadr_t b);
+bool	NET_IsLocalAddress (netadr_t adr);
 char		*NET_AdrToString (netadr_t a);
-qboolean	NET_StringToAdr (char *s, netadr_t *a);
+bool	NET_StringToAdr (char *s, netadr_t *a);
 void		NET_Sleep(int msec);
 
 //============================================================================
@@ -564,7 +566,7 @@ void		NET_Sleep(int msec);
 
 typedef struct
 {
-	qboolean	fatal_error;
+	bool	fatal_error;
 
 	netsrc_t	sock;
 
@@ -604,13 +606,13 @@ extern	byte		net_message_buffer[MAX_MSGLEN];
 void Netchan_Init (void);
 void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int qport);
 
-qboolean Netchan_NeedReliable (netchan_t *chan);
+bool Netchan_NeedReliable (netchan_t *chan);
 void Netchan_Transmit (netchan_t *chan, int length, byte *data);
 void Netchan_OutOfBand (int net_socket, netadr_t adr, int length, byte *data);
 void Netchan_OutOfBandPrint (int net_socket, netadr_t adr, char *format, ...);
-qboolean Netchan_Process (netchan_t *chan, sizebuf_t *msg);
+bool Netchan_Process (netchan_t *chan, sizebuf_t *msg);
 
-qboolean Netchan_CanReliable (netchan_t *chan);
+bool Netchan_CanReliable (netchan_t *chan);
 
 
 /*
@@ -624,7 +626,7 @@ CMODEL
 
 #include "../qcommon/qfiles.h"
 
-cmodel_t	*CM_LoadMap (char *name, qboolean clientload, unsigned *checksum);
+cmodel_t	*CM_LoadMap (char *name, bool clientload, unsigned *checksum);
 cmodel_t	*CM_InlineModel (char *name);	// *1, *2, etc
 
 int			CM_NumClusters (void);
@@ -661,11 +663,11 @@ int			CM_LeafContents (int leafnum);
 int			CM_LeafCluster (int leafnum);
 int			CM_LeafArea (int leafnum);
 
-void		CM_SetAreaPortalState (int portalnum, qboolean open);
-qboolean	CM_AreasConnected (int area1, int area2);
+void		CM_SetAreaPortalState (int portalnum, bool open);
+bool	CM_AreasConnected (int area1, int area2);
 
 int			CM_WriteAreaBits (byte *buffer, int area);
-qboolean	CM_HeadnodeVisible (int headnode, byte *visbits);
+bool	CM_HeadnodeVisible (int headnode, byte *visbits);
 
 void		CM_WritePortalState (FILE *f);
 void		CM_ReadPortalState (FILE *f);
@@ -819,8 +821,7 @@ void Con_Print (char *text);
 void SCR_BeginLoadingPlaque (void);
 
 void SV_Init (void);
-void SV_Shutdown (char *finalmsg, qboolean reconnect);
+void SV_Shutdown (char *finalmsg, bool reconnect);
 void SV_Frame (int msec);
 
-
-
+#endif //!__QCOMMON_H__
