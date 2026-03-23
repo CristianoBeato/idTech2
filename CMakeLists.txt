@@ -16,13 +16,39 @@ project( idTech2 )
 ##
 ## External Libraries
 ##
+
+## SDL3
 find_package( SDL3 REQUIRED CONFIG )
 include_directories( SDL3::Headers )
+
+## OpenGL
+find_package( OpenGL REQUIRED )
+include_directories( OpenGL::Headers )
 
 ##
 ## set the engine source root path
 ##
 include_directories( ${CMAKE_SOURCE_DIR} )
+
+##
+## qShared
+## shared libraries
+add_subdirectory( shared )
+
+##
+## qCommon
+## engine common libraries
+add_subdirectory( qcommon )
+
+##
+## qClient
+## client side common libraries
+add_subdirectory( client )
+
+##
+## qServer
+## shared libraries
+add_subdirectory( server )
 
 ##
 ## ctf 
@@ -34,10 +60,7 @@ add_subdirectory( ctf )
 ## Game logic 
 add_subdirectory( game )
 
-##
-## quake2 
-## Engine main executable
-#add_subdirectory( quake2 )
+
 
 ##
 ## ref_soft 
@@ -48,3 +71,15 @@ add_subdirectory( game )
 ## ref_gl 
 ## GL renderer
 add_subdirectory( ref_gl )
+
+##
+## quake2 
+## Engine main executable
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(STATUS "Detectado Linux")
+    add_subdirectory( linux  )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    message(STATUS "Detectado Windows")
+    add_subdirectory( win32 )
+endif()
