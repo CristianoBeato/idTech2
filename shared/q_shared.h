@@ -214,16 +214,16 @@ void COM_DefaultExtension (char *path, char *extension);
 char *COM_Parse (char **data_p);
 // data is an in/out parm, returns a parsed out token
 
-void Com_sprintf (char *dest, int size, char *fmt, ...);
+void Com_sprintf ( const char *dest, int size, char *fmt, ...);
 
 void Com_PageInMemory (byte *buffer, int size);
 
 //=============================================
 
 // portable case insensitive compare
-int Q_stricmp (char *s1, char *s2);
-int Q_strcasecmp (char *s1, char *s2);
-int Q_strncasecmp (char *s1, char *s2, int n);
+int Q_stricmp ( const char *s1, const char *s2 );
+int Q_strcasecmp ( const char *s1, const char *s2 );
+int Q_strncasecmp ( const char *s1, const char *s2, int n );
 
 //=============================================
 
@@ -280,9 +280,9 @@ int		Hunk_End (void);
 /*
 ** pass in an attribute mask of things you wish to REJECT
 */
-char	*Sys_FindFirst (char *path, unsigned musthave, unsigned canthave );
-char	*Sys_FindNext ( unsigned musthave, unsigned canthave );
-void	Sys_FindClose (void);
+const char	*Sys_FindFirst ( const char *path, unsigned int musthave, unsigned int canthave );
+const char	*Sys_FindNext ( unsigned int musthave, unsigned int canthave );
+void		Sys_FindClose (void);
 
 
 // this is only here so the functions in q_shared.c and q_shwin.c can link
