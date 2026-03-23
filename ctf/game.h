@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // game.h -- game dll information visible to server
 
+#ifndef __GAME_H__
+#define __GAME_H__
+
 #define	GAME_API_VERSION	3
 
 // edict->svflags
@@ -240,3 +243,5 @@ typedef struct
 } game_export_t;
 
 game_export_t *GetGameApi (game_import_t *import);
+
+#endif //!__GAME_H__

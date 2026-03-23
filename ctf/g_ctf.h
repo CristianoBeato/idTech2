@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#ifndef __G_CTF_H__
+#define __G_CTF_H__
+
 #define CTF_VERSION			1.09b
 #define CTF_VSTRING2(x) #x
 #define CTF_VSTRING(x) CTF_VSTRING2(x)
@@ -114,8 +117,8 @@ char *CTFOtherTeamName(int team);
 void CTFAssignSkin(edict_t *ent, char *s);
 void CTFAssignTeam(gclient_t *who);
 edict_t *SelectCTFSpawnPoint (edict_t *ent);
-qboolean CTFPickup_Flag(edict_t *ent, edict_t *other);
-qboolean CTFDrop_Flag(edict_t *ent, gitem_t *item);
+qboolean CTFPickup_Flag( edict_t *ent, edict_t *other);
+void CTFDrop_Flag( edict_t *ent, gitem_t *item);
 void CTFEffects(edict_t *player);
 void CTFCalcScores(void);
 void SetCTFStats(edict_t *ent);
@@ -183,3 +186,5 @@ void CTFObserver(edict_t *ent);
 
 void SP_trigger_teleport (edict_t *ent);
 void SP_info_teleport_destination (edict_t *ent);
+
+#endif //!__G_CTF_H__

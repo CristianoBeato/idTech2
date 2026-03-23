@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // g_local.h -- local definitions for game module
 
+#ifndef __G_LOCAL_H__
+#define __G_LOCAL_H__
+
 #include "q_shared.h"
 
 // define GAME_INCLUDE so that game.h does not define the
@@ -455,8 +458,6 @@ typedef struct
 	int			power_armor_power;
 } monsterinfo_t;
 
-
-
 extern	game_locals_t	game;
 extern	level_locals_t	level;
 extern	game_import_t	gi;
@@ -514,10 +515,10 @@ extern	int	meansOfDeath;
 
 extern	edict_t			*g_edicts;
 
-#define	FOFS(x) (int)&(((edict_t *)0)->x)
-#define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define	CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define	FOFS(x) (intptr_t)&(((edict_t *)0)->x)
+#define	STOFS(x) (intptr_t)&(((spawn_temp_t *)0)->x)
+#define	LLOFS(x) (intptr_t)&(((level_locals_t *)0)->x)
+#define	CLOFS(x) (intptr_t)&(((gclient_t *)0)->x)
 
 #define random()	((rand () & 0x7fff) / ((float)0x7fff))
 #define crandom()	(2.0 * (random() - 0.5))
@@ -1143,3 +1144,4 @@ struct edict_s
 #include "g_ctf.h"
 //ZOID
 
+#endif //!__G_LOCAL_H__

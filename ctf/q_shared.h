@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 	
 // q_shared.h -- included first by ALL program modules
 
+#ifndef __Q_SHARED_H__
+#define __Q_SHARED_H__
+
 #ifdef _WIN32
 // unknown pragmas are SUPPOSED to be ignored, but....
 #pragma warning(disable : 4244)     // MIPS
@@ -29,15 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma warning(disable : 4018)     // signed/unsigned mismatch
 #pragma warning(disable : 4305)		// truncation from const double to float
 
+#else
+#define stricmp strcasecmp
 #endif
-
-#include <assert.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
 
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY && !defined __sun__
 #define id386	1
@@ -51,9 +48,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define idaxp	0
 #endif
 
-typedef unsigned char 		byte;
-typedef enum {false, true}	qboolean;
-
+typedef unsigned char 	byte;
+typedef bool 			qboolean;//typedef enum {false, true}	qboolean;
 
 #ifndef NULL
 #define NULL ((void *)0)
@@ -105,12 +101,12 @@ typedef enum {false, true}	qboolean;
 // destination class for gi.multicast()
 typedef enum
 {
-MULTICAST_ALL,
-MULTICAST_PHS,
-MULTICAST_PVS,
-MULTICAST_ALL_R,
-MULTICAST_PHS_R,
-MULTICAST_PVS_R
+	MULTICAST_ALL,
+	MULTICAST_PHS,
+	MULTICAST_PVS,
+	MULTICAST_ALL_R,
+	MULTICAST_PHS_R,
+	MULTICAST_PVS_R
 } multicast_t;
 
 
@@ -1198,3 +1194,5 @@ typedef struct
 extern int vidref_val;
 // PGM
 // ==================
+
+#endif //!__Q_SHARED_H__
