@@ -51,7 +51,7 @@ void M_Menu_Main_f (void);
 
 	void M_Menu_Credits( void );
 
-qboolean	m_entersound;		// play after drawing a frame, so caching
+bool	m_entersound;		// play after drawing a frame, so caching
 								// won't disrupt the sound
 
 void	(*m_drawfunc) (void);
@@ -309,7 +309,7 @@ and both above and below y.
 void M_DrawCursor( int x, int y, int f )
 {
 	char	cursorname[80];
-	static qboolean cached;
+	static bool cached;
 
 	if ( !cached )
 	{
@@ -1409,8 +1409,8 @@ END GAME MENU
 */
 static int credits_start_time;
 static const char **credits;
-static char *creditsIndex[256];
-static char *creditsBuffer;
+static const char *creditsIndex[256];
+static const char *creditsBuffer;
 static const char *idcredits[] =
 {
 	"+QUAKE II BY ID SOFTWARE",
@@ -1540,7 +1540,7 @@ static const char *xatcredits[] =
 	"",
 	"+ART",
 	"Claire Praderie-Markham",
-	"Viktor Antonov",
+	"Viktor Antonov", // RIP Salute for you fantastic work in Half-Life2 and Dishonored
 	"Corky Lehmkuhl",
 	"",
 	"+INTRODUCTION ANIMATION",
@@ -1807,7 +1807,7 @@ const char *M_Credits_Key( int key )
 	{
 	case K_ESCAPE:
 		if (creditsBuffer)
-			FS_FreeFile (creditsBuffer);
+			FS_FreeFile ( (char*)creditsBuffer);
 		M_PopMenu ();
 		break;
 	}
@@ -1826,10 +1826,10 @@ void M_Menu_Credits_f( void )
 	int		isdeveloper = 0;
 
 	creditsBuffer = NULL;
-	count = FS_LoadFile ("credits", &creditsBuffer);
+	count = FS_LoadFile ("credits", (void**)&creditsBuffer);
 	if (count != -1)
 	{
-		p = creditsBuffer;
+		p = (char*)creditsBuffer;
 		for (n = 0; n < 255; n++)
 		{
 			creditsIndex[n] = p;
@@ -2041,7 +2041,7 @@ static menuframework_s	s_loadgame_menu;
 static menuaction_s		s_loadgame_actions[MAX_SAVEGAMES];
 
 char		m_savestrings[MAX_SAVEGAMES][32];
-qboolean	m_savevalid[MAX_SAVEGAMES];
+bool	m_savevalid[MAX_SAVEGAMES];
 
 void Create_Savestrings (void)
 {
@@ -2377,8 +2377,8 @@ START SERVER MENU
 =============================================================================
 */
 static menuframework_s s_startserver_menu;
-static char **mapnames;
-static int	  nummaps;
+static const char **mapnames;
+static int	  		nummaps;
 
 static menuaction_s	s_startserver_start_action;
 static menuaction_s	s_startserver_dmoptions_action;
@@ -2573,9 +2573,9 @@ void StartServer_MenuInit( void )
 
 	for ( i = 0; i < nummaps; i++ )
 	{
-    char  shortname[MAX_TOKEN_CHARS];
-    char  longname[MAX_TOKEN_CHARS];
-		char  scratch[200];
+    	char  shortname[MAX_TOKEN_CHARS];
+    	char  longname[MAX_TOKEN_CHARS];
+		const char  scratch[200];
 		int		j, l;
 
 		strcpy( shortname, COM_Parse( &s ) );
@@ -2588,6 +2588,7 @@ void StartServer_MenuInit( void )
 		mapnames[i] = malloc( strlen( scratch ) + 1 );
 		strcpy( mapnames[i], scratch );
 	}
+
 	mapnames[nummaps] = 0;
 
 	if ( fp != 0 )
@@ -3370,14 +3371,14 @@ static menuaction_s		s_player_download_action;
 
 typedef struct
 {
-	int		nskins;
-	char	**skindisplaynames;
-	char	displayname[MAX_DISPLAYNAME];
-	char	directory[MAX_QPATH];
+	int			nskins;
+	const char	**skindisplaynames;
+	char		displayname[MAX_DISPLAYNAME];
+	char		directory[MAX_QPATH];
 } playermodelinfo_s;
 
 static playermodelinfo_s s_pmi[MAX_PLAYERMODELS];
-static char *s_pmnames[MAX_PLAYERMODELS];
+static const char *s_pmnames[MAX_PLAYERMODELS];
 static int s_numplayermodels;
 
 static int rate_tbl[] = { 2500, 3200, 5000, 10000, 25000, 0 };
@@ -3406,31 +3407,29 @@ static void ModelCallback( void *unused )
 	s_player_skin_box.curvalue = 0;
 }
 
-static void FreeFileList( char **list, int n )
+static void FreeFileList( const char **list, int n )
 {
-	int i;
-
-	for ( i = 0; i < n; i++ )
+	for ( int i = 0; i < n; i++ )
 	{
 		if ( list[i] )
 		{
-			free( list[i] );
+			free( (char*)list[i] );
 			list[i] = 0;
 		}
 	}
-	free( list );
+
+	free( (char**)list );
 }
 
-static qboolean IconOfSkinExists( char *skin, char **pcxfiles, int npcxfiles )
+static bool IconOfSkinExists( const char *skin, const char **pcxfiles, int npcxfiles )
 {
-	int i;
-	char scratch[1024];
+	const char scratch[1024];
 
-	strcpy( scratch, skin );
+	strcpy( (char*)scratch, skin );
 	*strrchr( scratch, '.' ) = 0;
 	strcat( scratch, "_i.pcx" );
 
-	for ( i = 0; i < npcxfiles; i++ )
+	for ( int i = 0; i < npcxfiles; i++ )
 	{
 		if ( strcmp( pcxfiles[i], scratch ) == 0 )
 			return true;
@@ -3439,16 +3438,16 @@ static qboolean IconOfSkinExists( char *skin, char **pcxfiles, int npcxfiles )
 	return false;
 }
 
-static qboolean PlayerConfig_ScanDirectories( void )
+static bool PlayerConfig_ScanDirectories( void )
 {
-	char findname[1024];
-	char scratch[1024];
+	const char findname[1024];
+	const char scratch[1024];
 	int ndirs = 0, npms = 0;
-	char **dirnames;
-	char *path = NULL;
+	const char **dirnames;
+	const char *path = NULL;
 	int i;
 
-	extern char **FS_ListFiles( char *, int *, unsigned, unsigned );
+	extern const char **FS_ListFiles( const char *, int *, unsigned, unsigned );
 
 	s_numplayermodels = 0;
 
@@ -3478,8 +3477,8 @@ static qboolean PlayerConfig_ScanDirectories( void )
 	{
 		int k, s;
 		char *a, *b, *c;
-		char **pcxnames;
-		char **skinnames;
+		const char **pcxnames;
+		const char **skinnames;
 		int npcxfiles;
 		int nskins = 0;
 
@@ -3487,11 +3486,11 @@ static qboolean PlayerConfig_ScanDirectories( void )
 			continue;
 
 		// verify the existence of tris.md2
-		strcpy( scratch, dirnames[i] );
-		strcat( scratch, "/tris.md2" );
+		strcpy( (char*)scratch, dirnames[i] );
+		strcat( (char*)scratch, "/tris.md2" );
 		if ( !Sys_FindFirst( scratch, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM ) )
 		{
-			free( dirnames[i] );
+			free( (char*)dirnames[i] );
 			dirnames[i] = 0;
 			Sys_FindClose();
 			continue;
@@ -3499,13 +3498,13 @@ static qboolean PlayerConfig_ScanDirectories( void )
 		Sys_FindClose();
 
 		// verify the existence of at least one pcx skin
-		strcpy( scratch, dirnames[i] );
-		strcat( scratch, "/*.pcx" );
+		strcpy( (char*)scratch, dirnames[i] );
+		strcat( (char*)scratch, "/*.pcx" );
 		pcxnames = FS_ListFiles( scratch, &npcxfiles, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM );
 
 		if ( !pcxnames )
 		{
-			free( dirnames[i] );
+			free( (char*)dirnames[i] );
 			dirnames[i] = 0;
 			continue;
 		}
@@ -3544,7 +3543,7 @@ static qboolean PlayerConfig_ScanDirectories( void )
 					else
 						c = b;
 
-					strcpy( scratch, c + 1 );
+					strcpy( (char*)scratch, c + 1 );
 
 					if ( strrchr( scratch, '.' ) )
 						*strrchr( scratch, '.' ) = 0;
@@ -3601,7 +3600,7 @@ static int pmicmpfnc( const void *_a, const void *_b )
 }
 
 
-qboolean PlayerConfig_MenuInit( void )
+bool PlayerConfig_MenuInit( void )
 {
 	extern cvar_t *name;
 	extern cvar_t *team;
@@ -3847,10 +3846,11 @@ const char *PlayerConfig_MenuKey (int key)
 			for ( j = 0; j < s_pmi[i].nskins; j++ )
 			{
 				if ( s_pmi[i].skindisplaynames[j] )
-					free( s_pmi[i].skindisplaynames[j] );
+					free( (char*)s_pmi[i].skindisplaynames[j] );
 				s_pmi[i].skindisplaynames[j] = 0;
 			}
-			free( s_pmi[i].skindisplaynames );
+
+			free( (char**)s_pmi[i].skindisplaynames );
 			s_pmi[i].skindisplaynames = 0;
 			s_pmi[i].nskins = 0;
 		}

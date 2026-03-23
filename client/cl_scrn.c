@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 float		scr_con_current;	// aproaches scr_conlines at scr_conspeed
 float		scr_conlines;		// 0.0 to 1.0 lines of console to display
 
-qboolean	scr_initialized;		// ready to draw
+bool		scr_initialized;		// ready to draw
 
 int			scr_draw_loading;
 
@@ -605,18 +605,18 @@ void SCR_Loading_f (void)
 SCR_TimeRefresh_f
 ================
 */
-int entitycmpfnc( const entity_t *a, const entity_t *b )
+intptr_t entitycmpfnc( const entity_t *a, const entity_t *b )
 {
 	/*
 	** all other models are sorted by model then skin
 	*/
 	if ( a->model == b->model )
 	{
-		return ( ( int ) a->skin - ( int ) b->skin );
+		return ( ( intptr_t ) a->skin - ( intptr_t ) b->skin );
 	}
 	else
 	{
-		return ( ( int ) a->model - ( int ) b->model );
+		return ( ( intptr_t ) a->model - ( intptr_t ) b->model );
 	}
 }
 
@@ -784,9 +784,12 @@ char		*sb_nums[2][11] =
 	"anum_6", "anum_7", "anum_8", "anum_9", "anum_minus"}
 };
 
+#ifdef CHAR_WIDTH
+#undef CHAR_WIDTH
+#endif //CHAR_WIDTH
 #define	ICON_WIDTH	24
 #define	ICON_HEIGHT	24
-#define	CHAR_WIDTH	16
+#define	CHAR_WIDTH	16 
 #define	ICON_SPACE	8
 
 
