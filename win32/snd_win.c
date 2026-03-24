@@ -72,8 +72,8 @@ LPDIRECTSOUNDBUFFER pDSBuf, pDSPBuf;
 
 HINSTANCE hInstDS;
 
-bool SNDDMA_InitDirect (void);
-bool SNDDMA_InitWav (void);
+int SNDDMA_InitDirect (void);
+int SNDDMA_InitWav (void);
 
 void FreeSound( void );
 
@@ -349,7 +349,7 @@ SNDDMA_InitDirect
 Direct-Sound support
 ==================
 */
-sndinitstat SNDDMA_InitDirect (void)
+int SNDDMA_InitDirect (void)
 {
 	DSCAPS			dscaps;
 	HRESULT			hresult;
@@ -441,7 +441,7 @@ SNDDM_InitWav
 Crappy windows multimedia base
 ==================
 */
-bool SNDDMA_InitWav (void)
+int SNDDMA_InitWav (void)
 {
 	WAVEFORMATEX  format; 
 	int				i;
@@ -730,8 +730,7 @@ void SNDDMA_BeginPainting (void)
 	reps = 0;
 	dma.buffer = NULL;
 
-	while ((hresult = pDSBuf->lpVtbl->Lock(pDSBuf, 0, gSndBufSize, &pbuf, (void**)&locksize, 
-								   &pbuf2, &dwSize2, 0)) != DS_OK)
+	while ((hresult = pDSBuf->lpVtbl->Lock(pDSBuf, 0, gSndBufSize, (void*)&pbuf, &locksize, (void**)&pbuf2, &dwSize2, 0 ) ) != DS_OK )
 	{
 		if (hresult != DSERR_BUFFERLOST)
 		{

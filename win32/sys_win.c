@@ -36,11 +36,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#define DEMO
 
-qboolean s_win95;
+bool s_win95;
 
 int			starttime;
 int			ActiveApp;
-qboolean	Minimized;
+bool		Minimized;
 
 static HANDLE		hinput, houtput;
 
@@ -137,7 +137,7 @@ Sys_ScanForCD
 char *Sys_ScanForCD (void)
 {
 	static char	cddir[MAX_OSPATH];
-	static qboolean	done;
+	static bool	done;
 #ifndef DEMO
 	char		drive[4];
 	FILE		*f;
@@ -265,8 +265,8 @@ Sys_ConsoleInput
 char *Sys_ConsoleInput (void)
 {
 	INPUT_RECORD	recs[1024];
-	int		dummy;
-	int		ch, numread, numevents;
+	DWORD	dummy = 0, numread = 0, numevents = 0; 
+	int ch;
 
 	if (!dedicated || !dedicated->value)
 		return NULL;
@@ -274,7 +274,7 @@ char *Sys_ConsoleInput (void)
 
 	for ( ;; )
 	{
-		if (!GetNumberOfConsoleInputEvents (hinput, &numevents))
+		if (!GetNumberOfConsoleInputEvents( hinput, &numevents ) )
 			Sys_Error ("Error getting # of console events");
 
 		if (numevents <= 0)
@@ -309,7 +309,7 @@ char *Sys_ConsoleInput (void)
 						if (console_textlen)
 						{
 							console_textlen--;
-							WriteFile(houtput, "\b \b", 3, &dummy, NULL);	
+							WriteFile(houtput, "\b \b", 3, &dummy, NULL);
 						}
 						break;
 
@@ -318,7 +318,7 @@ char *Sys_ConsoleInput (void)
 						{
 							if (console_textlen < sizeof(console_text)-2)
 							{
-								WriteFile(houtput, &ch, 1, &dummy, NULL);	
+								WriteFile(houtput, &ch, 1, &dummy, NULL);
 								console_text[console_textlen] = ch;
 								console_textlen++;
 							}
@@ -344,7 +344,7 @@ Print text to the dedicated console
 */
 void Sys_ConsoleOutput (char *string)
 {
-	int		dummy;
+	DWORD	dummy;
 	char	text[256];
 
 	if (!dedicated || !dedicated->value)
@@ -362,7 +362,7 @@ void Sys_ConsoleOutput (char *string)
 	WriteFile(houtput, string, strlen(string), &dummy, NULL);
 
 	if (console_textlen)
-		WriteFile(houtput, console_text, console_textlen, &dummy, NULL);
+		WriteFile( houtput, console_text, console_textlen, &dummy, NULL);
 }
 
 
@@ -475,24 +475,16 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	cwd[MAX_OSPATH];
-#if defined _M_IX86
+#if defined( _WIN32 )
 	const char *gamename = "gamex86.dll";
+#elif defined( _WIN64 )
+	const char *gamename = "gamex64.dll";
+#endif //
 
 #ifdef NDEBUG
 	const char *debugdir = "release";
 #else
 	const char *debugdir = "debug";
-#endif
-
-#elif defined _M_ALPHA
-	const char *gamename = "gameaxp.dll";
-
-#ifdef NDEBUG
-	const char *debugdir = "releaseaxp";
-#else
-	const char *debugdir = "debugaxp";
-#endif
-
 #endif
 
 	if (game_library)

@@ -312,7 +312,7 @@ char	*va(char *format, ...);
 // does a varargs printf into a temp buffer
 #endif
 
-void COM_StripExtension (char *in, char *out);
+void	COM_StripExtension ( const char *in, char *out);
 
 void	Draw_GetPicSize (int *w, int *h, char *name);
 void	Draw_Pic (int x, int y, char *name);
@@ -456,7 +456,7 @@ void		GLimp_BeginFrame( float camera_separation );
 void		GLimp_EndFrame( void );
 int 		GLimp_Init( void *hinstance, void *hWnd );
 void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, bool fullscreen );
+int     	GLimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen );
 void		GLimp_AppActivate( bool active );
 void		GLimp_EnableLogging( bool enable );
 void		GLimp_LogNewFrame( void );
@@ -466,7 +466,7 @@ void		GLimp_LogNewFrame( void );
 inline char* strlwr( char* str ) 
 {
     unsigned char* p = (unsigned char*)str;
-    while (*p) 
+    while ( *p || *p == '\0' ) 
 	{
         *p = tolower((unsigned char)*p);
         p++;

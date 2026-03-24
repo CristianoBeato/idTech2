@@ -109,7 +109,7 @@ typedef struct
 */
 
 // initializes cycling through a DMA buffer and returns information on it
-bool SNDDMA_Init(void);
+int SNDDMA_Init(void);
 
 // gets the current DMA position
 int		SNDDMA_GetDMAPos(void);

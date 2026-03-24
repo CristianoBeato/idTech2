@@ -804,7 +804,7 @@ int Q_log2(int val)
 COM_SkipPath
 ============
 */
-char *COM_SkipPath (char *pathname)
+const char *COM_SkipPath ( const char *pathname)
 {
 	char	*last;
 	
@@ -823,7 +823,7 @@ char *COM_SkipPath (char *pathname)
 COM_StripExtension
 ============
 */
-void COM_StripExtension (char *in, char *out)
+void COM_StripExtension ( const char *in, char *out)
 {
 	while (*in && *in != '.')
 		*out++ = *in++;
@@ -835,7 +835,7 @@ void COM_StripExtension (char *in, char *out)
 COM_FileExtension
 ============
 */
-char *COM_FileExtension (char *in)
+const char *COM_FileExtension ( const char *in)
 {
 	static char exten[8];
 	int		i;
@@ -856,7 +856,7 @@ char *COM_FileExtension (char *in)
 COM_FileBase
 ============
 */
-void COM_FileBase (char *in, char *out)
+void COM_FileBase ( const char *in, char *out )
 {
 	char *s, *s2;
 	
@@ -885,7 +885,7 @@ COM_FilePath
 Returns the path up to, but not including the last /
 ============
 */
-void COM_FilePath (char *in, char *out)
+void COM_FilePath ( const char *in, char *out )
 {
 	char *s;
 	
@@ -904,7 +904,7 @@ void COM_FilePath (char *in, char *out)
 COM_DefaultExtension
 ==================
 */
-void COM_DefaultExtension (char *path, char *extension)
+void COM_DefaultExtension ( const char *path, char *extension)
 {
 	char    *src;
 //
@@ -920,7 +920,7 @@ void COM_DefaultExtension (char *path, char *extension)
 		src--;
 	}
 
-	strcat (path, extension);
+	strcat (path, (const char*)extension);
 }
 
 /*
@@ -1069,7 +1069,7 @@ COM_Parse
 Parse a token out of a string
 ==============
 */
-char *COM_Parse (char **data_p)
+const char *COM_Parse ( const char **data_p )
 {
 	int		c;
 	int		len;
@@ -1218,7 +1218,7 @@ int Q_strcasecmp ( const char *s1, const char *s2)
 	return Q_strncasecmp (s1, s2, 99999);
 }
 
-void Com_sprintf ( const char *dest, int size, char *fmt, ...)
+void Com_sprintf ( const char *dest, int size, const char *fmt, ...)
 {
 	int		len;
 	va_list		argptr;

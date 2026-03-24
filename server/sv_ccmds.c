@@ -229,7 +229,7 @@ void SV_CopySaveGame (char *src, char *dst)
 {
 	char	name[MAX_OSPATH], name2[MAX_OSPATH];
 	int		l, len;
-	char	*found;
+	const char *found;
 
 	Com_DPrintf("SV_CopySaveGame(%s, %s)\n", src, dst);
 

@@ -203,12 +203,12 @@ typedef struct
 	// or a discrete file from anywhere in the quake search path
 	// a -1 return means the file does not exist
 	// NULL can be passed for buf to just determine existance
-	int		(*FS_LoadFile) (char *name, void **buf);
+	int		(*FS_LoadFile) ( const char *name, void **buf);
 	void	(*FS_FreeFile) (void *buf);
 
 	// gamedir will be the current directory that generated
 	// files should be stored to, ie: "f:\quake\id1"
-	char	*(*FS_Gamedir) (void);
+	const char	*(*FS_Gamedir) (void);
 
 	cvar_t	*(*Cvar_Get) (char *name, char *value, int flags);
 	cvar_t	*(*Cvar_Set)( char *name, char *value );

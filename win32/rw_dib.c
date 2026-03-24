@@ -152,7 +152,7 @@ bool DIB_Init( unsigned char **ppbuffer, int *ppitch )
 	sww_state.hDIBSection = CreateDIBSection( sww_state.hDC,
 		                                     pbmiDIB,
 											 DIB_RGB_COLORS,
-											 &sww_state.pDIBBase,
+											 (void**)&sww_state.pDIBBase,
 											 NULL,
 											 0 );
 

@@ -427,11 +427,11 @@ char	*Cmd_Args (void);
 // functions. Cmd_Argv () will return an empty string, not a NULL
 // if arg > argc, so string operations are always safe.
 
-void	Cmd_TokenizeString (char *text, bool macroExpand);
+void	Cmd_TokenizeString ( const char *text, bool macroExpand);
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
 
-void	Cmd_ExecuteString (char *text);
+void	Cmd_ExecuteString ( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
 

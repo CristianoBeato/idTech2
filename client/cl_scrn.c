@@ -941,7 +941,7 @@ SCR_ExecuteLayoutString
 
 ================
 */
-void SCR_ExecuteLayoutString (char *s)
+void SCR_ExecuteLayoutString ( const char *s )
 {
 	int		x, y;
 	int		value;
@@ -962,7 +962,7 @@ void SCR_ExecuteLayoutString (char *s)
 
 	while (s)
 	{
-		token = COM_Parse (&s);
+		token = COM_Parse ( &s );
 		if (!strcmp(token, "xl"))
 		{
 			token = COM_Parse (&s);

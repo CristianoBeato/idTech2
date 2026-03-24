@@ -570,7 +570,7 @@ char *Cmd_MacroExpandString (char *text)
 			continue;
 		// scan out the complete macro
 		start = scan+i+1;
-		token = COM_Parse (&start);
+		token = COM_Parse ( (const char**)&start );
 		if (!start)
 			continue;
 	
@@ -617,7 +617,7 @@ Parses the given string into command line tokens.
 $Cvars will be expanded unless they are in a quoted token
 ============
 */
-void Cmd_TokenizeString (char *text, bool macroExpand)
+void Cmd_TokenizeString ( const char *text, bool macroExpand )
 {
 	int		i;
 	char	*com_token;
@@ -668,7 +668,7 @@ void Cmd_TokenizeString (char *text, bool macroExpand)
 					break;
 		}
 			
-		com_token = COM_Parse (&text);
+		com_token = COM_Parse ( &text );
 		if (!text)
 			return;
 
@@ -808,7 +808,7 @@ A complete command line has been parsed, so try to execute it
 FIXME: lookupnoadd the token to speed search?
 ============
 */
-void	Cmd_ExecuteString (char *text)
+void	Cmd_ExecuteString ( const char *text )
 {	
 	cmd_function_t	*cmd;
 	cmdalias_t		*a;

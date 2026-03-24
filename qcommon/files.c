@@ -715,9 +715,7 @@ const char **FS_ListFiles( const char *findname, int *numfiles, unsigned musthav
 		if ( s[strlen(s)-1] != '.' )
 		{
 			list[nfiles] = strdup( s );
-#ifdef _WIN32
 			strlwr( list[nfiles] );
-#endif
 			nfiles++;
 		}
 		s = Sys_FindNext( musthave, canthave );
