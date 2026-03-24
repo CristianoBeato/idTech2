@@ -3,6 +3,7 @@
 ## qShared.so
 set( SHARED_SOURCES 
     ${CMAKE_SOURCE_DIR}/game/m_flash.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/q_Hunk.c
     ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.c
     ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h
     )

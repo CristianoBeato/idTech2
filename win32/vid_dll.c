@@ -644,13 +644,9 @@ void VID_CheckChanges (void)
 	if ( win_noalttab->modified )
 	{
 		if ( win_noalttab->value )
-		{
 			WIN_DisableAltTab();
-		}
 		else
-		{
 			WIN_EnableAltTab();
-		}
 		win_noalttab->modified = false;
 	}
 
