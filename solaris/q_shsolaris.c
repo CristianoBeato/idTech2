@@ -130,7 +130,7 @@ static qboolean CompareAttributes(char *path, char *name,
 	return true;
 }
 
-char *Sys_FindFirst (char *path, unsigned musthave, unsigned canhave)
+const char *Sys_FindFirst (char *path, unsigned musthave, unsigned canhave)
 {
 	struct dirent *d;
 	char *p;

@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // m_flash.c
+#include "shared/q_shared.h"
 
 // this file is included in both the game dll and quake2,
 // the game needs it to source shot locations, the client

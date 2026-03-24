@@ -9,6 +9,7 @@ set( SERVER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sv_init.c
     ${CMAKE_CURRENT_SOURCE_DIR}/sv_main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/sv_null.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_send.c
     ${CMAKE_CURRENT_SOURCE_DIR}/sv_user.c
     ${CMAKE_CURRENT_SOURCE_DIR}/sv_world.c
     )

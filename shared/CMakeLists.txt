@@ -2,6 +2,7 @@
 ## Shared lib sources 
 ## qShared.so
 set( SHARED_SOURCES 
+    ${CMAKE_SOURCE_DIR}/game/m_flash.c
     ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.c
     ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h
     )
@@ -30,4 +31,6 @@ target_precompile_headers( qShared
         <math.h>
         <string.h>
         <time.h>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.h
 	) 

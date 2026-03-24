@@ -41,6 +41,13 @@ int GLimp_InitGL (void);
 
 glwstate_t glw_state;
 
+refimport_t	ri;
+glstate_t 	gl_state;
+glconfig_t	gl_config;
+cvar_t*		gl_bitdepth;
+cvar_t*		gl_drawbuffer;
+cvar_t*		gl_allow_software;
+cvar_t*		gl_driver;
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_ref;
 
@@ -479,8 +486,6 @@ int GLimp_InitGL (void)
 
 		if ( !( pfd.dwFlags & PFD_GENERIC_ACCELERATED ) )
 		{
-			extern cvar_t *gl_allow_software;
-
 			if ( gl_allow_software->value )
 				glw_state.mcd_accelerated = true;
 			else
@@ -584,6 +589,7 @@ void GLimp_BeginFrame( float camera_separation )
 ** as yet to be determined.  Probably better not to make this a GLimp
 ** function and instead do a call to GLimp_SwapBuffers.
 */
+
 void GLimp_EndFrame (void)
 {
 	int		err;

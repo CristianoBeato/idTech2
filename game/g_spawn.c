@@ -411,11 +411,11 @@ Parses an edict out of the given string, returning the new position
 ed should be a properly initialized empty edict.
 ====================
 */
-char *ED_ParseEdict (char *data, edict_t *ent)
+const char *ED_ParseEdict ( const char *data, edict_t *ent )
 {
 	bool		init;
 	char		keyname[256];
-	char		*com_token;
+	const char	*com_token;
 
 	init = false;
 	memset (&st, 0, sizeof(st));
@@ -517,7 +517,7 @@ Creates a server's entity / program execution context by
 parsing textual entity definitions out of an ent file.
 ==============
 */
-void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
+void SpawnEntities ( const char *mapname, const char *entities, const char *spawnpoint)
 {
 	edict_t		*ent;
 	int			inhibit;

@@ -473,8 +473,8 @@ void *Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
 	char	name[MAX_OSPATH];
-	char	*path;
-	char	cwd[MAX_OSPATH];
+	const char	*path;
+	char		cwd[MAX_OSPATH];
 #if defined( _WIN32 )
 	const char *gamename = "gamex86.dll";
 #elif defined( _WIN64 )
@@ -513,7 +513,7 @@ void *Sys_GetGameAPI (void *parms)
 			path = NULL;
 			while (1)
 			{
-				path = FS_NextPath (path);
+				path = FS_NextPath ( path );
 				if (!path)
 					return NULL;		// couldn't find one anywhere
 				Com_sprintf (name, sizeof(name), "%s/%s", path, gamename);
