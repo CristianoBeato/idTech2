@@ -912,7 +912,7 @@ static void GL_DrawStereoPattern( void )
 			GL_DrawColoredStereoLinePair( 0, 1, 0, 14);
 		qglEnd();
 		
-		GLimp_EndFrame();
+		ri.GLimp_EndFrame();
 	}
 }
 
@@ -1064,7 +1064,7 @@ bool R_SetMode (void)
 	vid_fullscreen->modified = false;
 	gl_mode->modified = false;
 
-	if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, fullscreen ) ) == rserr_ok )
+	if ( ( err = ri.GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, fullscreen ) ) == rserr_ok )
 	{
 		gl_state.prev_mode = gl_mode->value;
 	}
@@ -1075,7 +1075,7 @@ bool R_SetMode (void)
 			ri.Cvar_SetValue( "vid_fullscreen", 0);
 			vid_fullscreen->modified = false;
 			ri.Con_Printf( PRINT_ALL, "ref_gl::R_SetMode() - fullscreen unavailable in this mode\n" );
-			if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, false ) ) == rserr_ok )
+			if ( ( err = ri.GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, false ) ) == rserr_ok )
 				return true;
 		}
 		else if ( err == rserr_invalid_mode )
@@ -1086,7 +1086,7 @@ bool R_SetMode (void)
 		}
 
 		// try setting it back to something safe
-		if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_state.prev_mode, false ) ) != rserr_ok )
+		if ( ( err = ri.GLimp_SetMode( &vid.width, &vid.height, gl_state.prev_mode, false ) ) != rserr_ok )
 		{
 			ri.Con_Printf( PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n" );
 			return false;
@@ -1128,7 +1128,7 @@ int R_Init( void *hinstance, void *hWnd )
 	}
 
 	// initialize OS-specific parts of OpenGL
-	if ( !GLimp_Init( hinstance, hWnd ) )
+	if ( !ri.GLimp_Init( hinstance, hWnd ) )
 	{
 		QGL_Shutdown();
 		return -1;
@@ -1359,7 +1359,7 @@ void R_Shutdown (void)
 	/*
 	** shut down OS specific OpenGL stuff like contexts, etc.
 	*/
-	GLimp_Shutdown();
+	ri.GLimp_Shutdown();
 
 	/*
 	** shutdown our QGL subsystem
@@ -1392,13 +1392,13 @@ void R_BeginFrame( float camera_separation )
 
 	if ( gl_log->modified )
 	{
-		GLimp_EnableLogging( gl_log->value );
+		ri.GLimp_EnableLogging( gl_log->value );
 		gl_log->modified = false;
 	}
 
 	if ( gl_log->value )
 	{
-		GLimp_LogNewFrame();
+		ri.GLimp_LogNewFrame();
 	}
 
 	/*
@@ -1422,7 +1422,7 @@ void R_BeginFrame( float camera_separation )
 		}
 	}
 
-	GLimp_BeginFrame( camera_separation );
+	ri.GLimp_BeginFrame( camera_separation );
 
 	/*
 	** go into 2D mode
@@ -1653,9 +1653,9 @@ refexport_t GetRefAPI (refimport_t rimp )
 
 	re.CinematicSetPalette = R_SetPalette;
 	re.BeginFrame = R_BeginFrame;
-	re.EndFrame = GLimp_EndFrame;
+	re.EndFrame = ri.GLimp_EndFrame;
 
-	re.AppActivate = GLimp_AppActivate;
+	re.AppActivate = ri.GLimp_AppActivate;
 
 	Swap_Init ();
 

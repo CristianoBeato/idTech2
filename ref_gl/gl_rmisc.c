@@ -107,7 +107,7 @@ void GL_ScreenShot_f (void)
 
 	// create the scrnshots directory if it doesn't exist
 	Com_sprintf (checkname, sizeof(checkname), "%s/scrnshot", ri.FS_Gamedir());
-	Sys_Mkdir (checkname);
+	ri.Sys_Mkdir (checkname);
 
 // 
 // find a file name to save it to 

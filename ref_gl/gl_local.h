@@ -460,6 +460,7 @@ int     	GLimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen );
 void		GLimp_AppActivate( bool active );
 void		GLimp_EnableLogging( bool enable );
 void		GLimp_LogNewFrame( void );
+void*		GLimp_GetProcAddress( const char* name );
 
 // BEATO Begin:
 #ifndef _WIN32 

@@ -214,9 +214,23 @@ typedef struct
 	cvar_t	*(*Cvar_Set)( char *name, char *value );
 	void	 (*Cvar_SetValue)( char *name, float value );
 
-	bool	(*Vid_GetModeInfo)( int *width, int *height, int mode );
+	bool		(*Vid_GetModeInfo)( int *width, int *height, int mode );
 	void		(*Vid_MenuInit)( void );
 	void		(*Vid_NewWindow)( int width, int height );
+
+// BEATO Begin:
+	void		(*Sys_Mkdir)( const char *path);
+
+	void		(*GLimp_BeginFrame)( float camera_separation );
+	void		(*GLimp_EndFrame)( void );
+	int 		(*GLimp_Init)( void *hinstance, void *hWnd );
+	void		(*GLimp_Shutdown)( void );
+	int     	(*GLimp_SetMode)( int *pwidth, int *pheight, int mode, bool fullscreen );
+	void		(*GLimp_AppActivate)( bool active );
+	void		(*GLimp_EnableLogging)( bool enable );
+	void		(*GLimp_LogNewFrame)( void );
+	void*		(*GLimp_GetProcAddress)( const char* name );
+// BEATO End
 } refimport_t;
 
 
