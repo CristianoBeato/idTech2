@@ -443,38 +443,4 @@ IMPORTED FUNCTIONS
 
 extern	refimport_t	ri;
 
-
-/*
-====================================================================
-
-IMPLEMENTATION SPECIFIC FUNCTIONS
-
-====================================================================
-*/
-
-void		GLimp_BeginFrame( float camera_separation );
-void		GLimp_EndFrame( void );
-int 		GLimp_Init( void *hinstance, void *hWnd );
-void		GLimp_Shutdown( void );
-int     	GLimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen );
-void		GLimp_AppActivate( bool active );
-void		GLimp_EnableLogging( bool enable );
-void		GLimp_LogNewFrame( void );
-void*		GLimp_GetProcAddress( const char* name );
-
-// BEATO Begin:
-#ifndef _WIN32 
-inline char* strlwr( char* str ) 
-{
-    unsigned char* p = (unsigned char*)str;
-    while ( *p || *p == '\0' ) 
-	{
-        *p = tolower((unsigned char)*p);
-        p++;
-    }
-    return str;
-}
-#endif
-// BEATO End
-
 #endif //
