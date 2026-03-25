@@ -554,7 +554,7 @@ void VID_FreeReflib (void)
 VID_LoadRefresh
 ==============
 */
-bool VID_LoadRefresh( char *name )
+bool VID_LoadRefresh( const char *name )
 {
 	refimport_t	ri;
 	GetRefAPI_t	GetRefAPI;
