@@ -738,8 +738,8 @@ MISC
 
 void		Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush));
 void		Com_EndRedirect (void);
-void 		Com_Printf (char *fmt, ...);
-void 		Com_DPrintf (char *fmt, ...);
+void 		Com_Printf ( const char *fmt, ...);
+void 		Com_DPrintf ( const char *fmt, ...);
 void 		Com_Error (int code, char *fmt, ...);
 void 		Com_Quit (void);
 
@@ -798,9 +798,9 @@ void	*Sys_GetGameAPI (void *parms);
 // loads the game dll and calls the api init function
 
 const char*	Sys_ConsoleInput (void);
-void		Sys_ConsoleOutput (char *string);
+void		Sys_ConsoleOutput ( const char *string);
 void		Sys_SendKeyEvents (void);
-void		Sys_Error (char *error, ...);
+void		Sys_Error ( const char *error, ...);
 void		Sys_Quit (void);
 const char*	Sys_GetClipboardData( void );
 void		Sys_CopyProtect (void);
