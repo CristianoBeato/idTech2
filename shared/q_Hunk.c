@@ -3,19 +3,21 @@
 
 #if defined __linux__
 
+#define __USE_GNU
+#include <sys/mman.h>
+#include <errno.h>
 //===============================================================================
 
 byte *membase;
-int maxhunksize;
-int curhunksize;
+size_t maxhunksize;
+size_t curhunksize;
 
-void *Hunk_Begin (int maxsize)
+void *Hunk_Begin( const size_t maxsize )
 {
 	// reserve a huge chunk of memory, but don't commit any yet
 	maxhunksize = maxsize + sizeof(int);
 	curhunksize = 0;
-	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, 
-		MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	membase = mmap(0, maxhunksize, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (membase == NULL || membase == (byte *)-1)
 		Sys_Error("unable to virtual allocate %d bytes", maxsize);
 
@@ -24,7 +26,7 @@ void *Hunk_Begin (int maxsize)
 	return membase + sizeof(int);
 }
 
-void *Hunk_Alloc (int size)
+void *Hunk_Alloc ( size_t size)
 {
 	byte *buf;
 
@@ -37,11 +39,11 @@ void *Hunk_Alloc (int size)
 	return buf;
 }
 
-int Hunk_End (void)
+size_t Hunk_End (void)
 {
 	byte *n;
 
-	n = mremap(membase, maxhunksize, curhunksize + sizeof(int), 0);
+	n = (byte*)mremap( membase, maxhunksize, curhunksize + sizeof(int), 0);
 	if (n != membase)
 		Sys_Error("Hunk_End:  Could not remap virtual block (%d)", errno);
 	*((int *)membase) = curhunksize + sizeof(int);
@@ -71,12 +73,12 @@ int		hunkcount;
 
 
 byte	*membase;
-int		hunkmaxsize;
-int		cursize;
+size_t	hunkmaxsize;
+size_t	cursize;
 
 #define	VIRTUAL_ALLOC
 
-void *Hunk_Begin (int maxsize)
+void *Hunk_Begin ( size_t maxsize)
 {
 	// reserve a huge chunk of memory, but don't commit any yet
 	cursize = 0;
@@ -92,7 +94,7 @@ void *Hunk_Begin (int maxsize)
 	return (void *)membase;
 }
 
-void *Hunk_Alloc (int size)
+void *Hunk_Alloc ( size_t size)
 {
 	void	*buf;
 

@@ -32,7 +32,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma warning(disable : 4305)		// truncation from const double to float
 #else
 
+#define stricmp strcasecmp
+
+static inline const char* strlwr ( char *s )
+{
+	while (*s) 
+	{
+		*s = tolower(*s);
+		s++;
+	}
+
+	return s;
+}
 #endif
+
+// inline char* strlwr( char* str ) 
+// {
+//     unsigned char* p = (unsigned char*)str;
+//     while ( *p || *p == '\0' ) 
+// 	{
+//         *p = tolower((unsigned char)*p);
+//         p++;
+//     }
+//     return str;
+// }
 
 #if (defined _M_IX86 || defined __i386__) && !defined C_ONLY && !defined __sun__
 #define id386	1
@@ -265,10 +288,10 @@ int		Sys_Milliseconds (void);
 void	Sys_Mkdir ( const char *path);
 
 // large block stack allocation routines
-void	*Hunk_Begin (int maxsize);
-void	*Hunk_Alloc (int size);
+void	*Hunk_Begin ( const size_t maxsize );
+void	*Hunk_Alloc ( const size_t size );
 void	Hunk_Free (void *buf);
-int		Hunk_End (void);
+size_t	Hunk_End (void);
 
 // directory searching
 #define SFF_ARCH    0x01
