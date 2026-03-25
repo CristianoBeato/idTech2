@@ -121,9 +121,7 @@ typedef struct
 	particle_t	*particles;
 } refdef_t;
 
-
-
-#define	API_VERSION		3
+#define	API_VERSION		4 // 4 we update ref_gl to impor GLimp functions from main executable
 
 //
 // these are the functions exported by the refresh module

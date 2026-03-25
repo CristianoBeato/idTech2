@@ -1785,14 +1785,8 @@ void CL_Init (void)
 	// all archived variables will now be loaded
 
 	Con_Init ();	
-#if defined __linux__ || defined __sgi
-	S_Init ();	
 	VID_Init ();
-#else
-	VID_Init ();
-	S_Init ();	// sound must be initialized after window is created
-#endif
-	
+	S_Init ();	// sound must be initialized after window is created	
 	V_Init ();
 	
 	net_message.data = net_message_buffer;
