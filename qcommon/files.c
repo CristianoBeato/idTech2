@@ -743,7 +743,7 @@ void FS_Dir_f( void )
 
 	while ( ( path = FS_NextPath( path ) ) != NULL )
 	{
-		const char *tmp = findname;
+		char *tmp = findname;
 
 		Com_sprintf( findname, sizeof(findname), "%s/%s", path, wildcard );
 
@@ -767,9 +767,9 @@ void FS_Dir_f( void )
 				else
 					Com_Printf( "%s\n", dirnames[i] );
 
-				free( dirnames[i] );
+				free( (void*)dirnames[i] );
 			}
-			free( dirnames );
+			free( (void*)dirnames );
 		}
 		Com_Printf( "\n" );
 	};
