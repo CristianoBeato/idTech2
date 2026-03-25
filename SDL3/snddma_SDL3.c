@@ -5,7 +5,7 @@
 #include "../client/client.h"
 #include "../client/snd_loc.h"
 
-bool SNDDMA_Init(void)
+int SNDDMA_Init(void)
 {
 	return false;
 }

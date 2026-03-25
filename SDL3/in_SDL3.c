@@ -1,36 +1,77 @@
-// in_null.c -- for systems without a mouse
+// in_SDL3.c -- for systems without a mouse
 
-#include "../client/client.h"
+#include "client/client.h"
+#include "SDL3_shared.h"
 
-void IN_Init (void)
+/*
+===========
+IN_Init
+===========
+*/
+void IN_Init( void )
 {
 }
 
-void IN_Shutdown (void)
+/*
+===========
+IN_Shutdown
+===========
+*/
+void IN_Shutdown( void )
 {
 }
 
-void IN_Commands (void)
+/*
+===========
+IN_Commands
+===========
+*/
+void IN_Commands( void )
 {
 }
 
-void IN_Frame (void)
+/*
+===========
+IN_Frame
+===========
+*/
+void IN_Frame( void )
 {
 }
 
-void IN_Move (usercmd_t *cmd)
+/*
+===========
+IN_Move
+===========
+*/
+void IN_Move ( usercmd_t *cmd )
 {
 }
 
-void IN_Activate ( bool active)
+/*
+===========
+IN_Activate
+===========
+*/
+void IN_Activate( bool active )
 {
 }
 
-void IN_ActivateMouse (void)
+/*
+===========
+IN_ActivateMouse
+===========
+*/
+void IN_ActivateMouse( void )
 {
 }
 
-void IN_DeactivateMouse (void)
+/*
+===========
+IN_DeactivateMouse
+===========
+*/
+void IN_DeactivateMouse( void )
 {
 }
 

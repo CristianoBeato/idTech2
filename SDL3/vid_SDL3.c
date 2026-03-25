@@ -3,15 +3,22 @@
 
 #include "../client/client.h"
 
+#include <SDL3/SDL_loadso.h>
 #include <SDL3/SDL_video.h>
 
 static struct SDL_video_t
 {
-    SDL_Window* window;
+    const char*         ref_name[100];
+    SDL_SharedObject*   ref_lib;
+    SDL_Window*         window;
 } video;
 
 
 viddef_t	viddef;				// global video state
+cvar_t		*vid_ref;			// Name of Refresh DLL loaded
+cvar_t		*vid_xpos;			// X coordinate of window position
+cvar_t		*vid_ypos;			// Y coordinate of window position
+cvar_t		*vid_fullscreen;
 
 refexport_t	re;
 
@@ -24,6 +31,19 @@ DIRECT LINK GLUE
 
 ==========================================================================
 */
+/*
+============
+VID_Restart_f
+
+Console command to re-start the video mode and refresh DLL. We do this
+simply by setting the modified flag for the vid_ref variable, which will
+cause the entire video mode and refresh DLL to be reset on the next frame.
+============
+*/
+void VID_Restart_f (void)
+{
+	vid_ref->modified = true;
+}
 
 #define	MAXPRINTMSG	4096
 void VID_Printf (int print_level, char *fmt, ...)
@@ -55,10 +75,29 @@ void VID_Error (int err_level, char *fmt, ...)
 
 void VID_NewWindow (int width, int height)
 {
-        viddef.width = width;
-        viddef.height = height;
+    if( video.window )
+    {
+        SDL_DestroyWindow( video.window );
+        video.window = NULL;
+    }
 
-        window = SDL_CreateWindow( , width, height, SDL_WINDOW_OPENGL );
+    viddef.width = width;
+    viddef.height = height;
+
+    video.window = SDL_CreateWindow( "SDL3-Quake2", width, height, SDL_WINDOW_OPENGL );
+    if( !video.window )
+        Sys_Error( "Failed to create main window %s\n", SDL_GetError() );
+}
+
+/*
+** VID_UpdateWindowPosAndSize
+*/
+void VID_UpdateWindowPosAndSize( int x, int y )
+{
+    if ( video.window == NULL )
+        return;    
+
+    SDL_SetWindowPosition( video.window, x, y );
 }
 
 /*
@@ -88,6 +127,8 @@ vidmode_t vid_modes[] =
 
 bool VID_GetModeInfo( int *width, int *height, int mode )
 {
+    // TODO List display types whit SDL 
+
     if ( mode < 0 || mode >= VID_NUM_MODES )
         return false;
 
@@ -97,10 +138,46 @@ bool VID_GetModeInfo( int *width, int *height, int mode )
     return true;
 }
 
+static bool VID_LoadRefresh( const char *name )
+{
+    if ( video.ref_lib != NULL )
+	{
+		re.Shutdown();
+        if( video.ref_lib != NULL )
+        {
+            SDL_UnloadObject( video.ref_lib );
+            video.ref_lib = NULL;
+        }
+	}
+
+	Com_Printf( "------- Loading %s -------\n", name );
+
+    video.ref_lib = SDL_LoadObject( name );
+    if( video.ref_lib )
+    {
+        Sys_Error( SDL_GetError() );
+        return false;
+    }
+
+    return true;
+}
 
 void	VID_Init (void)
 {
+    char name[128];
     refimport_t	ri;
+    GetRefAPI_t	GetRefAPI;
+
+    /* Create the video variables so we know how to start the graphics drivers */
+	vid_ref = Cvar_Get ("vid_ref", "soft", CVAR_ARCHIVE);
+	vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
+	vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
+	vid_fullscreen = Cvar_Get ("vid_fullscreen", "0", CVAR_ARCHIVE);
+	//vid_gamma = Cvar_Get( "vid_gamma", "1", CVAR_ARCHIVE );
+
+    Com_sprintf( name, sizeof(name), "ref_%s.dll", vid_ref->string );
+    if( !VID_LoadRefresh( name ) )
+        Sys_Error( "Can't load render library %s\n", name );
 
     viddef.width = 320;
     viddef.height = 240;
@@ -121,20 +198,30 @@ void	VID_Init (void)
     ri.Cvar_SetValue = Cvar_SetValue;
     ri.Vid_GetModeInfo = VID_GetModeInfo;
 
+    if ( ( GetRefAPI = (void *) SDL_LoadFunction( video.ref_lib, "GetRefAPI" ) ) == 0 )
+		Com_Error( ERR_FATAL, "GetProcAddress failed on %s", video.ref_name );
+
     re = GetRefAPI(ri);
 
     if (re.api_version != API_VERSION)
-        Com_Error (ERR_FATAL, "Re has incompatible api_version");
+        Com_Error ( ERR_FATAL, "Re has incompatible api_version");
     
         // call the init function
-    if (re.Init (NULL, NULL) == -1)
-		Com_Error (ERR_FATAL, "Couldn't start refresh");
+    if (re.Init (NULL, (void*)video.window ) == -1)
+		Com_Error ( ERR_FATAL, "Couldn't start refresh");
 }
 
 void	VID_Shutdown (void)
 {
     if (re.Shutdown)
 	    re.Shutdown ();
+
+    /// Release renderer lib
+    if( video.ref_lib != NULL )
+    {
+        SDL_UnloadObject( video.ref_lib );
+        video.ref_lib = NULL;
+    }
 }
 
 void	VID_CheckChanges (void)
