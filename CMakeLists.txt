@@ -31,6 +31,11 @@ include_directories( OpenGL::Headers )
 include_directories( ${CMAKE_SOURCE_DIR} )
 
 ##
+## -fPIC
+##
+set( CMAKE_POSITION_INDEPENDENT_CODE ON )
+
+##
 ## qShared
 ## shared libraries
 add_subdirectory( shared )
