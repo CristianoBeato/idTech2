@@ -943,11 +943,11 @@ SCR_ExecuteLayoutString
 */
 void SCR_ExecuteLayoutString ( const char *s )
 {
-	int		x, y;
-	int		value;
-	char	*token;
-	int		width;
-	int		index;
+	int			x, y;
+	int			value;
+	const char	*token;
+	int			width;
+	int			index;
 	clientinfo_t	*ci;
 
 	if (cls.state != ca_active || !cl.refresh_prepped)

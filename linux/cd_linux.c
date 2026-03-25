@@ -81,7 +81,7 @@ static int CDAudio_GetAudioDiskInfo(void)
 }
 
 
-void CDAudio_Play(int track, qboolean looping)
+void CDAudio_Play(int track, bool looping)
 {
 	struct cdrom_tocentry entry;
 	struct cdrom_ti ti;

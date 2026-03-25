@@ -2938,7 +2938,7 @@ void QGL_Shutdown( void )
 ** might be.
 ** 
 */
-qboolean QGL_Init( const char *dllname )
+bool QGL_Init( const char *dllname )
 {
 	qglAccum                     = dllAccum = glAccum;
 	qglAlphaFunc                 = dllAlphaFunc = glAlphaFunc;
@@ -3286,7 +3286,7 @@ qboolean QGL_Init( const char *dllname )
 	return true;
 }
 
-void GLimp_EnableLogging( qboolean enable )
+void GLimp_EnableLogging( bool enable )
 {
 	if ( enable )
 	{

@@ -743,7 +743,7 @@ void FS_Dir_f( void )
 
 	while ( ( path = FS_NextPath( path ) ) != NULL )
 	{
-		char *tmp = findname;
+		const char *tmp = findname;
 
 		Com_sprintf( findname, sizeof(findname), "%s/%s", path, wildcard );
 

@@ -1222,14 +1222,14 @@ void Com_sprintf ( const char *dest, int size, const char *fmt, ...)
 {
 	int		len;
 	va_list		argptr;
-	char	bigbuffer[0x10000];
+	const char	bigbuffer[0x10000];
 
 	va_start (argptr,fmt);
 	len = vsprintf (bigbuffer,fmt,argptr);
 	va_end (argptr);
 	if (len >= size)
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-	strncpy (dest, bigbuffer, size-1);
+	strncpy ( dest, bigbuffer, size-1);
 }
 
 /*

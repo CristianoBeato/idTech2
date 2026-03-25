@@ -27,10 +27,10 @@ set( EXECUTABLE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/r_spr8.s
     ${CMAKE_CURRENT_SOURCE_DIR}/r_surf8.s
     ${CMAKE_CURRENT_SOURCE_DIR}/r_varsa.s
-    ${CMAKE_CURRENT_SOURCE_DIR}/rw_in_svgalib.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/rw_linux.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rw_svgalib.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/rw_x11.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/rw_in_svgalib.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/rw_linux.h
+    #${CMAKE_CURRENT_SOURCE_DIR}/rw_svgalib.c
+    #${CMAKE_CURRENT_SOURCE_DIR}/rw_x11.c
     ${CMAKE_CURRENT_SOURCE_DIR}/snd_linux.c
     ${CMAKE_CURRENT_SOURCE_DIR}/snd_mixa.s
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_dosa.s
@@ -57,7 +57,7 @@ target_link_libraries( linQuake2
     )
 
 # set the precompiled header
-target_precompile_headers( winQuake2 
+target_precompile_headers( linQuake2 
 	PUBLIC
         <ctype.h>
         <stdio.h>
