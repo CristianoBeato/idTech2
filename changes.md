@@ -1,6 +1,9 @@
 
-Quake2 3.16 changes:
+#idTech2 - 25/03/2026
+ - Remove old MSVC projects in flavour of CMake
+ - Begin to implement SDL3 as portable system midware
 
+#Quake2 3.16 changes:
 - Fixed infinite grenade bug
 - Fixed autodownloading to actually download sounds and console pics
 - Fixed autodownload to not create empty directories for files not on
@@ -16,8 +19,7 @@ Quake2 3.16 changes:
 - Changed checksumming code to be more portable and faster.
 
 
-Quake2 3.15 changes:
-
+#Quake2 3.15 changes:
 - Added visible weapons support.  This is precached with a special symbol, i.e.
   gi.modelindex("#w_shotgun.md2") which causes the client to autobind it to
   the players current weapon model.  Plug in player models can optionally 
@@ -104,8 +106,7 @@ Quake2 3.15 changes:
   If you set it to zero, the meaning reverses like so, "don't allow anyone
   to connect unless they are in the list."
 
-Quake2 CTF 1.09a Changes:
-
+#Quake2 CTF 1.09a Changes:
 - Q2CTF 1.09 requires 3.15 now.
 - Competition Match mode added.  Server can be reset into a timed match mode.
   Includes a pregame setup time, countdown until game start, timed match,
@@ -162,5 +163,3 @@ Quake2 CTF 1.09a Changes:
   intact at the time of disconnection.
 - Visible weapon support (as with the 3.15 release).
 - Some minor changes to the pmenu code to allow more flexability
-
-    
