@@ -20,7 +20,8 @@ target_compile_definitions( sdl3Quake PRIVATE __ENGINE_EXE__ )
 
 # Link openGL Libraries
 target_link_libraries( sdl3Quake 
-    PUBLIC 
+    PUBLIC
+        m 
         OpenGL::GL 
         SDL3::SDL3
     PRIVATE
