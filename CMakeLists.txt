@@ -79,13 +79,5 @@ add_subdirectory( ref_gl )
 
 ##
 ## quake2 
-## Engine main executable
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    message(STATUS "Detectado Linux")
-    add_subdirectory( linux  )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    message(STATUS "Detectado Windows")
-    add_subdirectory( win32 )
-endif()
-
+## Engine main executable 
 add_subdirectory( SDL3 )
