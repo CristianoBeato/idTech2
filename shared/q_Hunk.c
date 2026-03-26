@@ -118,7 +118,7 @@ void *Hunk_Alloc ( size_t size)
 	return (void *)(membase+cursize-size);
 }
 
-int Hunk_End (void)
+size_t Hunk_End (void)
 {
 
 	// free the remaining unused virtual memory
