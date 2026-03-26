@@ -1516,10 +1516,12 @@ void	GL_InitImages (void)
 			ri.Sys_Error( ERR_FATAL, "Couldn't load pics/16to8.pcx");
 	}
 
+#if 0
 	if ( gl_config.renderer & ( GL_RENDERER_VOODOO | GL_RENDERER_VOODOO2 ) )
 	{
 		g = 1.0F;
 	}
+#endif
 
 	for ( i = 0; i < 256; i++ )
 	{

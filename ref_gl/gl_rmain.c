@@ -889,9 +889,6 @@ static void GL_DrawStereoPattern( void )
 {
 	int i;
 
-	if ( !( gl_config.renderer & GL_RENDERER_INTERGRAPH ) )
-		return;
-
 	if ( !gl_state.stereo_enabled )
 		return;
 
@@ -1160,7 +1157,10 @@ int R_Init( void )
 	gl_config.version_string = (const char*)qglGetString (GL_VERSION);
 	ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
 	gl_config.extensions_string = (const char*)qglGetString (GL_EXTENSIONS);
+
+#if 0
 	ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
+#endif
 
 	strcpy( renderer_buffer, gl_config.renderer_string );
 	strlwr( renderer_buffer );
@@ -1168,30 +1168,16 @@ int R_Init( void )
 	strcpy( vendor_buffer, gl_config.vendor_string );
 	strlwr( vendor_buffer );
 
-	if ( strstr( renderer_buffer, "voodoo" ) )
-	{
-		if ( !strstr( renderer_buffer, "rush" ) )
-			gl_config.renderer = GL_RENDERER_VOODOO;
-		else
-			gl_config.renderer = GL_RENDERER_VOODOO_RUSH;
-	}
-	else if ( strstr( vendor_buffer, "sgi" ) )
-		gl_config.renderer = GL_RENDERER_SGI;
-	else if ( strstr( renderer_buffer, "permedia" ) )
-		gl_config.renderer = GL_RENDERER_PERMEDIA2;
-	else if ( strstr( renderer_buffer, "glint" ) )
-		gl_config.renderer = GL_RENDERER_GLINT_MX;
-	else if ( strstr( renderer_buffer, "glzicd" ) )
-		gl_config.renderer = GL_RENDERER_REALIZM;
-	else if ( strstr( renderer_buffer, "gdi" ) )
-		gl_config.renderer = GL_RENDERER_MCD;
-	else if ( strstr( renderer_buffer, "pcx2" ) )
-		gl_config.renderer = GL_RENDERER_PCX2;
-	else if ( strstr( renderer_buffer, "verite" ) )
-		gl_config.renderer = GL_RENDERER_RENDITION;
-	else
+	if( strstr( vendor_buffer, "amd" ))
+		gl_config.renderer = GL_RENDERER_AMD;
+	else if( strstr( vendor_buffer, "intel" ))
+		gl_config.renderer = GL_RENDERER_ITL;
+	else if( strstr( vendor_buffer, "nvidia" ))
+		gl_config.renderer = GL_RENDERER_NVD;
+	else 
 		gl_config.renderer = GL_RENDERER_OTHER;
 
+#if 0
 	if ( toupper( gl_monolightmap->string[1] ) != 'F' )
 	{
 		if ( gl_config.renderer == GL_RENDERER_PERMEDIA2 )
@@ -1200,32 +1186,13 @@ int R_Init( void )
 			ri.Con_Printf( PRINT_ALL, "...using gl_monolightmap 'a'\n" );
 		}
 		else if ( gl_config.renderer & GL_RENDERER_POWERVR ) 
-		{
 			ri.Cvar_Set( "gl_monolightmap", "0" );
-		}
 		else
-		{
 			ri.Cvar_Set( "gl_monolightmap", "0" );
-		}
 	}
+#endif 
 
-	// power vr can't have anything stay in the framebuffer, so
-	// the screen needs to redraw the tiled background every frame
-	if ( gl_config.renderer & GL_RENDERER_POWERVR ) 
-	{
-		ri.Cvar_Set( "scr_drawall", "1" );
-	}
-	else
-	{
-		ri.Cvar_Set( "scr_drawall", "0" );
-	}
-
-	// MCD has buffering issues
-	if ( gl_config.renderer == GL_RENDERER_MCD )
-	{
-		ri.Cvar_SetValue( "gl_finish", 1 );
-	}
-
+#if 0
 	if ( gl_config.renderer & GL_RENDERER_3DLABS )
 	{
 		if ( gl_3dlabs_broken->value )
@@ -1237,6 +1204,7 @@ int R_Init( void )
 	{
 		gl_config.allow_cds = true;
 	}
+#endif
 
 	if ( gl_config.allow_cds )
 		ri.Con_Printf( PRINT_ALL, "...allowing CDS\n" );
@@ -1251,8 +1219,8 @@ int R_Init( void )
 		 strstr( gl_config.extensions_string, "GL_SGI_compiled_vertex_array" ) )
 	{
 		ri.Con_Printf( PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
-		qglLockArraysEXT = ( void * ) qwglGetProcAddress( "glLockArraysEXT" );
-		qglUnlockArraysEXT = ( void * ) qwglGetProcAddress( "glUnlockArraysEXT" );
+		qglLockArraysEXT = ( void * ) ri.GLimp_GetProcAddress( "glLockArraysEXT" );
+		qglUnlockArraysEXT = ( void * ) ri.GLimp_GetProcAddress( "glUnlockArraysEXT" );
 	}
 	else
 	{
@@ -1261,7 +1229,7 @@ int R_Init( void )
 
 	if ( strstr( gl_config.extensions_string, "WGL_EXT_swap_control" ) )
 	{
-		qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) qwglGetProcAddress( "wglSwapIntervalEXT" );
+		qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) ri.GLimp_GetProcAddress( "wglSwapIntervalEXT" );
 		ri.Con_Printf( PRINT_ALL, "...enabling WGL_EXT_swap_control\n" );
 	}
 	else
@@ -1273,8 +1241,8 @@ int R_Init( void )
 	{
 		if ( gl_ext_pointparameters->value )
 		{
-			qglPointParameterfEXT = ( void (APIENTRY *)( GLenum, GLfloat ) ) qwglGetProcAddress( "glPointParameterfEXT" );
-			qglPointParameterfvEXT = ( void (APIENTRY *)( GLenum, const GLfloat * ) ) qwglGetProcAddress( "glPointParameterfvEXT" );
+			qglPointParameterfEXT = ( void (APIENTRY *)( GLenum, GLfloat ) ) ri.GLimp_GetProcAddress( "glPointParameterfEXT" );
+			qglPointParameterfvEXT = ( void (APIENTRY *)( GLenum, const GLfloat * ) ) ri.GLimp_GetProcAddress( "glPointParameterfvEXT" );
 			ri.Con_Printf( PRINT_ALL, "...using GL_EXT_point_parameters\n" );
 		}
 		else
@@ -1293,7 +1261,7 @@ int R_Init( void )
 		if ( gl_ext_palettedtexture->value )
 		{
 			ri.Con_Printf( PRINT_ALL, "...using GL_EXT_shared_texture_palette\n" );
-			qglColorTableEXT = ( void ( APIENTRY * ) ( int, int, int, int, int, const void * ) ) qwglGetProcAddress( "glColorTableEXT" );
+			qglColorTableEXT = ( void ( APIENTRY * ) ( int, int, int, int, int, const void * ) ) ri.GLimp_GetProcAddress( "glColorTableEXT" );
 		}
 		else
 		{
@@ -1310,8 +1278,8 @@ int R_Init( void )
 		if ( gl_ext_multitexture->value )
 		{
 			ri.Con_Printf( PRINT_ALL, "...using GL_SGIS_multitexture\n" );
-			qglMTexCoord2fSGIS = ( void * ) qwglGetProcAddress( "glMTexCoord2fSGIS" );
-			qglSelectTextureSGIS = ( void * ) qwglGetProcAddress( "glSelectTextureSGIS" );
+			qglMTexCoord2fSGIS = ( void * ) ri.GLimp_GetProcAddress( "glMTexCoord2fSGIS" );
+			qglSelectTextureSGIS = ( void * ) ri.GLimp_GetProcAddress( "glSelectTextureSGIS" );
 		}
 		else
 		{
@@ -1412,6 +1380,7 @@ void R_BeginFrame( float camera_separation )
 	{
 		vid_gamma->modified = false;
 
+#if 0
 		if ( gl_config.renderer & ( GL_RENDERER_VOODOO ) )
 		{
 			char envbuffer[1024];
@@ -1423,6 +1392,7 @@ void R_BeginFrame( float camera_separation )
 			Com_sprintf( envbuffer, sizeof(envbuffer), "SST_GAMMA=%f", g );
 			putenv( envbuffer );
 		}
+#endif
 	}
 
 	ri.GLimp_BeginFrame( camera_separation );
