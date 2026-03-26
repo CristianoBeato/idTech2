@@ -740,7 +740,7 @@ void		Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush)
 void		Com_EndRedirect (void);
 void 		Com_Printf ( const char *fmt, ...);
 void 		Com_DPrintf ( const char *fmt, ...);
-void 		Com_Error (int code, char *fmt, ...);
+void 		Com_Error (int code, const char *fmt, ...);
 void 		Com_Quit (void);
 
 int			Com_ServerState (void);		// this should have just been a cvar...
