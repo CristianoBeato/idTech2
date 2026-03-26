@@ -1100,7 +1100,7 @@ bool R_SetMode (void)
 R_Init
 ===============
 */
-int R_Init( void *hinstance, void *hWnd )
+int R_Init( void )
 {	
 	char renderer_buffer[1000];
 	char vendor_buffer[1000];
@@ -1127,8 +1127,11 @@ int R_Init( void *hinstance, void *hWnd )
 		return -1;
 	}
 
+	/// Create the main window
+	ri.Vid_NewWindow( 800, 600 );
+
 	// initialize OS-specific parts of OpenGL
-	if ( !ri.GLimp_Init( hinstance, hWnd ) )
+	if ( !ri.GLimp_Init() )
 	{
 		QGL_Shutdown();
 		return -1;

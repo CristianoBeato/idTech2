@@ -132,7 +132,7 @@ typedef struct
 	int		api_version;
 
 	// called when the library is loaded
-	int	(*Init) ( void *hinstance, void *wndproc );
+	int	(*Init) ( void );
 
 	// called before the library is unloaded
 	void	(*Shutdown) (void);
@@ -221,12 +221,13 @@ typedef struct
 
 	void		(*GLimp_BeginFrame)( float camera_separation );
 	void		(*GLimp_EndFrame)( void );
-	int 		(*GLimp_Init)( void *hinstance, void *hWnd );
+	int 		(*GLimp_Init)( void );
 	void		(*GLimp_Shutdown)( void );
 	int     	(*GLimp_SetMode)( int *pwidth, int *pheight, int mode, bool fullscreen );
 	void		(*GLimp_AppActivate)( bool active );
 	void		(*GLimp_EnableLogging)( bool enable );
 	void		(*GLimp_LogNewFrame)( void );
+	void		(*GLimp_LoadLibary)( const char* name );
 	void*		(*GLimp_GetProcAddress)( const char* name );
 // BEATO End
 } refimport_t;
