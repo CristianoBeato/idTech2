@@ -1,18 +1,8 @@
 // vid_null.c -- null video driver to aid porting efforts
 // this assumes that one of the refs is statically linked to the executable
 
-#include "../client/client.h"
-
-#include <SDL3/SDL_loadso.h>
-#include <SDL3/SDL_video.h>
-
-static struct SDL_video_t
-{
-    const char*         ref_name[100];
-    SDL_SharedObject*   ref_lib;
-    SDL_Window*         window;
-} video;
-
+#include "client/client.h"
+#include "SDL3_shared.h"
 
 viddef_t	viddef;				// global video state
 cvar_t		*vid_ref;			// Name of Refresh DLL loaded
@@ -21,8 +11,23 @@ cvar_t		*vid_ypos;			// Y coordinate of window position
 cvar_t		*vid_fullscreen;
 
 refexport_t	re;
+SDL_video_t video;
 
 refexport_t GetRefAPI (refimport_t rimp);
+
+vidmode_t vid_modes[VID_NUM_MODES] =
+{
+    { "Mode 0: 320x240",   320, 240,   0 },
+    { "Mode 1: 400x300",   400, 300,   1 },
+    { "Mode 2: 512x384",   512, 384,   2 },
+    { "Mode 3: 640x480",   640, 480,   3 },
+    { "Mode 4: 800x600",   800, 600,   4 },
+    { "Mode 5: 960x720",   960, 720,   5 },
+    { "Mode 6: 1024x768",  1024, 768,  6 },
+    { "Mode 7: 1152x864",  1152, 864,  7 },
+    { "Mode 8: 1280x960",  1280, 960, 8 },
+    { "Mode 9: 1600x1200", 1600, 1200, 9 }
+};
 
 /*
 ==========================================================================
@@ -100,31 +105,6 @@ void VID_UpdateWindowPosAndSize( int x, int y )
     SDL_SetWindowPosition( video.window, x, y );
 }
 
-/*
-** VID_GetModeInfo
-*/
-typedef struct vidmode_s
-{
-    const char *description;
-    int         width, height;
-    int         mode;
-} vidmode_t;
-
-vidmode_t vid_modes[] =
-{
-    { "Mode 0: 320x240",   320, 240,   0 },
-    { "Mode 1: 400x300",   400, 300,   1 },
-    { "Mode 2: 512x384",   512, 384,   2 },
-    { "Mode 3: 640x480",   640, 480,   3 },
-    { "Mode 4: 800x600",   800, 600,   4 },
-    { "Mode 5: 960x720",   960, 720,   5 },
-    { "Mode 6: 1024x768",  1024, 768,  6 },
-    { "Mode 7: 1152x864",  1152, 864,  7 },
-    { "Mode 8: 1280x960",  1280, 960, 8 },
-    { "Mode 9: 1600x1200", 1600, 1200, 9 }
-};
-#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
-
 bool VID_GetModeInfo( int *width, int *height, int mode )
 {
     // TODO List display types whit SDL 
@@ -140,6 +120,9 @@ bool VID_GetModeInfo( int *width, int *height, int mode )
 
 static bool VID_LoadRefresh( const char *name )
 {
+    char lib[MAX_OSPATH];
+
+    // unloa, if lib is already loaded
     if ( video.ref_lib != NULL )
 	{
 		re.Shutdown();
@@ -151,11 +134,13 @@ static bool VID_LoadRefresh( const char *name )
 	}
 
 	Com_Printf( "------- Loading %s -------\n", name );
+    
+    Com_sprintf( lib, MAX_OSPATH, "./%s", name );
 
-    video.ref_lib = SDL_LoadObject( name );
-    if( video.ref_lib )
+    video.ref_lib = SDL_LoadObject( lib );
+    if( video.ref_lib == NULL )
     {
-        Sys_Error( SDL_GetError() );
+        Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , SDL_GetError() );
         return false;
     }
 
@@ -175,7 +160,12 @@ void	VID_Init (void)
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "0", CVAR_ARCHIVE);
 	//vid_gamma = Cvar_Get( "vid_gamma", "1", CVAR_ARCHIVE );
 
-    Com_sprintf( name, sizeof(name), "ref_%s.dll", vid_ref->string );
+#if SDL_PLATFORM_UNIX
+    Com_sprintf( name, sizeof(name), "libref_%s.%s", vid_ref->string, SHARED_LIB_EXT );
+#else
+    Com_sprintf( name, sizeof(name), "ref_%s.%s", vid_ref->string, SHARED_LIB_EXT );
+#endif
+
     if( !VID_LoadRefresh( name ) )
         Sys_Error( "Can't load render library %s\n", name );
 
@@ -197,9 +187,24 @@ void	VID_Init (void)
     ri.Cvar_Set = Cvar_Set;
     ri.Cvar_SetValue = Cvar_SetValue;
     ri.Vid_GetModeInfo = VID_GetModeInfo;
+    ri.Vid_MenuInit = VID_MenuInit;
+// BEATO Begin:
+    ri.Sys_Mkdir = Sys_Mkdir;
+    ri.GLimp_BeginFrame = GLimp_BeginFrame;
+    ri.GLimp_EndFrame = GLimp_EndFrame;
+    ri.GLimp_Init = GLimp_Init;
+    ri.GLimp_Shutdown = GLimp_Shutdown;
+    ri.GLimp_SetMode = GLimp_SetMode;
+    ri.GLimp_AppActivate = GLimp_AppActivate;
+    ri.GLimp_EnableLogging = GLimp_EnableLogging;
+    ri.GLimp_LogNewFrame = GLimp_LogNewFrame;
+    ri.GLimp_LoadLibary = GLimp_LoadLibary;
+    ri.GLimp_GetProcAddress = GLimp_GetProcAddress;
+// BEATO End
 
-    if ( ( GetRefAPI = (void *) SDL_LoadFunction( video.ref_lib, "GetRefAPI" ) ) == 0 )
-		Com_Error( ERR_FATAL, "GetProcAddress failed on %s", video.ref_name );
+    GetRefAPI = (void *) SDL_LoadFunction( video.ref_lib, "GetRefAPI" );
+    if ( GetRefAPI == NULL )
+		Com_Error( ERR_FATAL, "GetProcAddress failed on %s - %s\n", video.ref_name, SDL_GetError() );
 
     re = GetRefAPI(ri);
 
@@ -207,7 +212,7 @@ void	VID_Init (void)
         Com_Error ( ERR_FATAL, "Re has incompatible api_version");
     
         // call the init function
-    if (re.Init (NULL, (void*)video.window ) == -1)
+    if (re.Init() == -1)
 		Com_Error ( ERR_FATAL, "Couldn't start refresh");
 }
 

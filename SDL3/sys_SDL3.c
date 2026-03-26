@@ -2,22 +2,16 @@
 
 #include "qcommon/qcommon.h"
 #include "errno.h"
-
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include "SDL3_shared.h"
 
 int curtime;
+unsigned int	sys_frame_time;
 
-#if SDL_PLATFORM_WINDOWS
-#	define SHARED_LIB_EXT "dll"
-#elif SDL_PLATFORM_LINUX
-#	define SHARED_LIB_EXT "so"
-#endif 
- 
+
 static struct sys_SDL3
 {
-	
-	unsigned int		sys_frame_time;
 	SDL_SharedObject*	game_library;	
 } sys;
 
@@ -190,7 +184,6 @@ void	Sys_FindClose (void)
 
 void	Sys_Init (void)
 {
-	VID_NewWindow( 800, 600 );
 }
 
 

@@ -3,6 +3,8 @@
 #include "client/client.h"
 #include "SDL3_shared.h"
 
+cvar_t	*in_joystick;
+
 /*
 ===========
 IN_Init
@@ -10,6 +12,7 @@ IN_Init
 */
 void IN_Init( void )
 {
+    in_joystick	= Cvar_Get ( "in_joystick", "0", CVAR_ARCHIVE );
 }
 
 /*
