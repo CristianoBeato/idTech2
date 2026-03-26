@@ -1,6 +1,6 @@
 ##
 ## Capture The Flag - game logic source
-## ref_gl.dll
+## renderer_gl.dll
 set( RENDERER_GL_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/anorms.h
     ${CMAKE_CURRENT_SOURCE_DIR}/anormtab.h
@@ -20,22 +20,22 @@ set( RENDERER_GL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/warpsin.h
     )
 
-set( RENDERER_SOURCE_DEF ${CMAKE_CURRENT_SOURCE_DIR}/ref_gl.def )
+set( RENDERER_SOURCE_DEF ${CMAKE_CURRENT_SOURCE_DIR}/renderer_gl.def )
 
 #set the library souce
-add_library( ref_gl SHARED ${RENDERER_GL_SOURCES} ) #TODO: append on source on windows platforms 
+add_library( renderer_gl SHARED ${RENDERER_GL_SOURCES} ) #TODO: append on source on windows platforms 
 
 #set the openGL Renderer specific definitions
-target_compile_definitions( ref_gl PRIVATE __RENDERER_GL_DLL__ ) 
+target_compile_definitions( renderer_gl PRIVATE __RENDERER_GL_DLL__ ) 
 
 #set the sound root dir as include
-target_include_directories( ref_gl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
+target_include_directories( renderer_gl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
 # Link openGL Libraries
-target_link_libraries( ref_gl PRIVATE qShared OpenGL::GL )
+target_link_libraries( renderer_gl PRIVATE qShared OpenGL::GL )
 
 # set the precompiled header
-target_precompile_headers( ref_gl 
+target_precompile_headers( renderer_gl 
 	PUBLIC
         <ctype.h>
         <stdio.h>
