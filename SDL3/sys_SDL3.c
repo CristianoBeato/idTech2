@@ -54,9 +54,9 @@ void	*Sys_GetGameAPI (void *parms)
 {
 	void	*(*GetGameAPI) (void *);
 
-	char	name[MAX_OSPATH];
+	const char	name[MAX_OSPATH];
 	const char	*curpath;
-	char	*path;
+	const char	*path;
 
 	const char *gamename = "game";
 	if (sys.game_library)
@@ -75,17 +75,24 @@ void	*Sys_GetGameAPI (void *parms)
 	path = NULL;
 	while (1)
 	{
-		path = FS_NextPath (path);
+		path = FS_NextPath ( path );
 		if (!path)
 			return NULL;		// couldn't find one anywhere
 		
-		sprintf( name, "%s/%s/%s.%s", curpath, path, gamename, SHARED_LIB_EXT );
+		snprintf( name, MAX_OSPATH, "%s/%s/%s.%s", curpath, path, gamename, SHARED_LIB_EXT );
+		Com_Printf( "Trying to load game lib %s\n", name );
 		sys.game_library = SDL_LoadObject( name );
 		if ( sys.game_library )
 		{
 			Com_DPrintf ("LoadLibrary (%s)\n",name);
 			break;
 		}
+	}
+
+	if( sys.game_library == NULL )
+	{
+		///TODO: drop a fatal error
+		Com_Error( ERR_FATAL, "Failed to load LoadLibrary %s\n", gamename  );
 	}
 
 	GetGameAPI = (void *)SDL_LoadFunction( sys.game_library, "GetGameAPI");
