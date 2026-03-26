@@ -51,7 +51,7 @@ void VID_Restart_f (void)
 }
 
 #define	MAXPRINTMSG	4096
-void VID_Printf (int print_level, char *fmt, ...)
+void VID_Printf (int print_level, const char *fmt, ...)
 {
         va_list		argptr;
         char		msg[MAXPRINTMSG];
@@ -134,7 +134,6 @@ static bool VID_LoadRefresh( const char *name )
 	}
 
 	Com_Printf( "------- Loading %s -------\n", name );
-    
     Com_sprintf( lib, MAX_OSPATH, "./%s", name );
 
     video.ref_lib = SDL_LoadObject( lib );
@@ -161,9 +160,9 @@ void	VID_Init (void)
 	//vid_gamma = Cvar_Get( "vid_gamma", "1", CVAR_ARCHIVE );
 
 #if SDL_PLATFORM_UNIX
-    Com_sprintf( name, sizeof(name), "libref_%s.%s", vid_ref->string, SHARED_LIB_EXT );
+    Com_sprintf( name, sizeof(name), "librenderer_%s.%s", vid_ref->string, SHARED_LIB_EXT );
 #else
-    Com_sprintf( name, sizeof(name), "ref_%s.%s", vid_ref->string, SHARED_LIB_EXT );
+    Com_sprintf( name, sizeof(name), "renderer_%s.%s", vid_ref->string, SHARED_LIB_EXT );
 #endif
 
     if( !VID_LoadRefresh( name ) )

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "../qcommon/qcommon.h"
+#include "qcommon/qcommon.h"
 
 #define	MAX_DLIGHTS		32
 #define	MAX_ENTITIES	128
@@ -181,6 +181,60 @@ typedef struct
 
 } refexport_t;
 
+/// BEATO Begin: Future Port to c++
+#ifdef __cplusplus
+class crRenderer
+{
+public:
+	// called when the library is loaded
+	virtual int	Init ( void ) = 0;
+
+	// called before the library is unloaded
+	virtual void Shutdown( void ) = 0;
+
+	// All data that will be used in a level should be
+	// registered before rendering any frames to prevent disk hits,
+	// but they can still be registered at a later time
+	// if necessary.
+	//
+	// EndRegistration will free any remaining data that wasn't registered.
+	// Any model_s or skin_s pointers from before the BeginRegistration
+	// are no longer valid after EndRegistration.
+	//
+	// Skins and images need to be differentiated, because skins
+	// are flood filled to eliminate mip map edge errors, and pics have
+	// an implicit "pics/" prepended to the name. (a pic name that starts with a
+	// slash will not use the "pics/" prefix or the ".pcx" postfix)
+	virtual void			BeginRegistration ( const char *map ) = 0;
+	virtual struct model_s*	RegisterModel ( const char *name ) = 0;
+	virtual struct image_s*	RegisterSkin ( const char *name ) = 0;
+	virtual struct image_s*	RegisterPic ( const char *name ) = 0;
+	virtual void			SetSky ( const char *name, float rotate, vec3_t axis) = 0;
+	virtual void			EndRegistration (void) = 0;
+
+	virtual void			RenderFrame( refdef_t *fd ) = 0;
+
+	virtual void	DrawGetPicSize ( int *w, int *h, const char *name ) = 0;	// will return 0 0 if not found
+	virtual void	DrawPic ( int x, int y, char *name ) = 0;
+	virtual void	DrawStretchPic (int x, int y, int w, int h, const char *name ) = 0;
+	virtual void	DrawChar ( int x, int y, int c ) = 0;
+	virtual void	DrawTileClear (int x, int y, int w, int h, const char *name ) = 0;
+	virtual void	DrawFill ( int x, int y, int w, int h, int c ) = 0;
+	virtual void	DrawFadeScreen (void) = 0;
+
+	// Draw images for cinematic rendering (which can have a different palette). Note that calls
+	virtual void	DrawStretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data ) = 0;
+
+	// video mode and refresh state management entry points
+	virtual void	CinematicSetPalette( const unsigned char *palette) = 0;	// NULL = game palette
+	virtual void	BeginFrame( float camera_separation ) = 0;
+	virtual void	EndFrame( void ) = 0;
+
+	virtual void	AppActivate( bool activate ) = 0;
+};
+#endif //__cplusplus
+/// BEATO End
+
 //
 // these are the functions imported by the refresh module
 //
@@ -192,9 +246,9 @@ typedef struct
 	void	(*Cmd_RemoveCommand) (char *name);
 	int		(*Cmd_Argc) (void);
 	char	*(*Cmd_Argv) (int i);
-	void	(*Cmd_ExecuteText) (int exec_when, char *text);
+	void	(*Cmd_ExecuteText) (int exec_when, const char *text);
 
-	void	(*Con_Printf) (int print_level, char *str, ...);
+	void	(*Con_Printf) (int print_level, const char *str, ...);
 
 	// files will be memory mapped read only
 	// the returned buffer may be part of a larger pak file,
@@ -232,6 +286,33 @@ typedef struct
 // BEATO End
 } refimport_t;
 
+/// BEATO Begin: Future Port to c++
+#ifdef __cplusplus
+
+class crVideo
+{
+public:
+	virtual bool	GetModeInfo( int *width, int *height, int mode ) = 0;
+	virtual void	MenuInit( void ) = 0;
+	virtual void	NewWindow( int width, int height ) = 0;
+};
+
+class crGLimp
+{
+public:
+    virtual void		BeginFrame( const float camera_separation ) = 0;
+    virtual void		EndFrame( void ) = 0;
+    virtual int 		Init( void ) = 0;
+    virtual void		Shutdown( void ) = 0;
+    virtual int     	SetMode( int *pwidth, int *pheight, const int mode, const bool fullscreen ) = 0;
+    virtual void		AppActivate( const bool active ) = 0;
+    virtual void		EnableLogging( const bool enable ) = 0;
+    virtual void		LogNewFrame( void ) = 0;
+    virtual void        LoadLibary( const char* name ) = 0;
+    virtual void*		GetProcAddress( const char* name ) const = 0;
+};
+#endif // __cplusplus 
+/// BEATO End
 
 // this is the only function actually exported at the linker level
 typedef	refexport_t	(*GetRefAPI_t) (refimport_t);

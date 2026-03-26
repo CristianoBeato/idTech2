@@ -168,7 +168,7 @@ void Cbuf_InsertFromDefer (void)
 Cbuf_ExecuteText
 ============
 */
-void Cbuf_ExecuteText (int exec_when, char *text)
+void Cbuf_ExecuteText (int exec_when, const char *text)
 {
 	switch (exec_when)
 	{
