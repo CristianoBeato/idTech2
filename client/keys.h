@@ -144,3 +144,15 @@ void Key_SetBinding (int keynum, char *binding);
 void Key_ClearStates (void);
 int Key_GetKey (void);
 
+#ifdef __cplusplus
+class crKey
+{
+public:
+    virtual void Event (int key, bool down, unsigned time) = 0;
+    virtual void Init (void) = 0;
+    virtual void WriteBindings (FILE *f) = 0;
+    virtual void SetBinding (int keynum, char *binding) = 0;
+    virtual void ClearStates (void)  = 0;
+    virtual int GetKey (void)  = 0;
+};
+#endif //__cplusplus
