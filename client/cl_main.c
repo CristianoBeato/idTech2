@@ -973,7 +973,7 @@ when they overflow
 */
 void CL_DumpPackets (void)
 {
-	while (NET_GetPacket (NS_CLIENT, &net_from, &net_message))
+	while ( NET_GetPacket( NS_CLIENT, &net_from, &net_message ) )
 	{
 		Com_Printf ("dumnping a packet\n");
 	}
@@ -986,7 +986,7 @@ CL_ReadPackets
 */
 void CL_ReadPackets (void)
 {
-	while (NET_GetPacket (NS_CLIENT, &net_from, &net_message))
+	while ( NET_GetPacket (NS_CLIENT, &net_from, &net_message ))
 	{
 //	Com_Printf ("packet\n");
 		//

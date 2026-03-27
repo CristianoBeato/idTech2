@@ -594,13 +594,13 @@ void SV_GiveMsec (void)
 SV_ReadPackets
 =================
 */
-void SV_ReadPackets (void)
+void SV_ReadPackets ( void )
 {
 	int			i;
 	client_t	*cl;
 	int			qport;
 
-	while (NET_GetPacket (NS_SERVER, &net_from, &net_message))
+	while ( NET_GetPacket ( NS_SERVER, &net_from, &net_message ) )
 	{
 		// check for connectionless packet (0xffffffff) first
 		if (*(int *)net_message.data == -1)
@@ -619,19 +619,22 @@ void SV_ReadPackets (void)
 		// check for packets from connected clients
 		for (i=0, cl=svs.clients ; i<maxclients->value ; i++,cl++)
 		{
-			if (cl->state == cs_free)
+			if ( cl->state == cs_free )
 				continue;
-			if (!NET_CompareBaseAdr (net_from, cl->netchan.remote_address))
+
+			if ( !NET_CompareBaseAdr (net_from, cl->netchan.remote_address ) )
 				continue;
-			if (cl->netchan.qport != qport)
+
+			if ( cl->netchan.qport != qport )
 				continue;
-			if (cl->netchan.remote_address.port != net_from.port)
+				 
+			if ( cl->netchan.remote_address.port != net_from.port )
 			{
 				Com_Printf ("SV_ReadPackets: fixing up a translated port\n");
 				cl->netchan.remote_address.port = net_from.port;
 			}
 
-			if (Netchan_Process(&cl->netchan, &net_message))
+			if ( Netchan_Process( &cl->netchan, &net_message ) )
 			{	// this is a valid, sequenced packet, so process it
 				if (cl->state != cs_zombie)
 				{
@@ -660,7 +663,7 @@ for a few seconds to make sure any final reliable message gets resent
 if necessary
 ==================
 */
-void SV_CheckTimeouts (void)
+void SV_CheckTimeouts ( void )
 {
 	int		i;
 	client_t	*cl;
@@ -757,7 +760,7 @@ SV_Frame
 
 ==================
 */
-void SV_Frame (int msec)
+void SV_Frame ( int msec )
 {
 	time_before_game = time_after_game = 0;
 

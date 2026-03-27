@@ -548,15 +548,40 @@ void		NET_Shutdown (void);
 
 void		NET_Config (bool multiplayer);
 
-bool	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message);
-void		NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to);
+bool		NET_GetPacket ( netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message );
+void		NET_SendPacket ( netsrc_t sock, int length, void *data, netadr_t to);
 
-bool	NET_CompareAdr (netadr_t a, netadr_t b);
-bool	NET_CompareBaseAdr (netadr_t a, netadr_t b);
-bool	NET_IsLocalAddress (netadr_t adr);
-char		*NET_AdrToString (netadr_t a);
-bool	NET_StringToAdr (char *s, netadr_t *a);
+bool		NET_CompareAdr (netadr_t a, netadr_t b);
+bool		NET_CompareBaseAdr (netadr_t a, netadr_t b);
+bool		NET_IsLocalAddress (netadr_t adr);
+const char*	NET_AdrToString ( netadr_t a );
+bool		NET_StringToAdr ( const char *s, netadr_t *a);
 void		NET_Sleep(int msec);
+
+#ifdef __cplusplus
+
+/// @brief Platform specific net interface
+class crNet
+{
+private:
+	static crNet	Get( void );
+
+	virtual void		Init ( void ) = 0;
+	virtual void		Shutdown (void) = 0;
+
+	virtual void		Config ( const bool multiplayer ) = 0;
+
+	virtual bool		GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message) = 0;
+	virtual void		SendPacket (netsrc_t sock, int length, void *data, netadr_t to) = 0;
+
+	virtual bool		CompareAdr (netadr_t a, netadr_t b) = 0;
+	virtual bool		CompareBaseAdr (netadr_t a, netadr_t b) = 0;
+	virtual bool		IsLocalAddress (netadr_t adr) = 0;
+	virtual const char* AdrToString (netadr_t a) = 0;
+	virtual bool		StringToAdr ( const char *s, netadr_t *a) = 0;
+	virtual void		Sleep( int msec ) = 0;
+};
+#endif //__cplusplus
 
 //============================================================================
 

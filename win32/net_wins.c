@@ -1,3 +1,4 @@
+
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
 
@@ -21,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "winsock.h"
 #include "wsipx.h"
-#include "qcommon/qcommon.h"
+#include "../qcommon/qcommon.h"
 
 #define	MAX_LOOPBACK	4
 
@@ -153,7 +154,7 @@ bool	NET_CompareBaseAdr (netadr_t a, netadr_t b)
 	}
 }
 
-char	*NET_AdrToString (netadr_t a)
+const char	*NET_AdrToString ( netadr_t a )
 {
 	static	char	s[64];
 
@@ -185,7 +186,7 @@ idnewt:28000
 	sscanf (copy, "%x", &val);	\
 	((struct sockaddr_ipx *)sadr)->dest = val
 
-bool	NET_StringToSockaddr (char *s, struct sockaddr *sadr)
+bool	NET_StringToSockaddr ( const char *s, struct sockaddr *sadr)
 {
 	struct hostent	*h;
 	char	*colon;
@@ -254,7 +255,7 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-bool	NET_StringToAdr (char *s, netadr_t *a)
+bool	NET_StringToAdr ( const char *s, netadr_t *a)
 {
 	struct sockaddr sadr;
 	
@@ -468,7 +469,7 @@ int NET_IPSocket (char *net_interface, int port)
 {
 	int					newsocket;
 	struct sockaddr_in	address;
-	unsigned long		_true = true;
+	u_long				_true = true;
 	int					i = 1;
 	int					err;
 
@@ -481,7 +482,7 @@ int NET_IPSocket (char *net_interface, int port)
 	}
 
 	// make it non-blocking
-	if (ioctlsocket (newsocket, FIONBIO, &_true) == -1)
+	if (ioctlsocket (newsocket, FIONBIO, &_true ) == -1)
 	{
 		Com_Printf ("WARNING: UDP_OpenSocket: ioctl FIONBIO: %s\n", NET_ErrorString());
 		return 0;
@@ -578,7 +579,7 @@ int NET_IPXSocket (int port)
 {
 	int					newsocket;
 	struct sockaddr_ipx	address;
-	unsigned long		_true = 1;
+	u_long				_true = 1;
 	int					err;
 
 	if ((newsocket = socket (PF_IPX, SOCK_DGRAM, NSPROTO_IPX)) == -1)
@@ -590,7 +591,7 @@ int NET_IPXSocket (int port)
 	}
 
 	// make it non-blocking
-	if (ioctlsocket (newsocket, FIONBIO, &_true ) == -1)
+	if ( ioctlsocket (newsocket, FIONBIO, &_true) == -1)
 	{
 		Com_Printf ("WARNING: IPX_Socket: ioctl FIONBIO: %s\n", NET_ErrorString());
 		return 0;
