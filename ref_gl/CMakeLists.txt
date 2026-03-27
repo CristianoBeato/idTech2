@@ -5,6 +5,7 @@ set( RENDERER_GL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/anorms.h
     ${CMAKE_CURRENT_SOURCE_DIR}/anormtab.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_draw.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_draw.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_image.c
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_light.c
     ${CMAKE_CURRENT_SOURCE_DIR}/gl_local.h
