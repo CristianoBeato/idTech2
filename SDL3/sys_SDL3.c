@@ -9,10 +9,7 @@
 int curtime;
 unsigned int	sys_frame_time;
 
-static struct sys_SDL3
-{
-	SDL_SharedObject*	game_library;	
-} sys;
+SDL_system sys;
 
 void Sys_Error ( const char *error, ...)
 {
@@ -107,16 +104,6 @@ void	*Sys_GetGameAPI (void *parms)
 	return GetGameAPI( parms );
 }
 
-void Sys_SendKeyEvents (void)
-{
-	SDL_Event e;
-	while ( SDL_PollEvent( &e ) )
-	{
-	}
-
-	sys_frame_time = SDL_GetTicks();	
-}
-
 /*
 =================
 Sys_AppActivate
@@ -145,7 +132,7 @@ const char *Sys_GetClipboardData( void )
 		const char* SDLclipboard = SDL_GetClipboardText();
 		size_t len = strlen( SDLclipboard );
 		clipboard = memset( malloc( len + 1 ), 0x00, len + 1 ); // set to null ( '\0' )
-		strncpy( clipboard, SDLclipboard, strlen( clipboard ) );
+		strncpy( clipboard, SDL_const_cast( char*, SDLclipboard ), strlen( clipboard ) );
 		SDL_free( (void*)SDLclipboard );
 	}
 
@@ -215,7 +202,13 @@ int main ( int argc, char **argv )
 	if( !SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD ) )
 		Sys_Error( SDL_GetError() );
 
-	Qcommon_Init (argc, argv);
+	sys.argc = argc;
+	for (  int i = 0; i < argc; i++)
+	{
+		sys.argv[i] = argv[i];
+	}
+	
+	Qcommon_Init ( argc, argv );
 
 	while (1)
 	{

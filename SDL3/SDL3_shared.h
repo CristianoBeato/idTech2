@@ -49,6 +49,8 @@ typedef struct
 {
 #if SDL_PLATFORM_WINDOWS
 #endif 
+    bool                ActiveApp;
+    bool                Minimized;
     int			        argc;
     char*               argv[MAX_NUM_ARGVS];
     SDL_SharedObject*	game_library;
