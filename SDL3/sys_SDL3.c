@@ -203,8 +203,8 @@ void	Sys_FindClose (void)
 
 void	Sys_Init (void)
 {
-	GLimp_LoadLibary( NULL );
-	VID_NewWindow( 800, 600 );
+	//GLimp_LoadLibary( NULL );
+	//VID_NewWindow( 800, 600 );
 }
 
 
