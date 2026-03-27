@@ -32,3 +32,32 @@ void IN_Move (usercmd_t *cmd);
 // add additional movement on top of the keyboard move cmd
 
 void IN_Activate (bool active);
+
+/// BEATO Begin:
+
+#ifdef __cplusplus
+class crInput
+{
+public:
+    static crInput* Get( void );
+
+    virtual void Init (void) = 0;
+
+    virtual void Shutdown (void) = 0;
+
+    // oportunity for devices to stick commands on the script buffer
+    virtual void Commands (void) = 0;
+
+    virtual void Frame (void) = 0;
+
+    // add additional movement on top of the keyboard move cmd
+    virtual void Move (usercmd_t *cmd) = 0;
+
+    // enable disable text input to console;
+    virtual void TextInput( const bool textinput ) = 0;
+    
+    virtual void Activate (bool active) = 0;
+};
+#endif //__cplusplus
+
+// BEATO End
