@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include <GL/gl.h>
+#include <GL/glext.h>
 
 bool    QGL_Init( const char *dllname );
 void    QGL_Shutdown( void );
@@ -36,6 +37,8 @@ void    QGL_Shutdown( void );
 #ifndef APIENTRY
 #  define APIENTRY
 #endif
+
+
 
 extern  void ( APIENTRY * qglAccum )(GLenum op, GLfloat value);
 extern  void ( APIENTRY * qglAlphaFunc )(GLenum func, GLclampf ref);
@@ -383,6 +386,33 @@ extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
 
 extern	void ( APIENTRY * qglMTexCoord2fSGIS)( GLenum, GLfloat, GLfloat );
 extern	void ( APIENTRY * qglSelectTextureSGIS)( GLenum );
+
+/// BEATO Begin
+// GL_ARB_vertex_buffer_object
+// GL_ARB_uniform_buffer_object
+// GL_ARB_buffer_storage
+extern void ( APIENTRY * qglDeleteBuffers ( GLsizei n, const GLuint *buffers );
+extern PFNGLCREATEBUFFERSPROC               qglCreateBuffers;
+extern PFNGLNAMEDBUFFERSTORAGEPROC          qglNamedBufferStorage;
+extern PFNGLMAPNAMEDBUFFERRANGEPROC         qglMapNamedBufferRange;
+extern PFNGLUNMAPNAMEDBUFFERPROC            qglUnmapNamedBuffer;
+extern PFNGLCOPYNAMEDBUFFERSUBDATAPROC      qglCopyNamedBufferSubData;
+extern PFNGLNAMEDBUFFERSUBDATAPROC          qglNamedBufferSubData;
+
+// GL_ARB_vertex_array_object
+extern PFNGLCREATEVERTEXARRAYSPROC          qglCreateVertexArrays;
+extern PFNGLDELETEVERTEXARRAYSPROC          qglDeleteVertexArrays;
+extern PFNGLBINDVERTEXARRAYPROC             qglBindVertexArray;
+extern PFNGLENABLEVERTEXARRAYATTRIBPROC     qglEnableVertexArrayAttrib;
+extern PFNGLDISABLEVERTEXARRAYATTRIBPROC    qglDisableVertexArrayAttrib;
+extern PFNGLVERTEXATTRIBPOINTERPROC         qglVertexAttribPointer;
+extern PFNGLVERTEXARRAYATTRIBBINDINGPROC    qglVertexArrayAttribBinding;
+extern PFNGLVERTEXARRAYATTRIBFORMATPROC     qglVertexArrayAttribFormat;
+extern PFNGLVERTEXARRAYELEMENTBUFFERPROC    qglVertexArrayElementBuffer;
+extern PFNGLVERTEXARRAYVERTEXBUFFERPROC     qglVertexArrayVertexBuffer;
+
+
+/// BEATO End
 
 #ifdef _WIN32
 

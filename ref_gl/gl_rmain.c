@@ -18,7 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // r_main.c
+
 #include "gl_local.h"
+#include "gl_draw.h"
 
 void R_Clear (void);
 
@@ -1663,3 +1665,39 @@ void Com_Printf ( const char *fmt, ...)
 }
 
 #endif
+
+void R_CreateBuffers(void)
+{
+
+}
+
+void R_DestroyBuffers(void)
+{
+	if( )
+}
+
+void R_CreateVAOS( void )
+{
+	qglCreateVertexArrays( 1, &vaos.meshesVAO );
+	
+	/// Configure vertex position
+	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 0 );
+	qglVertexArrayAttribFormat( vaos.meshesVAO, 0, 3, GL_FLOAT, GL_FALSE, 0 );
+
+	/// Configure vertex texture coord 
+	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 1 );
+	qglVertexArrayAttribFormat( vaos.meshesVAO, 1, 3, GL_FLOAT, GL_FALSE, offsetof( drawVertex_t, s ) );
+
+	/// Configure vertex color
+	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 2 );
+	qglVertexArrayAttribFormat( vaos.meshesVAO, 2, 3, GL_FLOAT, GL_FALSE, offsetof( drawVertex_t, r ) );
+}
+
+void R_DestroyVAOS( void )
+{
+	if( vaos.meshesVAO )
+	{
+		qglDeleteVertexArrays( 1, &vaos.meshesVAO );
+		vaos.meshesVAO = 0;
+	}
+}

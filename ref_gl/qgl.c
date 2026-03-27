@@ -349,6 +349,28 @@ void ( APIENTRY * qglUnlockArraysEXT) (void);
 void ( APIENTRY * qglMTexCoord2fSGIS)( GLenum, GLfloat, GLfloat );
 void ( APIENTRY * qglSelectTextureSGIS)( GLenum );
 
+/// BEATO Begin
+
+void ( APIENTRY * qglDeleteBuffers ( GLsizei n, const GLuint *buffers );
+PFNGLCREATEBUFFERSPROC               qglCreateBuffers;
+PFNGLNAMEDBUFFERSTORAGEPROC          qglNamedBufferStorage;
+PFNGLMAPNAMEDBUFFERRANGEPROC         qglMapNamedBufferRange;
+PFNGLUNMAPNAMEDBUFFERPROC            qglUnmapNamedBuffer;
+PFNGLCOPYNAMEDBUFFERSUBDATAPROC      qglCopyNamedBufferSubData;
+PFNGLNAMEDBUFFERSUBDATAPROC          qglNamedBufferSubData;
+
+PFNGLCREATEVERTEXARRAYSPROC          qglCreateVertexArrays;
+PFNGLDELETEVERTEXARRAYSPROC          qglDeleteVertexArrays;
+PFNGLBINDVERTEXARRAYPROC             qglBindVertexArray;
+PFNGLENABLEVERTEXARRAYATTRIBPROC     qglEnableVertexArrayAttrib;
+PFNGLDISABLEVERTEXARRAYATTRIBPROC    qglDisableVertexArrayAttrib;
+PFNGLVERTEXATTRIBPOINTERPROC         qglVertexAttribPointer;
+PFNGLVERTEXARRAYATTRIBBINDINGPROC    qglVertexArrayAttribBinding;
+PFNGLVERTEXARRAYATTRIBFORMATPROC     qglVertexArrayAttribFormat;
+PFNGLVERTEXARRAYELEMENTBUFFERPROC    qglVertexArrayElementBuffer;
+PFNGLVERTEXARRAYVERTEXBUFFERPROC     qglVertexArrayVertexBuffer;
+/// BEATO End
+
 #ifdef _WIN32
 
 int   ( WINAPI * qwglChoosePixelFormat )(HDC, CONST PIXELFORMATDESCRIPTOR *);
@@ -738,6 +760,25 @@ bool QGL_Init( const char *dllname )
 	qglVertex4sv                 = 	ri.GLimp_GetProcAddress( "glVertex4sv" );
 	qglVertexPointer             = 	ri.GLimp_GetProcAddress( "glVertexPointer" );
 	qglViewport                  = 	ri.GLimp_GetProcAddress( "glViewport" );
+
+	qglDeleteBuffers			= ri.GLimp_GetProcAddress( "qglDeleteBuffers" );
+	qglCreateBuffers 			= ri.GLimp_GetProcAddress( "glCreateBuffers" );
+	qglNamedBufferStorage 		= ri.GLimp_GetProcAddress( "glNamedBufferStorage" );
+	qglMapNamedBufferRange 		= ri.GLimp_GetProcAddress( "glMapNamedBufferRange" );
+	qglUnmapNamedBuffer 		= ri.GLimp_GetProcAddress( "glUnmapNamedBuffer" );
+	qglCopyNamedBufferSubData 	= ri.GLimp_GetProcAddress( "glCopyNamedBufferSubData" );
+	qglNamedBufferSubData 		= ri.GLimp_GetProcAddress( "glNamedBufferSubData" );
+
+	qglCreateVertexArrays 		= ri.GLimp_GetProcAddress( "glCreateVertexArrays" );
+	qglDeleteVertexArrays 		= ri.GLimp_GetProcAddress( "glDeleteVertexArrays" );
+	qglBindVertexArray 			= ri.GLimp_GetProcAddress( "glBindVertexArray" );
+	qglEnableVertexArrayAttrib 	= ri.GLimp_GetProcAddress( "glEnableVertexArrayAttrib" );
+	qglDisableVertexArrayAttrib = ri.GLimp_GetProcAddress( "glDisableVertexArrayAttrib" );
+	qglVertexAttribPointer 		= ri.GLimp_GetProcAddress( "glVertexAttribPointer" );
+	qglVertexArrayAttribBinding	= ri.GLimp_GetProcAddress( "glVertexArrayAttribBinding" );
+	qglVertexArrayAttribFormat 	= ri.GLimp_GetProcAddress( "glVertexArrayAttribFormat" );
+	qglVertexArrayElementBuffer = ri.GLimp_GetProcAddress( "glVertexArrayElementBuffer" );
+	qglVertexArrayVertexBuffer 	= ri.GLimp_GetProcAddress( "glVertexArrayVertexBuffer" );
 
 	qglPointParameterfEXT = 0;
 	qglPointParameterfvEXT = 0;
