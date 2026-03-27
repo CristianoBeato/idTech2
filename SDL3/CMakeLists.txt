@@ -3,17 +3,32 @@
 ## sdl3Quake.exe
 set( EXECUTABLE_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/cd_SDL3.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/con_SDL3.c
     ${CMAKE_CURRENT_SOURCE_DIR}/glimp_SDL3.c
     ${CMAKE_CURRENT_SOURCE_DIR}/in_SDL3.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/net_SDL3.c
+#    ${CMAKE_CURRENT_SOURCE_DIR}/net_SDL3.c fuck
     ${CMAKE_CURRENT_SOURCE_DIR}/SDL3_shared.h
     ${CMAKE_CURRENT_SOURCE_DIR}/snddma_SDL3.c
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_SDL3.c
     ${CMAKE_CURRENT_SOURCE_DIR}/vid_SDL3.c
     )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(STATUS "Detectado Linux")
+    set( EXECUTABLE_NER_SOURCES
+        ${CMAKE_SOURCE_DIR}/linux/net_udp.c
+        )
+
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    message(STATUS "Detectado Windows")
+    
+    set( EXECUTABLE_NER_SOURCES 
+        ${CMAKE_SOURCE_DIR}/win32/net_wins.c
+    )
+endif()
+
 #Set egine main executable source
-add_executable( sdl3Quake ${EXECUTABLE_SOURCES} ) #TODO: append on source on windows platforms 
+add_executable( sdl3Quake ${EXECUTABLE_SOURCES} ${EXECUTABLE_NER_SOURCES} ) #TODO: append on source on windows platforms 
 
 #Set engine main definnitio
 target_compile_definitions( sdl3Quake PRIVATE __ENGINE_EXE__ ) 
