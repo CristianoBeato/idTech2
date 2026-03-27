@@ -89,7 +89,7 @@ void VID_NewWindow (int width, int height)
     viddef.width = width;
     viddef.height = height;
 
-    video.window = SDL_CreateWindow( "SDL3-Quake2", width, height, SDL_WINDOW_OPENGL );
+    video.window = SDL_CreateWindow( "SDL3-Quake2", width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN );
     if( !video.window )
         Sys_Error( "Failed to create main window %s\n", SDL_GetError() );
 }
@@ -139,7 +139,7 @@ static bool VID_LoadRefresh( const char *name )
     video.ref_lib = SDL_LoadObject( lib );
     if( video.ref_lib == NULL )
     {
-        Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name , SDL_GetError() );
+        Com_Printf( "LoadLibrary(\"%s\")\n%s\n", name , SDL_GetError() );
         return false;
     }
 

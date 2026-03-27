@@ -8,10 +8,6 @@ void		GLimp_BeginFrame( float camera_separation )
 {
 }
 
-void		GLimp_EndFrame( void )
-{
-}
-
 int 		GLimp_Init( void )
 {
     /// context version 1.0
@@ -67,13 +63,43 @@ int GLimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen )
         SDL_SetWindowSize( video.window, *pwidth, *pheight );
     }
 
-
+    SDL_ShowWindow( video.window );
 
     return rserr_ok;
 }
 
-void		GLimp_AppActivate( bool active )
+void GLimp_AppActivate( bool active )
 {
+	if ( active )
+	{
+        SDL_RestoreWindow( video.window );
+        SDL_ShowWindow( video.window );
+	}
+	else
+	{
+		if ( vid_fullscreen->value )
+			SDL_MinimizeWindow( video.window );
+	}
+}
+
+//
+// GLimp_EndFrame
+// 
+// Responsible for doing a swapbuffers and possibly for other stuff
+// as yet to be determined.  Probably better not to make this a GLimp
+// function and instead do a call to GLimp_SwapBuffers.
+//
+void GLimp_EndFrame (void)
+{
+	// int		err;
+	// err = qglGetError();
+	// assert( err == GL_NO_ERROR );
+
+	//if ( stricmp( gl_drawbuffer->string, "GL_BACK" ) == 0 )
+	{
+		if ( !SDL_GL_SwapWindow( video.window ) )
+			Sys_Error( ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n" );
+	}
 }
 
 void		GLimp_EnableLogging( bool enable )

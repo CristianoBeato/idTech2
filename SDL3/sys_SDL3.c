@@ -9,7 +9,6 @@
 int curtime;
 unsigned int	sys_frame_time;
 
-
 static struct sys_SDL3
 {
 	SDL_SharedObject*	game_library;	
@@ -58,16 +57,15 @@ void	*Sys_GetGameAPI (void *parms)
 	const char	*curpath;
 	const char	*path;
 
+#if SDL_PLATFORM_LINUX
+	const char *gamename = "libgame";
+#elif SDL_PLATFORM_WINDOWS
 	const char *gamename = "game";
+#endif 
 	if (sys.game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
-#if 0
-	SDL_GetCurrentDirectory
-	getcwd(curpath, sizeof(curpath));
-#else
 	curpath = Sys_cwd();
-#endif 
 
 	Com_Printf("------- Loading %s -------", gamename);
 
@@ -79,7 +77,11 @@ void	*Sys_GetGameAPI (void *parms)
 		if (!path)
 			return NULL;		// couldn't find one anywhere
 		
-		snprintf( name, MAX_OSPATH, "%s/%s/%s.%s", curpath, path, gamename, SHARED_LIB_EXT );
+#if 1 // TODO On debuf mode
+	snprintf( name, MAX_OSPATH, "%s/%s.%s", path, gamename, SHARED_LIB_EXT );
+#else
+	snprintf( name, MAX_OSPATH, "%s/%s.%s", path, gamename, SHARED_LIB_EXT );
+#endif
 		Com_Printf( "Trying to load game lib %s\n", name );
 		sys.game_library = SDL_LoadObject( name );
 		if ( sys.game_library )
@@ -105,33 +107,36 @@ void	*Sys_GetGameAPI (void *parms)
 	return GetGameAPI( parms );
 }
 
-const char *Sys_ConsoleInput (void)
-{
-	return NULL;
-}
-
-void	Sys_ConsoleOutput ( const char *string )
-{
-	SDL_Log( string );
-}
-
 void Sys_SendKeyEvents (void)
 {
 	SDL_Event e;
 	while ( SDL_PollEvent( &e ) )
 	{
 	}
-	
+
+	sys_frame_time = SDL_GetTicks();	
 }
 
+/*
+=================
+Sys_AppActivate
+=================
+*/
 void Sys_AppActivate (void)
 {
+	SDL_RestoreWindow( video.window );
+	SDL_ShowWindow( video.window );
 }
 
 void Sys_CopyProtect (void)
 {
 }
 
+/*
+================
+Sys_GetClipboardData
+================
+*/
 const char *Sys_GetClipboardData( void )
 {
 	const char* clipboard = NULL;
@@ -147,6 +152,11 @@ const char *Sys_GetClipboardData( void )
 	return clipboard;
 }
 
+/*
+================
+Sys_Milliseconds
+================
+*/
 int Sys_Milliseconds ( void )
 {
 	curtime = SDL_GetTicks();
@@ -161,6 +171,8 @@ const char* Sys_cwd( void )
 		const char* path = SDL_GetCurrentDirectory();
 		strncpy( CURRENT_WORKIN_DIR, path, MAX_OSPATH );
 		SDL_free( path );
+
+		CURRENT_WORKIN_DIR[strlen( CURRENT_WORKIN_DIR ) - 1] = '\0';
 	}
 
 	return CURRENT_WORKIN_DIR;
@@ -191,6 +203,8 @@ void	Sys_FindClose (void)
 
 void	Sys_Init (void)
 {
+	GLimp_LoadLibary( NULL );
+	VID_NewWindow( 800, 600 );
 }
 
 
@@ -205,7 +219,7 @@ int main ( int argc, char **argv )
 
 	while (1)
 	{
-		Qcommon_Frame (0.1);
+		Qcommon_Frame ( 16 );
 	}
 
 	return 0;
