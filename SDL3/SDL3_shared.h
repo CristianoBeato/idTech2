@@ -43,6 +43,19 @@ typedef struct
 extern SDL_glimp_t GLimp;
 extern SDL_video_t video;
 
+#define	MAX_NUM_ARGVS	128
+
+typedef struct 
+{
+#if SDL_PLATFORM_WINDOWS
+#endif 
+    int			        argc;
+    char*               argv[MAX_NUM_ARGVS];
+    SDL_SharedObject*	game_library;
+} SDL_system;
+
+extern SDL_system sys;
+
 extern const char* Sys_cwd( void );
 
 extern void VID_NewWindow ( int width, int height );
