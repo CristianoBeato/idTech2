@@ -17,16 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// r_main.c
+// r_main.cpp
 
 #include "gl_local.h"
-#include "gl_draw.h"
+#include "gl_rmain.hpp"
+#include "gl_draw.hpp"
+
+glRenderer gRenderer;
 
 void R_Clear (void);
-
-viddef_t	vid;
-
-refimport_t	ri;
 
 model_t		*r_worldmodel;
 
@@ -41,7 +40,6 @@ image_t		*r_particletexture;	// little dot for particles
 entity_t	*currententity;
 model_t		*currentmodel;
 
-cplane_t	frustum[4];
 
 int			r_visframecount;	// bumped when going to a new PVS
 int			r_framecount;		// used for dlight push checking
@@ -135,31 +133,37 @@ cvar_t	*vid_fullscreen;
 cvar_t	*vid_gamma;
 cvar_t	*vid_ref;
 
+glRenderer::glRenderer( void )
+{
+}
+
+glRenderer::~glRenderer( void )
+{
+}
+
 /*
 =================
-R_CullBox
+glRenderer::CullBox
 
 Returns true if the box is completely outside the frustom
 =================
 */
-bool R_CullBox (vec3_t mins, vec3_t maxs)
+bool glRenderer::CullBox (vec3_t mins, vec3_t maxs)
 {
-	int		i;
-
 	if (r_nocull->value)
 		return false;
 
-	for (i=0 ; i<4 ; i++)
-		if ( BOX_ON_PLANE_SIDE(mins, maxs, &frustum[i]) == 2)
+	for ( int i=0 ; i<4 ; i++)
+		if ( BOX_ON_PLANE_SIDE(mins, maxs, &m_frustum[i]) == 2 )
 			return true;
+
 	return false;
 }
 
 
-void R_RotateForEntity (entity_t *e)
+void glRenderer::RotateForEntity (entity_t *e)
 {
     qglTranslatef (e->origin[0],  e->origin[1],  e->origin[2]);
-
     qglRotatef (e->angles[1],  0, 0, 1);
     qglRotatef (-e->angles[0],  0, 1, 0);
     qglRotatef (-e->angles[2],  1, 0, 0);
@@ -176,11 +180,11 @@ void R_RotateForEntity (entity_t *e)
 
 /*
 =================
-R_DrawSpriteModel
+glRenderer::DrawSpriteModel
 
 =================
 */
-void R_DrawSpriteModel (entity_t *e)
+void glRenderer::DrawSpriteModel (entity_t *e)
 {
 	float alpha = 1.0F;
 	vec3_t	point;
@@ -274,10 +278,10 @@ void R_DrawSpriteModel (entity_t *e)
 
 /*
 =============
-R_DrawNullModel
+glRenderer::DrawNullModel
 =============
 */
-void R_DrawNullModel (void)
+void glRenderer::DrawNullModel (void)
 {
 	vec3_t	shadelight;
 	int		i;
@@ -288,7 +292,7 @@ void R_DrawNullModel (void)
 		R_LightPoint (currententity->origin, shadelight);
 
     qglPushMatrix ();
-	R_RotateForEntity (currententity);
+	RotateForEntity (currententity);
 
 	qglDisable (GL_TEXTURE_2D);
 	qglColor3fv (shadelight);
@@ -312,10 +316,10 @@ void R_DrawNullModel (void)
 
 /*
 =============
-R_DrawEntitiesOnList
+glRenderer::DrawEntitiesOnList
 =============
 */
-void R_DrawEntitiesOnList (void)
+void glRenderer::DrawEntitiesOnList (void)
 {
 	int		i;
 
@@ -331,26 +335,26 @@ void R_DrawEntitiesOnList (void)
 
 		if ( currententity->flags & RF_BEAM )
 		{
-			R_DrawBeam( currententity );
+			DrawBeam( currententity );
 		}
 		else
 		{
 			currentmodel = currententity->model;
 			if (!currentmodel)
 			{
-				R_DrawNullModel ();
+				DrawNullModel ();
 				continue;
 			}
 			switch (currentmodel->type)
 			{
 			case mod_alias:
-				R_DrawAliasModel (currententity);
+				DrawAliasModel (currententity);
 				break;
 			case mod_brush:
-				R_DrawBrushModel (currententity);
+				DrawBrushModel (currententity);
 				break;
 			case mod_sprite:
-				R_DrawSpriteModel (currententity);
+				DrawSpriteModel (currententity);
 				break;
 			default:
 				ri.Sys_Error (ERR_DROP, "Bad modeltype");
@@ -370,7 +374,7 @@ void R_DrawEntitiesOnList (void)
 
 		if ( currententity->flags & RF_BEAM )
 		{
-			R_DrawBeam( currententity );
+			DrawBeam( currententity );
 		}
 		else
 		{
@@ -378,19 +382,19 @@ void R_DrawEntitiesOnList (void)
 
 			if (!currentmodel)
 			{
-				R_DrawNullModel ();
+				DrawNullModel ();
 				continue;
 			}
 			switch (currentmodel->type)
 			{
 			case mod_alias:
-				R_DrawAliasModel (currententity);
+				DrawAliasModel (currententity);
 				break;
 			case mod_brush:
-				R_DrawBrushModel (currententity);
+				DrawBrushModel (currententity);
 				break;
 			case mod_sprite:
-				R_DrawSpriteModel (currententity);
+				DrawSpriteModel (currententity);
 				break;
 			default:
 				ri.Sys_Error (ERR_DROP, "Bad modeltype");
@@ -403,10 +407,10 @@ void R_DrawEntitiesOnList (void)
 }
 
 /*
-** GL_DrawParticles
+** glRenderer::DrawParticles
 **
 */
-void GL_DrawParticles( int num_particles, const particle_t particles[], const unsigned colortable[768] )
+void glRenderer::DrawParticles( int num_particles, const particle_t particles[], const unsigned colortable[768] )
 {
 	const particle_t *p;
 	int				i;
@@ -463,10 +467,10 @@ void GL_DrawParticles( int num_particles, const particle_t particles[], const un
 
 /*
 ===============
-R_DrawParticles
+glRenderer::DrawParticles
 ===============
 */
-void R_DrawParticles (void)
+void glRenderer::DrawParticles (void)
 {
 	if ( gl_ext_pointparameters->value && qglPointParameterfEXT )
 	{
@@ -506,10 +510,10 @@ void R_DrawParticles (void)
 
 /*
 ============
-R_PolyBlend
+glRenderer::PolyBlend
 ============
 */
-void R_PolyBlend (void)
+void glRenderer::PolyBlend (void)
 {
 	if (!gl_polyblend->value)
 		return;
@@ -562,7 +566,7 @@ int SignbitsForPlane (cplane_t *out)
 }
 
 
-void R_SetFrustum (void)
+void glRenderer::SetFrustum (void)
 {
 	int		i;
 
@@ -585,20 +589,20 @@ void R_SetFrustum (void)
 	VectorNormalize( frustum[3].normal );
 #else
 	// rotate VPN right by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[0].normal, vup, vpn, -(90-r_newrefdef.fov_x / 2 ) );
+	RotatePointAroundVector( m_frustum[0].normal, vup, vpn, -(90-r_newrefdef.fov_x / 2 ) );
 	// rotate VPN left by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[1].normal, vup, vpn, 90-r_newrefdef.fov_x / 2 );
+	RotatePointAroundVector( m_frustum[1].normal, vup, vpn, 90-r_newrefdef.fov_x / 2 );
 	// rotate VPN up by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[2].normal, vright, vpn, 90-r_newrefdef.fov_y / 2 );
+	RotatePointAroundVector( m_frustum[2].normal, vright, vpn, 90-r_newrefdef.fov_y / 2 );
 	// rotate VPN down by FOV_X/2 degrees
-	RotatePointAroundVector( frustum[3].normal, vright, vpn, -( 90 - r_newrefdef.fov_y / 2 ) );
+	RotatePointAroundVector( m_frustum[3].normal, vright, vpn, -( 90 - r_newrefdef.fov_y / 2 ) );
 #endif
 
 	for (i=0 ; i<4 ; i++)
 	{
-		frustum[i].type = PLANE_ANYZ;
-		frustum[i].dist = DotProduct (r_origin, frustum[i].normal);
-		frustum[i].signbits = SignbitsForPlane (&frustum[i]);
+		m_frustum[i].type = PLANE_ANYZ;
+		m_frustum[i].dist = DotProduct (r_origin, m_frustum[i].normal);
+		m_frustum[i].signbits = SignbitsForPlane (&m_frustum[i]);
 	}
 }
 
@@ -606,10 +610,10 @@ void R_SetFrustum (void)
 
 /*
 ===============
-R_SetupFrame
+glRenderer::SetupFrame
 ===============
 */
-void R_SetupFrame (void)
+void glRenderer::SetupFrame ( void )
 {
 	int i;
 	mleaf_t	*leaf;
@@ -756,10 +760,10 @@ void R_SetupGL (void)
 
 /*
 =============
-R_Clear
+glRenderer::Clear
 =============
 */
-void R_Clear (void)
+void glRenderer::Clear (void)
 {
 	if (gl_ztrick->value)
 	{
@@ -797,19 +801,19 @@ void R_Clear (void)
 
 }
 
-void R_Flash( void )
+void glRenderer::Flash( void )
 {
-	R_PolyBlend ();
+	PolyBlend ();
 }
 
 /*
 ================
-R_RenderView
+glRenderer::RenderView
 
 r_newrefdef must be set before the first call
 ================
 */
-void R_RenderView (refdef_t *fd)
+void glRenderer::RenderView (refdef_t *fd)
 {
 	if (r_norefresh->value)
 		return;
@@ -830,25 +834,25 @@ void R_RenderView (refdef_t *fd)
 	if (gl_finish->value)
 		qglFinish ();
 
-	R_SetupFrame ();
+	SetupFrame ();
 
-	R_SetFrustum ();
+	SetFrustum ();
 
 	R_SetupGL ();
 
-	R_MarkLeaves ();	// done here so we know if we're in water
+	MarkLeaves ();	// done here so we know if we're in water
 
-	R_DrawWorld ();
+	DrawWorld ();
 
-	R_DrawEntitiesOnList ();
+	DrawEntitiesOnList ();
 
-	R_RenderDlights ();
+	RenderDlights ();
 
-	R_DrawParticles ();
+	DrawParticles ();
 
-	R_DrawAlphaSurfaces ();
+	DrawAlphaSurfaces ();
 
-	R_Flash();
+	Flash();
 
 	if (r_speeds->value)
 	{
@@ -860,69 +864,13 @@ void R_RenderView (refdef_t *fd)
 	}
 }
 
-
-void	R_SetGL2D (void)
-{
-	// set 2D virtual screen size
-	qglViewport (0,0, vid.width, vid.height);
-	qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
-	qglOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-	qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
-	qglDisable (GL_DEPTH_TEST);
-	qglDisable (GL_CULL_FACE);
-	qglDisable (GL_BLEND);
-	qglEnable (GL_ALPHA_TEST);
-	qglColor4f (1,1,1,1);
-}
-
-static void GL_DrawColoredStereoLinePair( float r, float g, float b, float y )
-{
-	qglColor3f( r, g, b );
-	qglVertex2f( 0, y );
-	qglVertex2f( vid.width, y );
-	qglColor3f( 0, 0, 0 );
-	qglVertex2f( 0, y + 1 );
-	qglVertex2f( vid.width, y + 1 );
-}
-
-static void GL_DrawStereoPattern( void )
-{
-	int i;
-
-	if ( !gl_state.stereo_enabled )
-		return;
-
-	R_SetGL2D();
-
-	qglDrawBuffer( GL_BACK_LEFT );
-
-	for ( i = 0; i < 20; i++ )
-	{
-		qglBegin( GL_LINES );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 0 );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 2 );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 4 );
-			GL_DrawColoredStereoLinePair( 1, 0, 0, 6 );
-			GL_DrawColoredStereoLinePair( 0, 1, 0, 8 );
-			GL_DrawColoredStereoLinePair( 1, 1, 0, 10);
-			GL_DrawColoredStereoLinePair( 1, 1, 0, 12);
-			GL_DrawColoredStereoLinePair( 0, 1, 0, 14);
-		qglEnd();
-		
-		ri.GLimp_EndFrame();
-	}
-}
-
-
 /*
 ====================
-R_SetLightLevel
+glRenderer::SetLightLevel
 
 ====================
 */
-void R_SetLightLevel (void)
+void glRenderer::SetLightLevel (void)
 {
 	vec3_t		shadelight;
 
@@ -954,17 +902,16 @@ void R_SetLightLevel (void)
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
-R_RenderFrame
+glRenderer::RenderFrame
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-void R_RenderFrame (refdef_t *fd)
+void glRenderer::RenderFrame (refdef_t *fd)
 {
-	R_RenderView( fd );
-	R_SetLightLevel ();
-	R_SetGL2D ();
+	RenderView( fd );
+	SetLightLevel ();
+	m_draw.SetGL2D();
 }
-
 
 void R_Register( void )
 {
@@ -1043,12 +990,12 @@ void R_Register( void )
 
 /*
 ==================
-R_SetMode
+glRenderer::SetMode
 ==================
 */
-bool R_SetMode (void)
+bool glRenderer::SetMode (void)
 {
-	rserr_t err;
+	int err;
 	bool fullscreen;
 
 	if ( vid_fullscreen->modified && !gl_config.allow_cds )
@@ -1063,7 +1010,7 @@ bool R_SetMode (void)
 	vid_fullscreen->modified = false;
 	gl_mode->modified = false;
 
-	if ( ( err = ri.GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, fullscreen ) ) == rserr_ok )
+	if ( ( err = ri.GLimp_SetMode( &m_vid.width, &m_vid.height, gl_mode->value, fullscreen ) ) == rserr_ok )
 	{
 		gl_state.prev_mode = gl_mode->value;
 	}
@@ -1096,10 +1043,10 @@ bool R_SetMode (void)
 
 /*
 ===============
-R_Init
+glRenderer::Init
 ===============
 */
-int R_Init( void )
+int glRenderer::Init( void )
 {	
 	char renderer_buffer[1000];
 	char vendor_buffer[1000];
@@ -1112,9 +1059,9 @@ int R_Init( void )
 		r_turbsin[j] *= 0.5;
 	}
 
-	ri.Con_Printf (PRINT_ALL, "ref_gl version: "REF_VERSION"\n");
+	ri.Con_Printf (PRINT_ALL, "ref_gl version: " REF_VERSION "\n" );
 
-	Draw_GetPalette ();
+	m_draw.GetPalette ();
 
 	R_Register();
 
@@ -1127,7 +1074,7 @@ int R_Init( void )
 	}
 
 	/// Create the main window
-	ri.Vid_NewWindow( 800, 600 );
+	ri.Vid_NewWindow( 640, 420 );
 
 	// initialize OS-specific parts of OpenGL
 	if ( !ri.GLimp_Init() )
@@ -1140,7 +1087,7 @@ int R_Init( void )
 	gl_state.prev_mode = 3;
 
 	// create the window and set up the context
-	if ( !R_SetMode () )
+	if ( !SetMode () )
 	{
 		QGL_Shutdown();
         ri.Con_Printf (PRINT_ALL, "ref_gl::R_Init() - could not R_SetMode()\n" );
@@ -1305,20 +1252,22 @@ int R_Init( void )
 
 	GL_InitImages ();
 	Mod_Init ();
-	R_InitParticleTexture ();
-	Draw_InitLocal ();
+	InitParticleTexture ();
+	m_draw.InitLocal ();
 
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
 		ri.Con_Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
+
+		return 0;
 }
 
 /*
 ===============
-R_Shutdown
+glRenderer::Shutdown
 ===============
 */
-void R_Shutdown (void)
+void glRenderer::Shutdown (void)
 {	
 	ri.Cmd_RemoveCommand ("modellist");
 	ri.Cmd_RemoveCommand ("screenshot");
@@ -1344,12 +1293,11 @@ void R_Shutdown (void)
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
-R_BeginFrame
+glRenderer::BeginFrame
 @@@@@@@@@@@@@@@@@@@@@
 */
-void R_BeginFrame( float camera_separation )
+void glRenderer::BeginFrame( float camera_separation )
 {
-
 	gl_state.camera_separation = camera_separation;
 
 	/*
@@ -1505,7 +1453,7 @@ void R_SetPalette ( const unsigned char *palette)
 /*
 ** R_DrawBeam
 */
-void R_DrawBeam( entity_t *e )
+void glRenderer::DrawBeam( entity_t *e )
 {
 #define NUM_BEAM_SEGS 6
 
@@ -1584,11 +1532,60 @@ void	R_RenderFrame (refdef_t *fd);
 
 struct image_s	*Draw_FindPic (char *name);
 
-void	Draw_Pic (int x, int y, char *name);
-void	Draw_Char (int x, int y, int c);
-void	Draw_TileClear (int x, int y, int w, int h, char *name);
-void	Draw_Fill (int x, int y, int w, int h, int c);
-void	Draw_FadeScreen (void);
+static int R_Init( void )
+{
+	gRenderer.Init();
+}
+
+static void R_Shutdown (void)
+{
+	gRenderer.Shutdown();
+}
+
+static void R_BeginFrame( float camera_separation )
+{
+	gRenderer.BeginFrame( camera_separation );
+}
+
+static void Draw_GetPicSize (int *w, int *h, char *pic)
+{
+	gRenderer.Draw().GetPicSize( w, h, pic );
+}
+
+static void Draw_Pic (int x, int y, const char *name )
+{
+	gRenderer.Draw().DrawPic( x, y, name );
+}
+
+static void Draw_StretchPic (int x, int y, int w, int h, const char *name)
+{
+	gRenderer.Draw().StretchPic( x, y, w, h, name );
+}
+
+static void Draw_Char (int x, int y, int num)
+{
+	gRenderer.Draw().DrawChar( x, y, num );
+}
+
+static void Draw_TileClear (int x, int y, int w, int h, const char *name)
+{
+	gRenderer.Draw().TileClear( x, y, w, h, name );
+}
+
+static void Draw_Fill (int x, int y, int w, int h, int c )
+{
+	gRenderer.Draw().Fill( x, y, w, h, c );
+}
+
+static void Draw_FadeScreen (void)
+{
+	gRenderer.Draw().FadeScreen();
+}
+
+static void Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data)
+{
+	gRenderer.Draw().StretchRaw( x, y, w, h, cols, rows, data );
+}
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1673,7 +1670,17 @@ void R_CreateBuffers(void)
 
 void R_DestroyBuffers(void)
 {
-	if( )
+	if( vaos.vertexBuffer != 0 )
+	{
+		qglDeleteBuffers( 1, &vaos.vertexBuffer );
+		vaos.vertexBuffer = 0;
+	}	
+	
+	if( vaos.indexBuffer != 0 )
+	{
+		qglDeleteBuffers( 1, &vaos.indexBuffer );
+		vaos.indexBuffer = 0;
+	}	
 }
 
 void R_CreateVAOS( void )

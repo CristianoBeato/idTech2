@@ -18,23 +18,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-// draw.c
+// gl_draw.cpp
 
 #include "gl_local.h"
-#include "gl_draw.h"
+#include "gl_draw.hpp"
 
 image_t		*draw_chars;
 
-extern	bool	scrap_dirty;
-void Scrap_Upload (void);
+glDraw::glDraw( void )
+{
+}
 
+glDraw::~glDraw( void )
+{
+}
 
 /*
 ===============
-Draw_InitLocal
+glDraw::InitLocal
 ===============
 */
-void Draw_InitLocal (void)
+void glDraw::InitLocal (void)
 {
 	// load console characters (don't bilerp characters)
 	draw_chars = GL_FindImage ("pics/conchars.pcx", it_pic);
@@ -43,18 +47,71 @@ void Draw_InitLocal (void)
 	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
+void glDraw::SetGL2D (void)
+{
+	// set 2D virtual screen size
+	qglViewport (0,0, vid.width, vid.height);
+	qglMatrixMode(GL_PROJECTION);
+    qglLoadIdentity ();
+	qglOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
+	qglMatrixMode(GL_MODELVIEW);
+    qglLoadIdentity ();
+	qglDisable (GL_DEPTH_TEST);
+	qglDisable (GL_CULL_FACE);
+	qglDisable (GL_BLEND);
+	qglEnable (GL_ALPHA_TEST);
+	qglColor4f (1,1,1,1);
+}
 
+void glDraw::DrawColoredStereoLinePair( float r, float g, float b, float y )
+{
+	qglColor3f( r, g, b );
+	qglVertex2f( 0, y );
+	qglVertex2f( vid.width, y );
+	qglColor3f( 0, 0, 0 );
+	qglVertex2f( 0, y + 1 );
+	qglVertex2f( vid.width, y + 1 );
+}
+
+
+void glDraw::DrawStereoPattern( void )
+{
+	int i;
+
+	if ( !gl_state.stereo_enabled )
+		return;
+
+	SetGL2D();
+
+	qglDrawBuffer( GL_BACK_LEFT );
+
+	for ( i = 0; i < 20; i++ )
+	{
+		qglBegin( GL_LINES );
+			DrawColoredStereoLinePair( 1, 0, 0, 0 );
+			DrawColoredStereoLinePair( 1, 0, 0, 2 );
+			DrawColoredStereoLinePair( 1, 0, 0, 4 );
+			DrawColoredStereoLinePair( 1, 0, 0, 6 );
+			DrawColoredStereoLinePair( 0, 1, 0, 8 );
+			DrawColoredStereoLinePair( 1, 1, 0, 10);
+			DrawColoredStereoLinePair( 1, 1, 0, 12);
+			DrawColoredStereoLinePair( 0, 1, 0, 14);
+		qglEnd();
+		
+		ri.GLimp_EndFrame();
+	}
+}
 
 /*
 ================
-Draw_Char
+glDraw::DrawChar
 
 Draws one 8*8 graphics character with 0 being transparent.
 It can be clipped to the top of the screen to allow the console to be
 smoothly scrolled off.
 ================
 */
-void Draw_Char (int x, int y, int num)
+void glDraw::DrawChar ( int x, int y, int num )
 {
 	int				row, col;
 	float			frow, fcol, size;
@@ -90,35 +147,35 @@ void Draw_Char (int x, int y, int num)
 
 /*
 =============
-Draw_FindPic
+glDraw::FindPic
 =============
 */
-image_t	*Draw_FindPic (char *name)
+image_t* glDraw::FindPic ( const char *name )
 {
 	image_t *gl;
 	char	fullname[MAX_QPATH];
 
 	if (name[0] != '/' && name[0] != '\\')
 	{
-		Com_sprintf (fullname, sizeof(fullname), "pics/%s.pcx", name);
+		Com_sprintf (fullname, sizeof( fullname ), "pics/%s.pcx", name);
 		gl = GL_FindImage (fullname, it_pic);
 	}
 	else
-		gl = GL_FindImage (name+1, it_pic);
+		gl = GL_FindImage ( name + 1, it_pic );
 
 	return gl;
 }
 
 /*
 =============
-Draw_GetPicSize
+glDraw::GetPicSize
 =============
 */
-void Draw_GetPicSize (int *w, int *h, char *pic)
+void glDraw::GetPicSize ( int *w, int *h, const char *pic )
 {
 	image_t *gl;
 
-	gl = Draw_FindPic (pic);
+	gl = FindPic (pic);
 	if (!gl)
 	{
 		*w = *h = -1;
@@ -130,25 +187,25 @@ void Draw_GetPicSize (int *w, int *h, char *pic)
 
 /*
 =============
-Draw_StretchPic
+glDraw::StretchPic
 =============
 */
-void Draw_StretchPic (int x, int y, int w, int h, char *pic)
+void glDraw::StretchPic( int x, int y, int w, int h, const char *pic )
 {
 	image_t *gl;
 
-	gl = Draw_FindPic (pic);
+	gl = FindPic (pic);
 	if (!gl)
 	{
 		ri.Con_Printf (PRINT_ALL, "Can't find pic: %s\n", pic);
 		return;
 	}
 
-	if (scrap_dirty)
+	if ( m_scrap_dirty )
 		Scrap_Upload ();
 
-#if 0
-	if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) && !gl->has_alpha)
+#if 1
+	//if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) && !gl->has_alpha)
 		qglDisable (GL_ALPHA_TEST);
 #endif 
 
@@ -164,8 +221,8 @@ void Draw_StretchPic (int x, int y, int w, int h, char *pic)
 	qglVertex2f (x, y+h);
 	qglEnd ();
 
-#if 0
-	if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) && !gl->has_alpha)
+#if 1
+	//if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) && !gl->has_alpha)
 		qglEnable (GL_ALPHA_TEST);
 #endif 
 }
@@ -173,24 +230,24 @@ void Draw_StretchPic (int x, int y, int w, int h, char *pic)
 
 /*
 =============
-Draw_Pic
+glDraw::DrawPic
 =============
 */
-void Draw_Pic (int x, int y, char *pic)
+void glDraw::DrawPic (int x, int y, const char *pic)
 {
 	image_t *gl;
 
-	gl = Draw_FindPic (pic);
+	gl = FindPic (pic);
 	if (!gl)
 	{
 		ri.Con_Printf (PRINT_ALL, "Can't find pic: %s\n", pic);
 		return;
 	}
-	if (scrap_dirty)
+	if ( m_scrap_dirty )
 		Scrap_Upload ();
 
-#if 0
-	if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) && !gl->has_alpha)
+#if 1
+	// if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) && !gl->has_alpha)
 		qglDisable (GL_ALPHA_TEST);
 #endif
 		
@@ -206,25 +263,25 @@ void Draw_Pic (int x, int y, char *pic)
 	qglVertex2f (x, y+gl->height);
 	qglEnd ();
 
-#if 0 
-	if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) )  && !gl->has_alpha)
+#if 1 
+	// if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) )  && !gl->has_alpha)
 		qglEnable (GL_ALPHA_TEST);
 #endif
 }
 
 /*
 =============
-Draw_TileClear
+glDraw::TileClear
 
 This repeats a 64*64 tile graphic to fill the screen around a sized down
 refresh window.
 =============
 */
-void Draw_TileClear (int x, int y, int w, int h, char *pic)
+void glDraw::TileClear (int x, int y, int w, int h, const char *pic)
 {
 	image_t	*image;
 
-	image = Draw_FindPic (pic);
+	image = FindPic (pic);
 	if (!image)
 	{
 		ri.Con_Printf (PRINT_ALL, "Can't find pic: %s\n", pic);
@@ -232,7 +289,7 @@ void Draw_TileClear (int x, int y, int w, int h, char *pic)
 	}
 
 #if 0
-	if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) )  && !image->has_alpha)
+	00 if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) )  && !image->has_alpha)
 		qglDisable (GL_ALPHA_TEST);
 #endif 
 
@@ -248,21 +305,20 @@ void Draw_TileClear (int x, int y, int w, int h, char *pic)
 	qglVertex2f (x, y+h);
 	qglEnd ();
 
-#if 0
-	if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) )  && !image->has_alpha)
+#if 1
+	// if ( ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) )  && !image->has_alpha)
 		qglEnable (GL_ALPHA_TEST);
 #endif 
 }
 
-
 /*
 =============
-Draw_Fill
+glDraw::Fill
 
 Fills a box of pixels with a single color
 =============
 */
-void Draw_Fill (int x, int y, int w, int h, int c)
+void glDraw::Fill (int x, int y, int w, int h, int c)
 {
 	union
 	{
@@ -296,11 +352,10 @@ void Draw_Fill (int x, int y, int w, int h, int c)
 
 /*
 ================
-Draw_FadeScreen
-
+glDraw::FadeScreen
 ================
 */
-void Draw_FadeScreen (void)
+void glDraw::FadeScreen (void)
 {
 	qglEnable (GL_BLEND);
 	qglDisable (GL_TEXTURE_2D);
@@ -318,7 +373,6 @@ void Draw_FadeScreen (void)
 	qglDisable (GL_BLEND);
 }
 
-
 //====================================================================
 
 
@@ -329,7 +383,7 @@ Draw_StretchRaw
 */
 extern unsigned	r_rawpalette[256];
 
-void Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data)
+void glDraw::StretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data)
 {
 	unsigned	image32[256*256];
 	unsigned char image8[256*256];
@@ -408,8 +462,8 @@ void Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data
 	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-#if 0
-	if ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) 
+#if 1
+	// if ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) 
 		qglDisable (GL_ALPHA_TEST);
 #endif 
 
@@ -424,9 +478,45 @@ void Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data
 	qglVertex2f (x, y+h);
 	qglEnd ();
 
-#if 0 
-	if ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) 
+#if 1 
+	// if ( ( gl_config.renderer == GL_RENDERER_MCD ) || ( gl_config.renderer & GL_RENDERER_RENDITION ) ) 
 		qglEnable (GL_ALPHA_TEST);
 #endif 
 }
 
+/*
+===============
+glDraw::GetPalette
+===============
+*/
+int glDraw::GetPalette (void)
+{
+	int		i;
+	int		r, g, b;
+	unsigned	v;
+	byte	*pic, *pal;
+	int		width, height;
+
+	// get the palette
+
+	LoadPCX ("pics/colormap.pcx", &pic, &pal, &width, &height);
+	if (!pal)
+		ri.Sys_Error (ERR_FATAL, "Couldn't load pics/colormap.pcx");
+
+	for (i=0 ; i<256 ; i++)
+	{
+		r = pal[i*3+0];
+		g = pal[i*3+1];
+		b = pal[i*3+2];
+		
+		v = (255<<24) + (r<<0) + (g<<8) + (b<<16);
+		d_8to24table[i] = LittleLong(v);
+	}
+
+	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
+
+	free (pic);
+	free (pal);
+
+	return 0;
+}
