@@ -58,6 +58,7 @@ dlldata.c
 
 # ignore source packs 
 baseq2/*.pak
+baseq2/config.cfg
 
 # Backup & report files from converting an old project file
 # to a newer Visual Studio version. Backup files are not needed,
