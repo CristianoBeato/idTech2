@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // r_misc.c
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 /*
 ==================
@@ -131,7 +131,7 @@ void GL_ScreenShot_f (void)
  	}
 
 
-	buffer = malloc(vid.width*vid.height*3 + 18);
+	buffer = static_cast<byte*>(malloc(vid.width*vid.height*3 + 18));
 	memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = vid.width&255;

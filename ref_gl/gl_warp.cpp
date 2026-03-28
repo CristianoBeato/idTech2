@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // gl_warp.c -- sky and water polygons
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 extern	model_t	*loadmodel;
 
@@ -123,7 +123,7 @@ void SubdividePolygon (int numverts, float *verts)
 	}
 
 	// add a point in the center to help keep warp valid
-	poly = Hunk_Alloc (sizeof(glpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
+	poly = static_cast<glpoly_t*>( Hunk_Alloc (sizeof(glpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float)) );
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts+2;
@@ -579,9 +579,9 @@ qglDisable (GL_DEPTH_TEST);
 			return;		// nothing visible
 	}
 
-qglPushMatrix ();
-qglTranslatef (r_origin[0], r_origin[1], r_origin[2]);
-qglRotatef (r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
+	qglPushMatrix ();
+	qglTranslatef (r_origin[0], r_origin[1], r_origin[2]);
+	qglRotatef (r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
 
 	for (i=0 ; i<6 ; i++)
 	{

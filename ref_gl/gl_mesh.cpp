@@ -17,9 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// gl_mesh.c: triangle model functions
+// gl_mesh.cpp: triangle model functions
 
-#include "gl_local.h"
+#include "gl_local.hpp"
+#include "gl_rmain.hpp"
 
 /*
 =============================================================
@@ -44,10 +45,7 @@ vec3_t	shadevector;
 float	shadelight[3];
 
 // precalculated dot products for quantized angles
-#define SHADEDOT_QUANT 16
-float	r_avertexnormal_dots[SHADEDOT_QUANT][256] =
 #include "anormtab.h"
-;
 
 float	*shadedots = r_avertexnormal_dots[0];
 
@@ -370,7 +368,7 @@ void GL_DrawAliasShadow (dmdl_t *paliashdr, int posenum)
 /*
 ** R_CullAliasModel
 */
-static bool R_CullAliasModel( vec3_t bbox[8], entity_t *e )
+bool glRenderer::CullAliasModel( vec3_t bbox[8], entity_t *e )
 {
 	int i;
 	vec3_t		mins, maxs;
@@ -490,9 +488,9 @@ static bool R_CullAliasModel( vec3_t bbox[8], entity_t *e )
 
 			for ( f = 0; f < 4; f++ )
 			{
-				float dp = DotProduct( frustum[f].normal, bbox[p] );
+				float dp = DotProduct( m_frustum[f].normal, bbox[p] );
 
-				if ( ( dp - frustum[f].dist ) < 0 )
+				if ( ( dp - m_frustum[f].dist ) < 0 )
 				{
 					mask |= ( 1 << f );
 				}
@@ -502,9 +500,7 @@ static bool R_CullAliasModel( vec3_t bbox[8], entity_t *e )
 		}
 
 		if ( aggregatemask )
-		{
 			return true;
-		}
 
 		return false;
 	}
@@ -516,7 +512,7 @@ R_DrawAliasModel
 
 =================
 */
-void R_DrawAliasModel (entity_t *e)
+void glRenderer::DrawAliasModel ( entity_t *e )
 {
 	int			i;
 	dmdl_t		*paliashdr;
@@ -526,7 +522,7 @@ void R_DrawAliasModel (entity_t *e)
 
 	if ( !( e->flags & RF_WEAPONMODEL ) )
 	{
-		if ( R_CullAliasModel( bbox, e ) )
+		if ( CullAliasModel( bbox, e ) )
 			return;
 	}
 
@@ -729,7 +725,7 @@ void R_DrawAliasModel (entity_t *e)
 
     qglPushMatrix ();
 	e->angles[PITCH] = -e->angles[PITCH];	// sigh.
-	R_RotateForEntity (e);
+	RotateForEntity (e);
 	e->angles[PITCH] = -e->angles[PITCH];	// sigh.
 
 	// select skin
@@ -823,7 +819,7 @@ void R_DrawAliasModel (entity_t *e)
 	if (gl_shadows->value && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL)))
 	{
 		qglPushMatrix ();
-		R_RotateForEntity (e);
+		RotateForEntity (e);
 		qglDisable (GL_TEXTURE_2D);
 		qglEnable (GL_BLEND);
 		qglColor4f (0,0,0,0.5);

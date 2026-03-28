@@ -2,8 +2,6 @@
 #ifndef __RMAIN_HPP__
 #define __RMAIN_HPP__
 
-#include "gl_draw.hpp"
-
 class glRenderer
 {
 public:
@@ -29,23 +27,28 @@ public:
     void    DrawBeam( entity_t *e );
     void    DrawWorld (void);
     void    RenderDlights (void);
+    void    BuildLightMap (msurface_t *surf, byte *dest, int stride);
     void    DrawAlphaSurfaces (void);
+    void    DrawTextureChains (void);
     void    RenderBrushPoly (msurface_t *fa);
     void    InitParticleTexture (void);
-    void    GL_SubdivideSurface (msurface_t *fa);
     bool    SetMode (void);
+    void    Register( void );
 
+    bool    CullAliasModel( vec3_t bbox[8], entity_t *e );
     void    RotateForEntity (entity_t *e);
     void    MarkLeaves (void);
     bool    CullBox ( vec3_t mins, vec3_t maxs );
 
     glDraw  Draw( void ) const { return m_draw; }
 
+    void Sys_Error ( const char *error, ...);
+    void Com_Printf ( const char *fmt, ...);
+
 private:
     viddef_t	m_vid;
     cplane_t	m_frustum[4];
     glDraw      m_draw;
-    refimport_t	ri;
 
     void PolyBlend( void );
     void SetFrustum (void);
@@ -53,6 +56,8 @@ private:
     void Clear( void );
     void Flash( void );
     void SetLightLevel (void);
+    bool    QGL_Init( const char *dllname );
+    void    QGL_Shutdown( void );
 };
 
 extern glRenderer gRenderer;

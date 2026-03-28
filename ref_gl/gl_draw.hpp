@@ -33,6 +33,8 @@ typedef struct
 
 extern backend_t backend;
 
+typedef struct image_s image_t;
+
 class glDraw
 {
 public:

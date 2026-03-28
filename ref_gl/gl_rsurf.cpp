@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // GL_RSURF.C: surface-related refresh code
 #include <assert.h>
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 static vec3_t	modelorg;		// relative to viewpoint
 
@@ -471,10 +471,10 @@ void R_BlendLightmaps (void)
 
 /*
 ================
-R_RenderBrushPoly
+glRenderer::RenderBrushPoly
 ================
 */
-void R_RenderBrushPoly (msurface_t *fa)
+void glRenderer::RenderBrushPoly (msurface_t *fa)
 {
 	int			maps;
 	image_t		*image;
@@ -547,7 +547,7 @@ dynamic:
 			smax = (fa->extents[0]>>4)+1;
 			tmax = (fa->extents[1]>>4)+1;
 
-			R_BuildLightMap( fa, (void *)temp, smax*4 );
+			BuildLightMap( fa, (void *)temp, smax*4 );
 			R_SetCacheState( fa );
 
 			GL_Bind( gl_state.lightmap_textures + fa->lightmaptexturenum );
@@ -626,10 +626,10 @@ void R_DrawAlphaSurfaces (void)
 
 /*
 ================
-DrawTextureChains
+glRenderer::DrawTextureChains
 ================
 */
-void DrawTextureChains (void)
+void glRenderer::DrawTextureChains (void)
 {
 	int		i;
 	msurface_t	*s;

@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/ref.h"
 
-#include "qgl.h"
+#include "qgl.hpp"
 
 #define	REF_VERSION	"GL 0.01"
 
@@ -122,7 +122,7 @@ typedef enum
 	rserr_unknown
 } rserr_t;
 
-#include "gl_model.h"
+#include "gl_model.hpp"
 
 void GL_BeginRendering (int *x, int *y, int *width, int *height);
 void GL_EndRendering (void);
@@ -157,7 +157,6 @@ extern	entity_t	*currententity;
 extern	model_t		*currentmodel;
 extern	int			r_visframecount;
 extern	int			r_framecount;
-extern	cplane_t	frustum[4];
 extern	int			c_brush_polys, c_alias_polys;
 
 
@@ -275,25 +274,6 @@ extern	int		registration_sequence;
 
 void V_AddBlend (float r, float g, float b, float a, float *v_blend);
 
-int 	R_Init( void );
-void	R_Shutdown( void );
-
-void R_RenderView (refdef_t *fd);
-void GL_ScreenShot_f (void);
-void R_DrawAliasModel (entity_t *e);
-void R_DrawBrushModel (entity_t *e);
-void R_DrawSpriteModel (entity_t *e);
-void R_DrawBeam( entity_t *e );
-void R_DrawWorld (void);
-void R_RenderDlights (void);
-void R_DrawAlphaSurfaces (void);
-void R_RenderBrushPoly (msurface_t *fa);
-void R_InitParticleTexture (void);
-void Draw_InitLocal (void);
-void GL_SubdivideSurface (msurface_t *fa);
-bool R_CullBox (vec3_t mins, vec3_t maxs);
-void R_RotateForEntity (entity_t *e);
-void R_MarkLeaves (void);
 
 glpoly_t *WaterWarpPolyVerts (glpoly_t *p);
 void EmitWaterPolys (msurface_t *fa);
@@ -312,30 +292,17 @@ char	*va(char *format, ...);
 // does a varargs printf into a temp buffer
 #endif
 
+extern void GL_ScreenShot_f (void);
+
 void	COM_StripExtension ( const char *in, char *out);
-
-void	Draw_GetPicSize (int *w, int *h, char *name);
-void	Draw_Pic (int x, int y, char *name);
-void	Draw_StretchPic (int x, int y, int w, int h, char *name);
-void	Draw_Char (int x, int y, int c);
-void	Draw_TileClear (int x, int y, int w, int h, char *name);
-void	Draw_Fill (int x, int y, int w, int h, int c);
-void	Draw_FadeScreen (void);
-void	Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, byte *data);
-
-void	R_BeginFrame( float camera_separation );
-void	R_SwapBuffers( int );
-void	R_SetPalette ( const unsigned char *palette);
-
-int		Draw_GetPalette (void);
 
 void GL_ResampleTexture (unsigned *in, int inwidth, int inheight, unsigned *out,  int outwidth, int outheight);
 
 struct image_s *R_RegisterSkin (char *name);
 
 void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *height);
-image_t *GL_LoadPic (char *name, byte *pic, int width, int height, imagetype_t type, int bits);
-image_t	*GL_FindImage (char *name, imagetype_t type);
+image_t *GL_LoadPic ( const char *name, byte *pic, int width, int height, imagetype_t type, int bits);
+image_t	*GL_FindImage ( const char *name, imagetype_t type);
 void	GL_TextureMode( char *string );
 void	GL_ImageList_f (void);
 
@@ -396,8 +363,11 @@ typedef struct
 	unsigned char originalBlueGammaTable[256];
 } glstate_t;
 
+extern class glRenderer*	renderer_global;
 extern glconfig_t  gl_config;
-extern glstate_t   gl_state;
+extern glstate_t	gl_state;
+extern refimport_t	ri;
+
 
 /*
 ====================================================================
@@ -407,6 +377,8 @@ IMPORTED FUNCTIONS
 ====================================================================
 */
 
-extern	refimport_t	ri;
+#include "gl_model.hpp"
+#include "gl_draw.hpp"
+#include "gl_rmain.hpp"
 
 #endif //

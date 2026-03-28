@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // r_light.c
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 int	r_dlightframecount;
 
@@ -447,12 +447,12 @@ void R_SetCacheState( msurface_t *surf )
 
 /*
 ===============
-R_BuildLightMap
+BuildLightMap
 
 Combine and scale multiple lightmaps into the floating format in blocklights
 ===============
 */
-void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
+void glRenderer::BuildLightMap (msurface_t *surf, byte *dest, int stride)
 {
 	int			smax, tmax;
 	int			r, g, b, a, max;

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 image_t		gltextures[MAX_GLTEXTURES];
 int			numgltextures;
@@ -152,7 +152,7 @@ void GL_MBind( GLenum target, int texnum )
 
 typedef struct
 {
-	char *name;
+	const char *name;
 	int	minimize, maximize;
 } glmode_t;
 
@@ -169,7 +169,7 @@ glmode_t modes[] = {
 
 typedef struct
 {
-	char *name;
+	const char *name;
 	int mode;
 } gltmode_t;
 
@@ -418,7 +418,7 @@ PCX LOADING
 LoadPCX
 ==============
 */
-void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *height)
+void LoadPCX ( const char *filename, byte **pic, byte **palette, int *width, int *height)
 {
 	byte	*raw;
 	pcx_t	*pcx;
@@ -467,7 +467,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 		return;
 	}
 
-	out = malloc ( (pcx->ymax+1) * (pcx->xmax+1) );
+	out = static_cast<byte*>( malloc ( (pcx->ymax+1) * (pcx->xmax+1) ) );
 
 	*pic = out;
 
@@ -475,7 +475,7 @@ void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *heigh
 
 	if (palette)
 	{
-		*palette = malloc(768);
+		*palette = static_cast<byte*>( malloc(768) );
 		memcpy (*palette, (byte *)pcx + len - 768, 768);
 	}
 
@@ -536,7 +536,7 @@ typedef struct _TargaHeader {
 LoadTGA
 =============
 */
-void LoadTGA (char *name, byte **pic, int *width, int *height)
+static void LoadTGA (char *name, byte **pic, int *width, int *height)
 {
 	int		columns, rows, numPixels;
 	byte	*pixbuf;
@@ -603,7 +603,7 @@ void LoadTGA (char *name, byte **pic, int *width, int *height)
 	if (height)
 		*height = rows;
 
-	targa_rgba = malloc (numPixels*4);
+	targa_rgba = static_cast<byte*>( malloc (numPixels*4));
 	*pic = targa_rgba;
 
 	if (targa_header.id_length != 0)
@@ -1220,6 +1220,8 @@ bool GL_Upload8 (byte *data, int width, int height,  bool mipmap, bool is_sky )
 
 		return GL_Upload32 (trans, width, height, mipmap);
 	}
+
+	return false;
 }
 
 
@@ -1315,7 +1317,7 @@ nonscrap:
 GL_LoadWal
 ================
 */
-image_t *GL_LoadWal (char *name)
+static image_t *GL_LoadWal (char *name)
 {
 	miptex_t	*mt;
 	int			width, height, ofs;
@@ -1346,7 +1348,7 @@ GL_FindImage
 Finds or loads the given image
 ===============
 */
-image_t	*GL_FindImage (char *name, imagetype_t type)
+image_t	*GL_FindImage ( const char *name, imagetype_t type)
 {
 	image_t	*image;
 	int		i, len;
@@ -1447,45 +1449,6 @@ void GL_FreeUnusedImages (void)
 		memset (image, 0, sizeof(*image));
 	}
 }
-
-
-/*
-===============
-Draw_GetPalette
-===============
-*/
-int Draw_GetPalette (void)
-{
-	int		i;
-	int		r, g, b;
-	unsigned	v;
-	byte	*pic, *pal;
-	int		width, height;
-
-	// get the palette
-
-	LoadPCX ("pics/colormap.pcx", &pic, &pal, &width, &height);
-	if (!pal)
-		ri.Sys_Error (ERR_FATAL, "Couldn't load pics/colormap.pcx");
-
-	for (i=0 ; i<256 ; i++)
-	{
-		r = pal[i*3+0];
-		g = pal[i*3+1];
-		b = pal[i*3+2];
-		
-		v = (255<<24) + (r<<0) + (g<<8) + (b<<16);
-		d_8to24table[i] = LittleLong(v);
-	}
-
-	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
-
-	free (pic);
-	free (pal);
-
-	return 0;
-}
-
 
 /*
 ===============

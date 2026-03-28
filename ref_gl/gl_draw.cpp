@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // gl_draw.cpp
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 #include "gl_draw.hpp"
 
 image_t		*draw_chars;
@@ -327,7 +327,7 @@ void glDraw::Fill (int x, int y, int w, int h, int c)
 	} color;
 
 	if ( (unsigned)c > 255)
-		ri.Sys_Error (ERR_FATAL, "Draw_Fill: bad color");
+		Sys_Error (ERR_FATAL, "Draw_Fill: bad color");
 
 	qglDisable (GL_TEXTURE_2D);
 
@@ -519,4 +519,51 @@ int glDraw::GetPalette (void)
 	free (pal);
 
 	return 0;
+}
+
+
+void R_CreateBuffers(void)
+{
+
+}
+
+void R_DestroyBuffers(void)
+{
+	if( vaos.vertexBuffer != 0 )
+	{
+		qglDeleteBuffers( 1, &vaos.vertexBuffer );
+		vaos.vertexBuffer = 0;
+	}	
+	
+	if( vaos.indexBuffer != 0 )
+	{
+		qglDeleteBuffers( 1, &vaos.indexBuffer );
+		vaos.indexBuffer = 0;
+	}	
+}
+
+void R_CreateVAOS( void )
+{
+	qglCreateVertexArrays( 1, &vaos.meshesVAO );
+	
+	/// Configure vertex position
+	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 0 );
+	qglVertexArrayAttribFormat( vaos.meshesVAO, 0, 3, GL_FLOAT, GL_FALSE, 0 );
+
+	/// Configure vertex texture coord 
+	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 1 );
+	qglVertexArrayAttribFormat( vaos.meshesVAO, 1, 3, GL_FLOAT, GL_FALSE, offsetof( drawVertex_t, s ) );
+
+	/// Configure vertex color
+	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 2 );
+	qglVertexArrayAttribFormat( vaos.meshesVAO, 2, 3, GL_FLOAT, GL_FALSE, offsetof( drawVertex_t, r ) );
+}
+
+void R_DestroyVAOS( void )
+{
+	if( vaos.meshesVAO )
+	{
+		qglDeleteVertexArrays( 1, &vaos.meshesVAO );
+		vaos.meshesVAO = 0;
+	}
 }

@@ -4,20 +4,21 @@
 set( RENDERER_GL_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/anorms.h
     ${CMAKE_CURRENT_SOURCE_DIR}/anormtab.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_draw.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_draw.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_image.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_light.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_mesh.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_model.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_model.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rmain.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rmisc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rsurf.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/gl_warp.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/qgl.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/qgl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_draw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_draw.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_image.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_light.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_local.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_mesh.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_model.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_model.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rmain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rmain.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rmisc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_rsurf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gl_warp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/qgl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/qgl.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/warpsin.h
     )
 
@@ -51,7 +52,5 @@ target_precompile_headers( renderer_gl
         <time.h>
 	PRIVATE
         ${CMAKE_SOURCE_DIR}/shared/q_shared.h 
-		#${CMAKE_CURRENT_SOURCE_DIR}/g_local.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/game.h
-        #${CMAKE_CURRENT_SOURCE_DIR}/g_ctf.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/gl_local.hpp
 	) 

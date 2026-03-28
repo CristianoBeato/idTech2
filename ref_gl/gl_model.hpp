@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#ifndef __GL_MODEL_HPP__
+#define __GL_MODEL_HPP__
+
 /*
 
 d*_t structures are on-disk representations
@@ -259,3 +262,5 @@ void	Hunk_Free (void *base);
 
 void	Mod_FreeAll (void);
 void	Mod_Free (model_t *mod);
+
+#endif //!__GL_MODEL_HPP__

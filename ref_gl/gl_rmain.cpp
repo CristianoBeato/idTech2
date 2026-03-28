@@ -19,11 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // r_main.cpp
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 #include "gl_rmain.hpp"
 #include "gl_draw.hpp"
 
+refimport_t ri;
 glRenderer gRenderer;
+glRenderer*	renderer_global = &gRenderer;
 
 void R_Clear (void);
 
@@ -913,7 +915,7 @@ void glRenderer::RenderFrame (refdef_t *fd)
 	m_draw.SetGL2D();
 }
 
-void R_Register( void )
+void glRenderer::Register( void )
 {
 	r_lefthand = ri.Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	r_norefresh = ri.Cvar_Get ("r_norefresh", "0", 0);
@@ -1063,7 +1065,7 @@ int glRenderer::Init( void )
 
 	m_draw.GetPalette ();
 
-	R_Register();
+	Register();
 
 	// initialize our QGL dynamic bindings
 	if ( !QGL_Init( gl_driver->string ) )
@@ -1637,7 +1639,7 @@ refexport_t GetRefAPI (refimport_t rimp )
 
 #ifndef REF_HARD_LINKED
 // this is only here so the functions in q_shared.c and q_shwin.c can link
-void Sys_Error ( const char *error, ...)
+void glRenderer::Sys_Error ( const char *error, ...)
 {
 	va_list		argptr;
 	char		text[1024];
@@ -1649,7 +1651,7 @@ void Sys_Error ( const char *error, ...)
 	ri.Sys_Error (ERR_FATAL, "%s", text);
 }
 
-void Com_Printf ( const char *fmt, ...)
+void glRenderer::Com_Printf ( const char *fmt, ...)
 {
 	va_list		argptr;
 	char		text[1024];
@@ -1662,49 +1664,3 @@ void Com_Printf ( const char *fmt, ...)
 }
 
 #endif
-
-void R_CreateBuffers(void)
-{
-
-}
-
-void R_DestroyBuffers(void)
-{
-	if( vaos.vertexBuffer != 0 )
-	{
-		qglDeleteBuffers( 1, &vaos.vertexBuffer );
-		vaos.vertexBuffer = 0;
-	}	
-	
-	if( vaos.indexBuffer != 0 )
-	{
-		qglDeleteBuffers( 1, &vaos.indexBuffer );
-		vaos.indexBuffer = 0;
-	}	
-}
-
-void R_CreateVAOS( void )
-{
-	qglCreateVertexArrays( 1, &vaos.meshesVAO );
-	
-	/// Configure vertex position
-	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 0 );
-	qglVertexArrayAttribFormat( vaos.meshesVAO, 0, 3, GL_FLOAT, GL_FALSE, 0 );
-
-	/// Configure vertex texture coord 
-	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 1 );
-	qglVertexArrayAttribFormat( vaos.meshesVAO, 1, 3, GL_FLOAT, GL_FALSE, offsetof( drawVertex_t, s ) );
-
-	/// Configure vertex color
-	qglVertexArrayAttribBinding( vaos.meshesVAO, 0, 2 );
-	qglVertexArrayAttribFormat( vaos.meshesVAO, 2, 3, GL_FLOAT, GL_FALSE, offsetof( drawVertex_t, r ) );
-}
-
-void R_DestroyVAOS( void )
-{
-	if( vaos.meshesVAO )
-	{
-		qglDeleteVertexArrays( 1, &vaos.meshesVAO );
-		vaos.meshesVAO = 0;
-	}
-}
