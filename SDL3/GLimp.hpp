@@ -12,7 +12,7 @@ public:
     void		EndFrame( void );
     int 		Init( void );
     void		Shutdown( void );
-    int     	SetMode( int *pwidth, int *pheight, const int mode, const bool fullscreen );
+    int     	SetMode( unsigned *pwidth, unsigned *pheight, const int mode, const bool fullscreen );
     void		AppActivate( const bool active );
     void		EnableLogging( const bool enable );
     void		LogNewFrame( void );

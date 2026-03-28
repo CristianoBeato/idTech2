@@ -97,7 +97,7 @@ typedef struct
 	float		white;			// highest of rgb
 } lightstyle_t;
 
-typedef struct
+struct refdef_t
 {
 	int			x, y, width, height;// in virtual screen coordinates
 	float		fov_x, fov_y;
@@ -119,7 +119,7 @@ typedef struct
 
 	int			num_particles;
 	particle_t	*particles;
-} refdef_t;
+};
 
 #define	API_VERSION		4 // 4 we update ref_gl to impor GLimp functions from main executable
 
@@ -157,13 +157,13 @@ typedef struct
 	void	(*SetSky) (char *name, float rotate, vec3_t axis);
 	void	(*EndRegistration) (void);
 
-	void	(*RenderFrame) (refdef_t *fd);
+	void	(*RenderFrame) (struct refdef_t *fd);
 
 	void	(*DrawGetPicSize) (int *w, int *h, char *name);	// will return 0 0 if not found
-	void	(*DrawPic) (int x, int y, char *name);
-	void	(*DrawStretchPic) (int x, int y, int w, int h, char *name);
+	void	(*DrawPic) (int x, int y, const char *name);
+	void	(*DrawStretchPic) (int x, int y, int w, int h, const char *name);
 	void	(*DrawChar) (int x, int y, int c);
-	void	(*DrawTileClear) (int x, int y, int w, int h, char *name);
+	void	(*DrawTileClear) (int x, int y, int w, int h, const char *name);
 	void	(*DrawFill) (int x, int y, int w, int h, int c);
 	void	(*DrawFadeScreen) (void);
 
@@ -240,7 +240,7 @@ public:
 //
 typedef struct
 {
-	void	(*Sys_Error) (int err_level, char *str, ...);
+	void	(*Sys_Error) (int err_level, const char *str, ...);
 
 	void	(*Cmd_AddCommand) (char *name, void(*cmd)(void));
 	void	(*Cmd_RemoveCommand) (char *name);
@@ -262,7 +262,7 @@ typedef struct
 	// files should be stored to, ie: "f:\quake\id1"
 	const char	*(*FS_Gamedir) (void);
 
-	cvar_t	*(*Cvar_Get) (char *name, char *value, int flags);
+	cvar_t	*(*Cvar_Get) ( const char *name, const char *value, int flags);
 	cvar_t	*(*Cvar_Set)( char *name, char *value );
 	void	 (*Cvar_SetValue)( char *name, float value );
 
@@ -277,7 +277,7 @@ typedef struct
 	void		(*GLimp_EndFrame)( void );
 	int 		(*GLimp_Init)( void );
 	void		(*GLimp_Shutdown)( void );
-	int     	(*GLimp_SetMode)( int *pwidth, int *pheight, int mode, bool fullscreen );
+	int     	(*GLimp_SetMode)( unsigned int *pwidth, unsigned int *pheight, int mode, bool fullscreen );
 	void		(*GLimp_AppActivate)( bool active );
 	void		(*GLimp_EnableLogging)( bool enable );
 	void		(*GLimp_LogNewFrame)( void );

@@ -11,7 +11,7 @@ static int mouse_y;
 cvar_t	*in_mouse;
 cvar_t	*in_joystick;
 
-static int MapSDLToQuakeKey( const SDL_Keycode code );
+static int  MapSDLToQuakeKey( const SDL_Keycode code );
 static void HandleKeyboardEvent( const SDL_KeyboardEvent key );
 static void HandleTextEvent( const SDL_TextInputEvent text );
 static void HandleMouseMotionEvent( const SDL_MouseMotionEvent motion );
@@ -272,7 +272,6 @@ int MapSDLToQuakeKey(const SDL_Keycode code)
         case SDLK_7:            return '7';
         case SDLK_8:            return '8';
         case SDLK_9:            return '9';
-        case SDLK_GRAVE:        return '`';
         case SDLK_A:            return 'a';
         case SDLK_B:            return 'b';
         case SDLK_C:            return 'c';
@@ -299,9 +298,20 @@ int MapSDLToQuakeKey(const SDL_Keycode code)
         case SDLK_X:            return 'x';
         case SDLK_Y:            return 'y';
         case SDLK_Z:            return 'z';
+        case SDLK_COLON:        return ':';
+        case SDLK_SEMICOLON:    return ';';
+        case SDLK_LESS:         return '<';
+        case SDLK_EQUALS:       return '=';
+        case SDLK_GREATER:      return '>';
+        case SDLK_GRAVE:        return '`';
+        case SDLK_LEFTBRACKET:  return '[';
+        case SDLK_BACKSLASH:    return '\\';
+        case SDLK_RIGHTBRACKET: return ']';
+        case SDLK_CARET:        return '^';
         case SDLK_TILDE:        return '~';
-        case SDLK_DBLAPOSTROPHE: return '"';
         case SDLK_APOSTROPHE:   return '\'';
+        case SDLK_UNDERSCORE:   return '_';
+        case SDLK_DBLAPOSTROPHE: return '"';
     default:
         break;
     }

@@ -30,19 +30,25 @@ bool stdin_active = true;
 /// TODO: Windows only
 static char			console_text[256];
 static int			console_textlen;
-static HANDLE		hinput, houtput;
 
+#if SDL_PLATFORM_WINDOWS
+static HANDLE		hinput, houtput;
+#endif
 void Sys_InitConsole( void )
 {
 	if (dedicated->value)
 	{
+#if SDL_PLATFORM_WINDOWS
 		if (!AllocConsole ())
 			Sys_Error ("Couldn't create dedicated server console");
+
+
 		hinput = GetStdHandle (STD_INPUT_HANDLE);
 		houtput = GetStdHandle (STD_OUTPUT_HANDLE);
 	
 		// let QHOST hook in
 		InitConProc ( sys.argc, sys.argv );
+#endif
 	}
 }
 

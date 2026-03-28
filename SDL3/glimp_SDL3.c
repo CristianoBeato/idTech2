@@ -45,7 +45,7 @@ void		GLimp_Shutdown( void )
     SDL_GL_UnloadLibrary();
 }
 
-int GLimp_SetMode( int *pwidth, int *pheight, int mode, bool fullscreen )
+int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, bool fullscreen )
 {
     if ( mode < 0 || mode >= VID_NUM_MODES )
         return rserr_invalid_mode;
