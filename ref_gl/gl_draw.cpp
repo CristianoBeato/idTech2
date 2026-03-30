@@ -327,7 +327,7 @@ void glDraw::Fill (int x, int y, int w, int h, int c)
 	} color;
 
 	if ( (unsigned)c > 255)
-		Sys_Error (ERR_FATAL, "Draw_Fill: bad color");
+		ri.Sys_Error (ERR_FATAL, "Draw_Fill: bad color");
 
 	qglDisable (GL_TEXTURE_2D);
 

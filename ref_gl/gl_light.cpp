@@ -71,10 +71,10 @@ void R_RenderDlight (dlight_t *light)
 
 /*
 =============
-R_RenderDlights
+glRenderer::RenderDlights
 =============
 */
-void R_RenderDlights (void)
+void glRenderer::RenderDlights (void)
 {
 	int		i;
 	dlight_t	*l;

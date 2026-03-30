@@ -17,11 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// disable data conversion warnings
 
 #ifndef __GL_LOCAL_H__
 #define __GL_LOCAL_H__
 
+// disable data conversion warnings
 #if 0
 #pragma warning(disable : 4244)     // MIPS
 #pragma warning(disable : 4136)     // X86
@@ -124,11 +124,18 @@ typedef enum
 
 #include "gl_model.hpp"
 
+/// TODO: Move to main render class
 void GL_BeginRendering (int *x, int *y, int *width, int *height);
 void GL_EndRendering (void);
 
 void GL_SetDefaultState( void );
 void GL_UpdateSwapInterval( void );
+
+void R_BeginRegistration ( const char *model );
+struct model_s *R_RegisterModel ( const char *name);
+struct image_s *R_RegisterSkin ( const char *name );
+void R_SetSky ( const char *name, float rotate, vec3_t axis );
+void R_EndRegistration (void);
 
 extern	float	gldepthmin, gldepthmax;
 
@@ -298,9 +305,7 @@ void	COM_StripExtension ( const char *in, char *out);
 
 void GL_ResampleTexture (unsigned *in, int inwidth, int inheight, unsigned *out,  int outwidth, int outheight);
 
-struct image_s *R_RegisterSkin (char *name);
-
-void LoadPCX (char *filename, byte **pic, byte **palette, int *width, int *height);
+void LoadPCX ( const char *filename, byte **pic, byte **palette, int *width, int *height);
 image_t *GL_LoadPic ( const char *name, byte *pic, int width, int height, imagetype_t type, int bits);
 image_t	*GL_FindImage ( const char *name, imagetype_t type);
 void	GL_TextureMode( char *string );
@@ -315,11 +320,6 @@ void	GL_FreeUnusedImages (void);
 
 void GL_TextureAlphaMode( char *string );
 void GL_TextureSolidMode( char *string );
-
-/*
-** GL extension emulation functions
-*/
-void GL_DrawParticles( int n, const particle_t particles[], const unsigned colortable[768] );
 
 /*
 ** GL config stuff
@@ -363,7 +363,10 @@ typedef struct
 	unsigned char originalBlueGammaTable[256];
 } glstate_t;
 
+#ifdef __cplusplus
 extern class glRenderer*	renderer_global;
+#endif
+
 extern glconfig_t  gl_config;
 extern glstate_t	gl_state;
 extern refimport_t	ri;
@@ -377,8 +380,10 @@ IMPORTED FUNCTIONS
 ====================================================================
 */
 
+#ifdef __cplusplus
 #include "gl_model.hpp"
 #include "gl_draw.hpp"
 #include "gl_rmain.hpp"
+#endif //!__cplusplus
 
 #endif //

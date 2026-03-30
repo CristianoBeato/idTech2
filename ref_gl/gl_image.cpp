@@ -131,7 +131,7 @@ void GL_Bind (int texnum)
 	if ( gl_state.currenttextures[gl_state.currenttmu] == texnum)
 		return;
 	gl_state.currenttextures[gl_state.currenttmu] = texnum;
-	qglBindTexture (GL_TEXTURE_2D, texnum);
+	qglBindTexture (GL_TEXTURE_2D, texnum );
 }
 
 void GL_MBind( GLenum target, int texnum )
@@ -396,7 +396,7 @@ int Scrap_AllocBlock (int w, int h, int *x, int *y)
 
 int	scrap_uploads;
 
-void Scrap_Upload (void)
+void glDraw::Scrap_Upload (void)
 {
 	scrap_uploads++;
 	GL_Bind(TEXNUM_SCRAPS);
@@ -536,7 +536,7 @@ typedef struct _TargaHeader {
 LoadTGA
 =============
 */
-static void LoadTGA (char *name, byte **pic, int *width, int *height)
+static void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 {
 	int		columns, rows, numPixels;
 	byte	*pixbuf;
@@ -1232,7 +1232,7 @@ GL_LoadPic
 This is also used as an entry point for the generated r_notexture
 ================
 */
-image_t *GL_LoadPic (char *name, byte *pic, int width, int height, imagetype_t type, int bits)
+image_t *GL_LoadPic ( const char *name, byte *pic, int width, int height, imagetype_t type, int bits)
 {
 	image_t		*image;
 	int			i;
@@ -1317,7 +1317,7 @@ nonscrap:
 GL_LoadWal
 ================
 */
-static image_t *GL_LoadWal (char *name)
+static image_t *GL_LoadWal ( const char *name)
 {
 	miptex_t	*mt;
 	int			width, height, ofs;
@@ -1413,7 +1413,7 @@ image_t	*GL_FindImage ( const char *name, imagetype_t type)
 R_RegisterSkin
 ===============
 */
-struct image_s *R_RegisterSkin (char *name)
+struct image_s *R_RegisterSkin ( const char *name )
 {
 	return GL_FindImage (name, it_skin);
 }
@@ -1455,7 +1455,7 @@ void GL_FreeUnusedImages (void)
 GL_InitImages
 ===============
 */
-void	GL_InitImages (void)
+void glRenderer::GL_InitImages (void)
 {
 	int		i, j;
 	float	g = vid_gamma->value;
@@ -1470,7 +1470,7 @@ void	GL_InitImages (void)
 
 	gl_state.inverse_intensity = 1 / intensity->value;
 
-	Draw_GetPalette ();
+	m_draw.GetPalette();
 
 	if ( qglColorTableEXT )
 	{
@@ -1519,7 +1519,7 @@ void	GL_InitImages (void)
 GL_ShutdownImages
 ===============
 */
-void	GL_ShutdownImages (void)
+void glRenderer::GL_ShutdownImages (void)
 {
 	int		i;
 	image_t	*image;

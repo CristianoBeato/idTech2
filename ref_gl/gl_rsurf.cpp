@@ -63,7 +63,6 @@ static void		LM_UploadBlock( bool dynamic );
 static bool	LM_AllocBlock (int w, int h, int *x, int *y);
 
 extern void R_SetCacheState( msurface_t *surf );
-extern void R_BuildLightMap (msurface_t *surf, byte *dest, int stride);
 
 /*
 =============================================================
@@ -307,12 +306,12 @@ void DrawGLPolyChain( glpoly_t *p, float soffset, float toffset )
 }
 
 /*
-** R_BlendLightMaps
+** glRenderer::BlendLightMaps
 **
 ** This routine takes all the given light mapped surfaces in the world and
 ** blends them into the framebuffer.
 */
-void R_BlendLightmaps (void)
+void glRenderer::BlendLightmaps (void)
 {
 	int			i;
 	msurface_t	*surf, *newdrawsurf = 0;
@@ -412,7 +411,7 @@ void R_BlendLightmaps (void)
 				base = gl_lms.lightmap_buffer;
 				base += ( surf->dlight_t * BLOCK_WIDTH + surf->dlight_s ) * LIGHTMAP_BYTES;
 
-				R_BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
+				BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
 			}
 			else
 			{
@@ -444,7 +443,7 @@ void R_BlendLightmaps (void)
 				base = gl_lms.lightmap_buffer;
 				base += ( surf->dlight_t * BLOCK_WIDTH + surf->dlight_s ) * LIGHTMAP_BYTES;
 
-				R_BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
+				BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
 			}
 		}
 
@@ -547,7 +546,7 @@ dynamic:
 			smax = (fa->extents[0]>>4)+1;
 			tmax = (fa->extents[1]>>4)+1;
 
-			BuildLightMap( fa, (void *)temp, smax*4 );
+			BuildLightMap( fa, (byte *)temp, smax*4 );
 			R_SetCacheState( fa );
 
 			GL_Bind( gl_state.lightmap_textures + fa->lightmaptexturenum );
@@ -577,14 +576,14 @@ dynamic:
 
 /*
 ================
-R_DrawAlphaSurfaces
+glRenderer::DrawAlphaSurfaces
 
 Draw water surfaces and windows.
 The BSP tree is waled front to back, so unwinding the chain
 of alpha_surfaces will draw back to front, giving proper ordering.
 ================
 */
-void R_DrawAlphaSurfaces (void)
+void glRenderer::DrawAlphaSurfaces (void)
 {
 	msurface_t	*s;
 	float		intens;
@@ -651,7 +650,7 @@ void glRenderer::DrawTextureChains (void)
 			c_visible_textures++;
 
 			for ( ; s ; s=s->texturechain)
-				R_RenderBrushPoly (s);
+				RenderBrushPoly (s);
 
 			image->texturechain = NULL;
 		}
@@ -669,7 +668,7 @@ void glRenderer::DrawTextureChains (void)
 			for ( s = image->texturechain; s ; s=s->texturechain)
 			{
 				if ( !( s->flags & SURF_DRAWTURB ) )
-					R_RenderBrushPoly (s);
+					RenderBrushPoly (s);
 			}
 		}
 
@@ -685,7 +684,7 @@ void glRenderer::DrawTextureChains (void)
 			for ( ; s ; s=s->texturechain)
 			{
 				if ( s->flags & SURF_DRAWTURB )
-					R_RenderBrushPoly (s);
+					RenderBrushPoly (s);
 			}
 
 			image->texturechain = NULL;
@@ -697,7 +696,7 @@ void glRenderer::DrawTextureChains (void)
 }
 
 
-static void GL_RenderLightmappedPoly( msurface_t *surf )
+void glRenderer::RenderLightmappedPoly( msurface_t *surf )
 {
 	int		i, nv = surf->polys->numverts;
 	int		map;
@@ -736,7 +735,7 @@ dynamic:
 			smax = (surf->extents[0]>>4)+1;
 			tmax = (surf->extents[1]>>4)+1;
 
-			R_BuildLightMap( surf, (void *)temp, smax*4 );
+			BuildLightMap( surf, (byte*)temp, smax*4 );
 			R_SetCacheState( surf );
 
 			GL_MBind( GL_TEXTURE1_SGIS, gl_state.lightmap_textures + surf->lightmaptexturenum );
@@ -755,7 +754,7 @@ dynamic:
 			smax = (surf->extents[0]>>4)+1;
 			tmax = (surf->extents[1]>>4)+1;
 
-			R_BuildLightMap( surf, (void *)temp, smax*4 );
+			BuildLightMap( surf, (byte *)temp, smax*4 );
 
 			GL_MBind( GL_TEXTURE1_SGIS, gl_state.lightmap_textures + 0 );
 
@@ -871,10 +870,10 @@ dynamic:
 
 /*
 =================
-R_DrawInlineBModel
+glRenderer::DrawInlineBModel
 =================
 */
-void R_DrawInlineBModel (void)
+void glRenderer::DrawInlineBModel (void)
 {
 	int			i, k;
 	cplane_t	*pplane;
@@ -922,12 +921,12 @@ void R_DrawInlineBModel (void)
 			}
 			else if ( qglMTexCoord2fSGIS && !( psurf->flags & SURF_DRAWTURB ) )
 			{
-				GL_RenderLightmappedPoly( psurf );
+				RenderLightmappedPoly( psurf );
 			}
 			else
 			{
 				GL_EnableMultitexture( false );
-				R_RenderBrushPoly( psurf );
+				RenderBrushPoly( psurf );
 				GL_EnableMultitexture( true );
 			}
 		}
@@ -936,7 +935,7 @@ void R_DrawInlineBModel (void)
 	if ( !(currententity->flags & RF_TRANSLUCENT) )
 	{
 		if ( !qglMTexCoord2fSGIS )
-			R_BlendLightmaps ();
+			BlendLightmaps ();
 	}
 	else
 	{
@@ -948,10 +947,10 @@ void R_DrawInlineBModel (void)
 
 /*
 =================
-R_DrawBrushModel
+glRenderer::DrawBrushModel
 =================
 */
-void R_DrawBrushModel (entity_t *e)
+void glRenderer::DrawBrushModel (entity_t *e)
 {
 	vec3_t		mins, maxs;
 	int			i;
@@ -979,7 +978,7 @@ void R_DrawBrushModel (entity_t *e)
 		VectorAdd (e->origin, currentmodel->maxs, maxs);
 	}
 
-	if (R_CullBox (mins, maxs))
+	if (CullBox (mins, maxs))
 		return;
 
 	qglColor3f (1,1,1);
@@ -1001,7 +1000,7 @@ void R_DrawBrushModel (entity_t *e)
     qglPushMatrix ();
 e->angles[0] = -e->angles[0];	// stupid quake bug
 e->angles[2] = -e->angles[2];	// stupid quake bug
-	R_RotateForEntity (e);
+	RotateForEntity (e);
 e->angles[0] = -e->angles[0];	// stupid quake bug
 e->angles[2] = -e->angles[2];	// stupid quake bug
 
@@ -1011,7 +1010,7 @@ e->angles[2] = -e->angles[2];	// stupid quake bug
 	GL_SelectTexture( GL_TEXTURE1_SGIS );
 	GL_TexEnv( GL_MODULATE );
 
-	R_DrawInlineBModel ();
+	DrawInlineBModel ();
 	GL_EnableMultitexture( false );
 
 	qglPopMatrix ();
@@ -1027,10 +1026,10 @@ e->angles[2] = -e->angles[2];	// stupid quake bug
 
 /*
 ================
-R_RecursiveWorldNode
+glRenderer::RecursiveWorldNode
 ================
 */
-void R_RecursiveWorldNode (mnode_t *node)
+void glRenderer::RecursiveWorldNode (mnode_t *node)
 {
 	int			c, side, sidebit;
 	cplane_t	*plane;
@@ -1044,7 +1043,7 @@ void R_RecursiveWorldNode (mnode_t *node)
 
 	if (node->visframe != r_visframecount)
 		return;
-	if (R_CullBox (node->minmaxs, node->minmaxs+3))
+	if ( CullBox (node->minmaxs, node->minmaxs+3))
 		return;
 	
 // if a leaf node, draw stuff
@@ -1107,7 +1106,7 @@ void R_RecursiveWorldNode (mnode_t *node)
 	}
 
 // recurse down the children, front side first
-	R_RecursiveWorldNode (node->children[side]);
+	RecursiveWorldNode (node->children[side]);
 
 	// draw stuff
 	for ( c = node->numsurfaces, surf = r_worldmodel->surfaces + node->firstsurface; c ; c--, surf++)
@@ -1131,7 +1130,7 @@ void R_RecursiveWorldNode (mnode_t *node)
 		{
 			if ( qglMTexCoord2fSGIS && !( surf->flags & SURF_DRAWTURB ) )
 			{
-				GL_RenderLightmappedPoly( surf );
+				RenderLightmappedPoly( surf );
 			}
 			else
 			{
@@ -1146,7 +1145,7 @@ void R_RecursiveWorldNode (mnode_t *node)
 	}
 
 	// recurse down the back side
-	R_RecursiveWorldNode (node->children[!side]);
+	RecursiveWorldNode (node->children[!side]);
 /*
 	for ( ; c ; c--, surf++)
 	{
@@ -1188,10 +1187,10 @@ void R_RecursiveWorldNode (mnode_t *node)
 
 /*
 =============
-R_DrawWorld
+glRenderer::DrawWorld
 =============
 */
-void R_DrawWorld (void)
+void glRenderer::DrawWorld (void)
 {
 	entity_t	ent;
 
@@ -1229,13 +1228,13 @@ void R_DrawWorld (void)
 		else 
 			GL_TexEnv( GL_MODULATE );
 
-		R_RecursiveWorldNode (r_worldmodel->nodes);
+		RecursiveWorldNode (r_worldmodel->nodes);
 
 		GL_EnableMultitexture( false );
 	}
 	else
 	{
-		R_RecursiveWorldNode (r_worldmodel->nodes);
+		RecursiveWorldNode (r_worldmodel->nodes);
 	}
 
 	/*
@@ -1243,7 +1242,7 @@ void R_DrawWorld (void)
 	** if multitexture is enabled
 	*/
 	DrawTextureChains ();
-	R_BlendLightmaps ();
+	BlendLightmaps ();
 	
 	R_DrawSkyBox ();
 
@@ -1253,13 +1252,13 @@ void R_DrawWorld (void)
 
 /*
 ===============
-R_MarkLeaves
+glRenderer::MarkLeaves
 
 Mark the leaves and nodes that are in the PVS for the current
 cluster
 ===============
 */
-void R_MarkLeaves (void)
+void glRenderer::MarkLeaves (void)
 {
 	byte	*vis;
 	byte	fatvis[MAX_MAP_LEAFS/8];
@@ -1463,7 +1462,7 @@ void GL_BuildPolygonFromSurface(msurface_t *fa)
 	//
 	// draw texture
 	//
-	poly = Hunk_Alloc (sizeof(glpoly_t) + (lnumverts-4) * VERTEXSIZE*sizeof(float));
+	poly = static_cast<glpoly_t*>(Hunk_Alloc (sizeof(glpoly_t) + (lnumverts-4) * VERTEXSIZE*sizeof(float)));
 	poly->next = fa->polys;
 	poly->flags = fa->flags;
 	fa->polys = poly;
@@ -1549,7 +1548,7 @@ void GL_CreateSurfaceLightmap (msurface_t *surf)
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
 	R_SetCacheState( surf );
-	R_BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
+	renderer_global->BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
 }
 
 

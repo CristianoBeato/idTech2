@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gl_local.hpp"
 
+glModel Mod;
+
 model_t	*loadmodel;
 int		modfilelen;
 
@@ -31,14 +33,17 @@ model_t *Mod_LoadModel (model_t *mod, bool crash);
 
 byte	mod_novis[MAX_MAP_LEAFS/8];
 
-#define	MAX_MOD_KNOWN	512
 model_t	mod_known[MAX_MOD_KNOWN];
 int		mod_numknown;
 
-// the inline * models from the current map are kept seperate
-model_t	mod_inline[MAX_MOD_KNOWN];
 
-int		registration_sequence;
+glModel::glModel( void )
+{
+}
+
+glModel::~glModel( void )
+{
+}
 
 /*
 ===============
@@ -174,7 +179,7 @@ Mod_ForName
 Loads in a model for the given name
 ==================
 */
-model_t *Mod_ForName (char *name, bool crash)
+model_t *Mod_ForName ( const char *name, const bool crash )
 {
 	model_t	*mod;
 	unsigned *buf;
@@ -1103,7 +1108,7 @@ R_BeginRegistration
 Specifies the model that will be used as the world
 @@@@@@@@@@@@@@@@@@@@@
 */
-void R_BeginRegistration (char *model)
+void R_BeginRegistration ( const char *model)
 {
 	char	fullname[MAX_QPATH];
 	cvar_t	*flushmap;
@@ -1130,7 +1135,7 @@ R_RegisterModel
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-struct model_s *R_RegisterModel (char *name)
+struct model_s *R_RegisterModel ( const char *name)
 {
 	model_t	*mod;
 	int		i;

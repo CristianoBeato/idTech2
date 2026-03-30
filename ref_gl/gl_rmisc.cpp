@@ -38,7 +38,7 @@ byte	dottexture[8][8] =
 	{0,0,0,0,0,0,0,0},
 };
 
-void R_InitParticleTexture (void)
+void glRenderer::InitParticleTexture (void)
 {
 	int		x,y;
 	byte	data[8][8][4];

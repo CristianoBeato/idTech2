@@ -23,11 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gl_rmain.hpp"
 #include "gl_draw.hpp"
 
+viddef_t	vid;
 refimport_t ri;
 glRenderer gRenderer;
 glRenderer*	renderer_global = &gRenderer;
-
-void R_Clear (void);
 
 model_t		*r_worldmodel;
 
@@ -506,7 +505,7 @@ void glRenderer::DrawParticles (void)
 	}
 	else
 	{
-		GL_DrawParticles( r_newrefdef.num_particles, r_newrefdef.particles, d_8to24table );
+		DrawParticles( r_newrefdef.num_particles, r_newrefdef.particles, d_8to24table );
 	}
 }
 
@@ -745,7 +744,7 @@ void R_SetupGL (void)
 //	if ( gl_state.camera_separation != 0 && gl_state.stereo_enabled )
 //		qglTranslatef ( gl_state.camera_separation, 0, 0 );
 
-	qglGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix);
+	qglGetFloatv (GL_MODELVIEW_MATRIX, r_world_matrix );
 
 	//
 	// set drawing parms
@@ -1409,7 +1408,7 @@ void glRenderer::BeginFrame( float camera_separation )
 	//
 	// clear screen if desired
 	//
-	R_Clear ();
+	Clear ();
 }
 
 /*
@@ -1524,15 +1523,16 @@ void glRenderer::DrawBeam( entity_t *e )
 //===================================================================
 
 
-void	R_BeginRegistration (char *map);
-struct model_s	*R_RegisterModel (char *name);
-struct image_s	*R_RegisterSkin (char *name);
-void R_SetSky (char *name, float rotate, vec3_t axis);
-void	R_EndRegistration (void);
+///void	R_BeginRegistration ( constchar *map);
+///struct model_s	*R_RegisterModel (char *name);
+///struct image_s	*R_RegisterSkin (char *name);
+///void R_SetSky (char *name, float rotate, vec3_t axis);
+///void	R_EndRegistration (void);
 
-void	R_RenderFrame (refdef_t *fd);
-
-struct image_s	*Draw_FindPic (char *name);
+struct image_s	*Draw_FindPic ( const char *name )
+{
+	return gRenderer.Draw().FindPic( name );
+}
 
 static int R_Init( void )
 {
@@ -1589,6 +1589,11 @@ static void Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, byt
 	gRenderer.Draw().StretchRaw( x, y, w, h, cols, rows, data );
 }
 
+static void	R_RenderFrame (refdef_t *fd)
+{
+	gRenderer.RenderFrame( fd );
+}
+
 /*
 @@@@@@@@@@@@@@@@@@@@@
 GetRefAPI
@@ -1636,31 +1641,38 @@ refexport_t GetRefAPI (refimport_t rimp )
 	return re;
 }
 
-
-#ifndef REF_HARD_LINKED
-// this is only here so the functions in q_shared.c and q_shwin.c can link
-void glRenderer::Sys_Error ( const char *error, ...)
+// Agora as funções de ponte (Bridge) para a qshared
+extern "C" 
 {
-	va_list		argptr;
-	char		text[1024];
 
-	va_start (argptr, error);
-	vsprintf (text, error, argptr);
-	va_end (argptr);
+void Sys_Error(const char *error, ...) 
+{
+    va_list argptr;
+    char text[1024];
 
-	ri.Sys_Error (ERR_FATAL, "%s", text);
+    va_start(argptr, error);
+    vsnprintf(text, sizeof(text), error, argptr);
+    va_end(argptr);
+
+    // Usa o ponteiro que o executável nos deu na inicialização
+    if (ri.Sys_Error) 
+	{
+        ri.Sys_Error(ERR_FATAL, "%s", text);
+    }
 }
 
-void glRenderer::Com_Printf ( const char *fmt, ...)
+void Com_Printf(const char *fmt, ...) 
 {
-	va_list		argptr;
-	char		text[1024];
+    va_list argptr;
+    char text[1024];
 
-	va_start (argptr, fmt);
-	vsprintf (text, fmt, argptr);
-	va_end (argptr);
+    va_start(argptr, fmt);
+    vsnprintf(text, sizeof(text), fmt, argptr);
+    va_end(argptr);
 
-	ri.Con_Printf (PRINT_ALL, "%s", text);
+    if (ri.Con_Printf) {
+        ri.Con_Printf(PRINT_ALL, "%s", text);
+    }
 }
 
-#endif
+} // extern "C"

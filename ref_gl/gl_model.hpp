@@ -56,17 +56,15 @@ typedef struct
 	int			firstface, numfaces;
 } mmodel_t;
 
+inline constexpr uint32_t SIDE_FRONT	= 0u;
+inline constexpr uint32_t SIDE_BACK 	= 1u;
+inline constexpr uint32_t SIDE_ON		= 2u;
 
-#define	SIDE_FRONT	0
-#define	SIDE_BACK	1
-#define	SIDE_ON		2
-
-
-#define	SURF_PLANEBACK		2
-#define	SURF_DRAWSKY		4
-#define SURF_DRAWTURB		0x10
-#define SURF_DRAWBACKGROUND	0x40
-#define SURF_UNDERWATER		0x80
+inline constexpr uint32_t	SURF_PLANEBACK		= 2u;
+inline constexpr uint32_t	SURF_DRAWSKY		= 4u;
+inline constexpr uint32_t	SURF_DRAWTURB		= 0x10;
+inline constexpr uint32_t	SURF_DRAWBACKGROUND	= 0x40;
+inline constexpr uint32_t	SURF_UNDERWATER		= 0x80;
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct
@@ -245,22 +243,35 @@ typedef struct model_s
 	void		*extradata;
 } model_t;
 
+inline constexpr uint32_t MAX_MOD_KNOWN	= 512;
+
+
 //============================================================================
 
-void	Mod_Init (void);
-void	Mod_ClearAll (void);
-model_t *Mod_ForName (char *name, bool crash );
-mleaf_t *Mod_PointInLeaf (float *p, model_t *model);
-byte	*Mod_ClusterPVS (int cluster, model_t *model);
+class glModel
+{
+public:
+	glModel( void );
+	~glModel( void );
 
-void	Mod_Modellist_f (void);
+	void	Init (void);
+	void	ClearAll (void);
+	model_t*	ForName ( const char *name, bool crash );
+	mleaf_t*	PointInLeaf (float *p, model_t *model);
+	byte*		ClusterPVS (int cluster, model_t *model);
 
-void	*Hunk_Begin ( size_t maxsize );
-void	*Hunk_Alloc ( size_t size );
-size_t	Hunk_End (void);
-void	Hunk_Free (void *base);
+	void		Modellist_f (void);
+	void		FreeAll (void);
+	void		Free (model_t *mod);
 
-void	Mod_FreeAll (void);
-void	Mod_Free (model_t *mod);
+private:
+	int		registration_sequence;
+	
+	// the inline * models from the current map are kept seperate
+	model_t	mod_inline[MAX_MOD_KNOWN];
+
+};
+
+extern glModel Mod;
 
 #endif //!__GL_MODEL_HPP__
