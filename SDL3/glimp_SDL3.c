@@ -1,4 +1,4 @@
-#include "ref_gl/gl_local.h"
+#include "ref_gl/gl_local.hpp"
 #include "SDL3_shared.h"
 #include <SDL3/SDL_video.h>
 

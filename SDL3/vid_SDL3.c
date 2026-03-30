@@ -66,7 +66,7 @@ void VID_Printf (int print_level, const char *fmt, ...)
                 Com_DPrintf ("%s", msg);
 }
 
-void VID_Error (int err_level, char *fmt, ...)
+void VID_Error (int err_level, const char *fmt, ...)
 {
         va_list		argptr;
         char		msg[MAXPRINTMSG];
