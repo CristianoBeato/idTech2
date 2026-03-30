@@ -348,13 +348,13 @@ void glRenderer::DrawEntitiesOnList (void)
 			}
 			switch (currentmodel->type)
 			{
-			case mod_alias:
+			case MOD_ALIAS:
 				DrawAliasModel (currententity);
 				break;
-			case mod_brush:
+			case MOD_BRUSH:
 				DrawBrushModel (currententity);
 				break;
-			case mod_sprite:
+			case MOD_SPRITE:
 				DrawSpriteModel (currententity);
 				break;
 			default:
@@ -388,13 +388,13 @@ void glRenderer::DrawEntitiesOnList (void)
 			}
 			switch (currentmodel->type)
 			{
-			case mod_alias:
+			case MOD_ALIAS:
 				DrawAliasModel (currententity);
 				break;
-			case mod_brush:
+			case MOD_BRUSH:
 				DrawBrushModel (currententity);
 				break;
-			case mod_sprite:
+			case MOD_SPRITE:
 				DrawSpriteModel (currententity);
 				break;
 			default:

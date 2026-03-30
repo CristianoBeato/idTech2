@@ -143,8 +143,6 @@ typedef struct mnode_s
 	unsigned short		numsurfaces;
 } mnode_t;
 
-
-
 typedef struct mleaf_s
 {
 // common with node
@@ -170,13 +168,87 @@ typedef struct mleaf_s
 // Whole model
 //
 
-typedef enum {mod_bad, mod_brush, mod_sprite, mod_alias } modtype_t;
+typedef enum { MOD_BAD, MOD_BRUSH, MOD_SPRITE, MOD_ALIAS } modtype_t;
 
-typedef struct model_s
+inline constexpr uint32_t MAX_MOD_KNOWN	= 512;
+
+
+//============================================================================
+
+class glModel
 {
-	char		name[MAX_QPATH];
+public:
+	glModel( void );
+	~glModel( void );
 
-	int			registration_sequence;
+	void	Clear( void );
+
+	inline void SetFirstModelSurface( const int first )
+	{
+		firstmodelsurface = first;
+	}
+
+	inline void	SetFrames( const uint32_t frames ) 
+	{
+		numframes = frames;
+	}
+
+	inline void SetRegistrationSequence( const uint32_t sequence )
+	{
+		registration_sequence = sequence; 
+	}
+
+	inline void SetType( const modtype_t modelType )
+	{
+		type = modelType;
+	}
+
+	inline void ClearName( void )
+	{
+		memset ( const_cast<char*>( name ), 0, sizeof( name ) );
+	}
+
+	inline void	SetName( const char* newName )
+	{
+		strncpy( const_cast<char*>( name ), newName, MAX_QPATH );
+	}
+	
+	inline const char*	Name( void ) const { return name; }
+	inline uint32_t		NumTexInfo( void ) const { return numtexinfo; }
+	inline const int	ExtraDataSize( void ) const { return extradatasize; }
+	inline void	*		ExtraData( void ) const { return extradata; };
+	inline uint32_t		Numsubmodels( void ) const { return numsubmodels; }
+	inline mmodel_t*	SubModels( void ) const { return submodels; }
+	inline uint32_t 	RegistrationSequence( void ) const { return registration_sequence; }
+	inline uint32_t		FirstModelSurface( void ) const { return firstmodelsurface; }
+	inline modtype_t 	Type( void ) const { return type; }
+	inline byte*		LightData( void ) const { return lightdata; }
+	inline mnode_t*		Nodes( void ) const { return nodes; }
+	inline msurface_t*	Surfaces( void ) const { return surfaces; }
+	
+	inline void	AllocExtraData( const size_t size )
+	{
+		extradatasize = size;
+		extradata = malloc( extradatasize );
+	}
+
+	inline void FreeExtraData( void )
+	{
+		if( extradata != nullptr )
+		{
+			free( extradata );
+			extradata = nullptr;
+		}
+
+		extradatasize = 0;
+	}
+	
+	void LoadBrush( dheader_t	*header );
+
+private:
+	const char	name[MAX_QPATH];
+
+	uint32_t	registration_sequence;
 
 	modtype_t	type;
 	int			numframes;
@@ -201,26 +273,26 @@ typedef struct model_s
 	int			firstmodelsurface, nummodelsurfaces;
 	int			lightmap;		// only for submodels
 
-	int			numsubmodels;
+	uint32_t	numsubmodels;
 	mmodel_t	*submodels;
 
-	int			numplanes;
+	uint32_t	numplanes;
 	cplane_t	*planes;
 
-	int			numleafs;		// number of visible leafs, not counting 0
+	uint32_t	numleafs;		// number of visible leafs, not counting 0
 	mleaf_t		*leafs;
 
-	int			numvertexes;
+	uint32_t	numvertexes;
 	mvertex_t	*vertexes;
 
-	int			numedges;
+	uint32_t	numedges;
 	medge_t		*edges;
 
-	int			numnodes;
+	uint32_t	numnodes;
 	int			firstnode;
 	mnode_t		*nodes;
 
-	int			numtexinfo;
+	uint32_t	numtexinfo;
 	mtexinfo_t	*texinfo;
 
 	int			numsurfaces;
@@ -239,39 +311,62 @@ typedef struct model_s
 	// for alias models and skins
 	image_t		*skins[MAX_MD2SKINS];
 
-	int			extradatasize;
+	size_t		extradatasize;
 	void		*extradata;
-} model_t;
 
-inline constexpr uint32_t MAX_MOD_KNOWN	= 512;
-
-
-//============================================================================
-
-class glModel
-{
-public:
-	glModel( void );
-	~glModel( void );
-
-	void	Init (void);
-	void	ClearAll (void);
-	model_t*	ForName ( const char *name, bool crash );
-	mleaf_t*	PointInLeaf (float *p, model_t *model);
-	byte*		ClusterPVS (int cluster, model_t *model);
-
-	void		Modellist_f (void);
-	void		FreeAll (void);
-	void		Free (model_t *mod);
-
-private:
-	int		registration_sequence;
-	
-	// the inline * models from the current map are kept seperate
-	model_t	mod_inline[MAX_MOD_KNOWN];
-
+	mleaf_t*	PointInLeaf ( vec3_t p );
+	byte*		DecompressVis ( byte *in );
+	byte*		ClusterPVS ( int cluster );
+	void 		CalcSurfaceExtents ( msurface_t *s );
+	void		LoadLighting ( lump_t *l );	//
+	void		LoadVisibility ( lump_t *l );
+	void		LoadVertexes ( lump_t *l ); //
+	void		LoadSubmodels ( lump_t *l );
+	void		LoadEdges ( lump_t *l ); //
+	void		LoadTexinfo ( lump_t *l );	///
+	void		LoadFaces ( lump_t *l );	//
+	void		SetParent ( mnode_t *node, mnode_t *parent );
+	void		LoadNodes ( lump_t *l );
+	void		LoadLeafs( lump_t *l );
+	void		LoadMarksurfaces ( lump_t *l);
+	void		LoadSurfedges ( lump_t *l );	//
+	void		LoadPlanes ( lump_t *l );		//
 };
 
-extern glModel Mod;
+class glModelManager
+{
+public:
+	glModelManager( void );
+	~glModelManager( void );
+
+	void		Init (void);
+	void		ClearAll (void);
+	void		BeginRegistration ( const char *model );
+	glModel*	RegisterModel ( const char *name);
+	void		EndRegistration (void);
+	void		Modellist( void );
+	glModel*	ForName ( const char *name, bool crash );
+	glModel*	LoadModel ( glModel *mod, bool crash);
+	glModel*	PointInLeaf (float *p, glModel *model);
+	byte*		ClusterPVS (int cluster, glModel *model);
+	void		FreeAll (void);
+	void		Free ( glModel *mod );
+
+private:
+	uint32_t	registration_sequence;
+	uint32_t	mod_numknown;
+	glModel*	loadmodel;
+
+	glModel		mod_known[MAX_MOD_KNOWN];
+
+	// the inline * models from the current map are kept seperate
+	glModel		mod_inline[MAX_MOD_KNOWN];
+
+	void LoadSpriteModel ( glModel *mod, void *buffer );
+	void LoadBrushModel ( glModel *mod, void *buffer );
+	void LoadAliasModel ( glModel *mod, void *buffer );
+};
+
+extern glModelManager Mod;
 
 #endif //!__GL_MODEL_HPP__

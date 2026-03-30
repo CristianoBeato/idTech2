@@ -104,11 +104,11 @@ typedef struct image_s
 	bool	paletted;
 } image_t;
 
-#define	TEXNUM_LIGHTMAPS	1024
-#define	TEXNUM_SCRAPS		1152
-#define	TEXNUM_IMAGES		1153
+inline constexpr uint32_t TEXNUM_LIGHTMAPS = 1024;
+inline constexpr uint32_t TEXNUM_SCRAPS	= 1152;
+inline constexpr uint32_t TEXNUM_IMAGES	= 1153;
 
-#define		MAX_GLTEXTURES	1024
+inline constexpr uint32_t MAX_GLTEXTURES = 1024;
 
 //===================================================================
 
@@ -161,7 +161,7 @@ extern	int			numgltextures;
 extern	image_t		*r_notexture;
 extern	image_t		*r_particletexture;
 extern	entity_t	*currententity;
-extern	model_t		*currentmodel;
+extern	glModel		*currentmodel;
 extern	int			r_visframecount;
 extern	int			r_framecount;
 extern	int			c_brush_polys, c_alias_polys;
@@ -272,7 +272,7 @@ void R_PushDlights (void);
 
 //====================================================================
 
-extern	model_t	*r_worldmodel;
+extern	glModel	*r_worldmodel;
 
 extern	unsigned	d_8to24table[256];
 
