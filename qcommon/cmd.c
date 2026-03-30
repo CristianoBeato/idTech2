@@ -769,7 +769,7 @@ bool	Cmd_Exists (const char *cmd_name)
 Cmd_CompleteCommand
 ============
 */
-char *Cmd_CompleteCommand (char *partial)
+const char *Cmd_CompleteCommand ( const char *partial)
 {
 	cmd_function_t	*cmd;
 	int				len;

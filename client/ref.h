@@ -97,7 +97,7 @@ typedef struct
 	float		white;			// highest of rgb
 } lightstyle_t;
 
-struct refdef_t
+typedef struct refdef_s
 {
 	int			x, y, width, height;// in virtual screen coordinates
 	float		fov_x, fov_y;
@@ -119,7 +119,7 @@ struct refdef_t
 
 	int			num_particles;
 	particle_t	*particles;
-};
+} refdef_t;
 
 #define	API_VERSION		4 // 4 we update ref_gl to impor GLimp functions from main executable
 
@@ -150,14 +150,14 @@ typedef struct
 	// are flood filled to eliminate mip map edge errors, and pics have
 	// an implicit "pics/" prepended to the name. (a pic name that starts with a
 	// slash will not use the "pics/" prefix or the ".pcx" postfix)
-	void	(*BeginRegistration) (char *map);
-	struct model_s *(*RegisterModel) (char *name);
-	struct image_s *(*RegisterSkin) (char *name);
-	struct image_s *(*RegisterPic) (char *name);
-	void	(*SetSky) (char *name, float rotate, vec3_t axis);
+	void	(*BeginRegistration) ( const char *map );
+	struct model_s *(*RegisterModel) ( const char *name);
+	struct image_s *(*RegisterSkin) ( const char *name);
+	struct image_s *(*RegisterPic) ( const char *name);
+	void	(*SetSky) ( const char *name, float rotate, vec3_t axis);
 	void	(*EndRegistration) (void);
 
-	void	(*RenderFrame) (struct refdef_t *fd);
+	void	(*RenderFrame) ( refdef_t *fd);
 
 	void	(*DrawGetPicSize) (int *w, int *h, char *name);	// will return 0 0 if not found
 	void	(*DrawPic) (int x, int y, const char *name);
@@ -242,8 +242,8 @@ typedef struct
 {
 	void	(*Sys_Error) (int err_level, const char *str, ...);
 
-	void	(*Cmd_AddCommand) (char *name, void(*cmd)(void));
-	void	(*Cmd_RemoveCommand) (char *name);
+	void	(*Cmd_AddCommand) ( const char *name, void(*cmd)(void));
+	void	(*Cmd_RemoveCommand) ( const char *name);
 	int		(*Cmd_Argc) (void);
 	char	*(*Cmd_Argv) (int i);
 	void	(*Cmd_ExecuteText) (int exec_when, const char *text);
@@ -263,8 +263,8 @@ typedef struct
 	const char	*(*FS_Gamedir) (void);
 
 	cvar_t	*(*Cvar_Get) ( const char *name, const char *value, int flags);
-	cvar_t	*(*Cvar_Set)( char *name, char *value );
-	void	 (*Cvar_SetValue)( char *name, float value );
+	cvar_t	*(*Cvar_Set)( const char *name, const char *value );
+	void	 (*Cvar_SetValue)( const char *name, float value );
 
 	bool		(*Vid_GetModeInfo)( int *width, int *height, int mode );
 	void		(*Vid_MenuInit)( void );

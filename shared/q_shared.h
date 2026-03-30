@@ -110,8 +110,6 @@ typedef unsigned char 		byte;
 #define	PRINT_HIGH			2		// critical messages
 #define	PRINT_CHAT			3		// chat messages
 
-
-
 #define	ERR_FATAL			0		// exit the entire game with a popup window
 #define	ERR_DROP			1		// print to console and disconnect from game
 #define	ERR_DISCONNECT		2		// don't kill server
@@ -177,6 +175,12 @@ extern long Q_ftol( float f );
 #define VectorClear(a)			(a[0]=a[1]=a[2]=0)
 #define VectorNegate(a,b)		(b[0]=-a[0],b[1]=-a[1],b[2]=-a[2])
 #define VectorSet(v, x, y, z)	(v[0]=(x), v[1]=(y), v[2]=(z))
+
+/// BEATO Begin
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
 
 void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
 
@@ -288,10 +292,10 @@ int		Sys_Milliseconds (void);
 void	Sys_Mkdir ( const char *path);
 
 // large block stack allocation routines
-void	*Hunk_Begin ( const size_t maxsize );
-void	*Hunk_Alloc ( const size_t size );
-void	Hunk_Free (void *buf);
-size_t	Hunk_End (void);
+extern void	*Hunk_Begin ( const size_t maxsize );
+extern void	*Hunk_Alloc ( const size_t size );
+extern void	Hunk_Free (void *buf);
+extern size_t	Hunk_End (void);
 
 // directory searching
 #define SFF_ARCH    0x01
@@ -303,16 +307,18 @@ size_t	Hunk_End (void);
 /*
 ** pass in an attribute mask of things you wish to REJECT
 */
-const char	*Sys_FindFirst ( const char *path, unsigned int musthave, unsigned int canthave );
-const char	*Sys_FindNext ( unsigned int musthave, unsigned int canthave );
-void		Sys_FindClose (void);
-
+extern const char	*Sys_FindFirst ( const char *path, unsigned int musthave, unsigned int canthave );
+extern const char	*Sys_FindNext ( unsigned int musthave, unsigned int canthave );
+extern void		Sys_FindClose (void);
 
 // this is only here so the functions in q_shared.c and q_shwin.c can link
-void Sys_Error ( const char *error, ...);
-void Com_Printf ( const char *msg, ...);
+	extern void Sys_Error ( const char *error, ...);
+extern void Com_Printf ( const char *msg, ...);
 
-
+#ifdef __cplusplus
+}
+#endif
+// BEATO End
 /*
 ==========================================================
 

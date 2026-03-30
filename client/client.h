@@ -127,7 +127,7 @@ typedef struct
 								// is rendering at.  always <= cls.realtime
 	float		lerpfrac;		// between oldframe and frame
 
-	struct refdef_t	refdef;
+	refdef_t	refdef;
 
 	vec3_t		v_forward, v_right, v_up;	// set when refdef.angles is set
 
@@ -414,7 +414,7 @@ void CL_WidowSplash (vec3_t org);
 // PGM
 // ========
 
-int CL_ParseEntityBits (unsigned *bits);
+int CL_ParseEntityBits ( unsigned *bits);
 void CL_ParseDelta (entity_state_t *from, entity_state_t *to, int number, int bits);
 void CL_ParseFrame (void);
 
