@@ -72,5 +72,6 @@ target_precompile_headers( sdl3Quake
         <time.h>
 	PRIVATE
         ${CMAKE_SOURCE_DIR}/shared/q_shared.h
+        ${CMAKE_SOURCE_DIR}/qcommon/qcommon.h
         ${CMAKE_CURRENT_SOURCE_DIR}/SDL3_shared.h
 	) 

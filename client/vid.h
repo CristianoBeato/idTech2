@@ -40,3 +40,16 @@ void	VID_CheckChanges (void);
 void	VID_MenuInit( void );
 void	VID_MenuDraw( void );
 const char *VID_MenuKey( int );
+
+#ifdef __cplusplus
+class crVideo
+{
+public:
+	virtual void		Init ( void ) = 0;
+	virtual void		Shutdown (void) = 0;
+	virtual void		CheckChanges (void) = 0;
+	virtual void		MenuInit( void ) = 0;
+	virtual void		MenuDraw( void ) = 0;
+	virtual const char*	MenuKey( int ) = 0;
+};
+#endif // __cplusplus

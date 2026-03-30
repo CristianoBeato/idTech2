@@ -58,7 +58,7 @@ Sys_ConsoleOutput
 Print text to the dedicated console
 ================
 */
-void Sys_ConsoleOutput (char *string)
+void Sys_ConsoleOutput ( const char *string)
 {
 #if SDL_PLATFORM_LINUX
 	if (nostdout && nostdout->value)
@@ -93,7 +93,7 @@ void Sys_ConsoleOutput (char *string)
 Sys_ConsoleInput
 ================
 */
-char *Sys_ConsoleInput(void)
+const char *Sys_ConsoleInput(void)
 {
     int len = 0;
     static char text[256];

@@ -1,8 +1,10 @@
-#include "ref_gl/gl_local.hpp"
+//#include "ref_gl/gl_local.hpp"
+#include "client/vid.h"
 #include "SDL3_shared.h"
 #include <SDL3/SDL_video.h>
 
 SDL_glimp_t GLimp;
+extern cvar_t		*vid_fullscreen;
 
 void		GLimp_BeginFrame( float camera_separation )
 {
@@ -48,7 +50,7 @@ void		GLimp_Shutdown( void )
 int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, bool fullscreen )
 {
     if ( mode < 0 || mode >= VID_NUM_MODES )
-        return rserr_invalid_mode;
+        return 2; //rserr_invalid_mode;
 
     *pwidth  = vid_modes[mode].width;
     *pheight = vid_modes[mode].height;
@@ -65,7 +67,7 @@ int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, bool f
 
     SDL_ShowWindow( video.window );
 
-    return rserr_ok;
+    return 0; //rserr_ok;
 }
 
 void GLimp_AppActivate( bool active )
