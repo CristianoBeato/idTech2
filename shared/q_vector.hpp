@@ -58,6 +58,8 @@ typedef struct vec3_s
 		return  (&x)[i];
 	}
 
+	operator float*( void ) const { return const_cast<float*>(&x); }
+
 } vec3_t;
 
 typedef struct vec5_s
