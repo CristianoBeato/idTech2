@@ -51,6 +51,6 @@ target_precompile_headers( renderer_gl
         <string.h>
         <time.h>
 	PRIVATE
-        ${CMAKE_SOURCE_DIR}/shared/q_shared.h 
+        ${CMAKE_SOURCE_DIR}/shared/q_shared.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gl_local.hpp
 	) 
