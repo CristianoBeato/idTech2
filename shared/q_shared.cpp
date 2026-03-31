@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "q_shared.h"
+#include "q_shared.hpp"
 
 #define DEG2RAD( a ) ( a * M_PI ) / 180.0F
 
@@ -88,43 +88,6 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, 
 #pragma optimize( "", on )
 #endif
 
-
-
-void AngleVectors (vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
-{
-	float		angle;
-	static float		sr, sp, sy, cr, cp, cy;
-	// static to help MS compiler fp bugs
-
-	angle = angles[YAW] * (M_PI*2 / 360);
-	sy = sin(angle);
-	cy = cos(angle);
-	angle = angles[PITCH] * (M_PI*2 / 360);
-	sp = sin(angle);
-	cp = cos(angle);
-	angle = angles[ROLL] * (M_PI*2 / 360);
-	sr = sin(angle);
-	cr = cos(angle);
-
-	if (forward)
-	{
-		forward[0] = cp*cy;
-		forward[1] = cp*sy;
-		forward[2] = -sp;
-	}
-	if (right)
-	{
-		right[0] = (-1*sr*sp*cy+-1*cr*-sy);
-		right[1] = (-1*sr*sp*sy+-1*cr*cy);
-		right[2] = -1*sr*cp;
-	}
-	if (up)
-	{
-		up[0] = (cr*sp*cy+-sr*-sy);
-		up[1] = (cr*sp*sy+-sr*cy);
-		up[2] = cr*cp;
-	}
-}
 
 
 void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
@@ -647,144 +610,19 @@ Lerror:
 #pragma warning( default: 4035 )
 #endif
 
-void ClearBounds (vec3_t mins, vec3_t maxs)
-{
-	mins[0] = mins[1] = mins[2] = 99999;
-	maxs[0] = maxs[1] = maxs[2] = -99999;
-}
-
-void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs)
-{
-	int		i;
-	vec_t	val;
-
-	for (i=0 ; i<3 ; i++)
-	{
-		val = v[i];
-		if (val < mins[i])
-			mins[i] = val;
-		if (val > maxs[i])
-			maxs[i] = val;
-	}
-}
 
 
-int VectorCompare (vec3_t v1, vec3_t v2)
-{
-	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2])
-			return 0;
-			
-	return 1;
-}
 
 
-vec_t VectorNormalize (vec3_t v)
-{
-	float	length, ilength;
-
-	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);		// FIXME
-
-	if (length)
-	{
-		ilength = 1/length;
-		v[0] *= ilength;
-		v[1] *= ilength;
-		v[2] *= ilength;
-	}
-		
-	return length;
-
-}
-
-vec_t VectorNormalize2 (vec3_t v, vec3_t out)
-{
-	float	length, ilength;
-
-	length = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
-	length = sqrt (length);		// FIXME
-
-	if (length)
-	{
-		ilength = 1/length;
-		out[0] = v[0]*ilength;
-		out[1] = v[1]*ilength;
-		out[2] = v[2]*ilength;
-	}
-		
-	return length;
-
-}
-
-void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
-{
-	vecc[0] = veca[0] + scale*vecb[0];
-	vecc[1] = veca[1] + scale*vecb[1];
-	vecc[2] = veca[2] + scale*vecb[2];
-}
 
 
-vec_t _DotProduct (vec3_t v1, vec3_t v2)
-{
-	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-}
 
-void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out)
-{
-	out[0] = veca[0]-vecb[0];
-	out[1] = veca[1]-vecb[1];
-	out[2] = veca[2]-vecb[2];
-}
 
-void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out)
-{
-	out[0] = veca[0]+vecb[0];
-	out[1] = veca[1]+vecb[1];
-	out[2] = veca[2]+vecb[2];
-}
 
-void _VectorCopy (vec3_t in, vec3_t out)
-{
-	out[0] = in[0];
-	out[1] = in[1];
-	out[2] = in[2];
-}
-
-void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross)
-{
-	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
-	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
-	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
-}
 
 double sqrt(double x);
 
-vec_t VectorLength(vec3_t v)
-{
-	int		i;
-	float	length;
-	
-	length = 0;
-	for (i=0 ; i< 3 ; i++)
-		length += v[i]*v[i];
-	length = sqrt (length);		// FIXME
 
-	return length;
-}
-
-void VectorInverse (vec3_t v)
-{
-	v[0] = -v[0];
-	v[1] = -v[1];
-	v[2] = -v[2];
-}
-
-void VectorScale (vec3_t in, vec_t scale, vec3_t out)
-{
-	out[0] = in[0]*scale;
-	out[1] = in[1]*scale;
-	out[2] = in[2]*scale;
-}
 
 
 int Q_log2(int val)
@@ -804,15 +642,15 @@ int Q_log2(int val)
 COM_SkipPath
 ============
 */
-const char *COM_SkipPath ( const char *pathname)
+const char *COM_SkipPath ( const char *pathname )
 {
-	char	*last;
+	char	*last = nullptr;
 	
-	last = pathname;
+	last = const_cast<char*>( pathname );
 	while (*pathname)
 	{
 		if (*pathname=='/')
-			last = pathname+1;
+			last = const_cast<char*>( pathname + 1 );
 		pathname++;
 	}
 	return last;
@@ -860,7 +698,7 @@ void COM_FileBase ( const char *in, char *out )
 {
 	char *s, *s2;
 	
-	s = in + strlen(in) - 1;
+	s = const_cast<char*>( in + strlen( in ) - 1 );
 	
 	while (s != in && *s != '.')
 		s--;
@@ -889,7 +727,7 @@ void COM_FilePath ( const char *in, char *out )
 {
 	char *s;
 	
-	s = in + strlen(in) - 1;
+	s = const_cast<char*>( in + strlen(in) - 1 );
 	
 	while (s != in && *s != '/')
 		s--;
@@ -904,14 +742,14 @@ void COM_FilePath ( const char *in, char *out )
 COM_DefaultExtension
 ==================
 */
-void COM_DefaultExtension ( const char *path, char *extension)
+void COM_DefaultExtension ( const char *path, const char *extension )
 {
 	char    *src;
 //
 // if path doesn't have a .EXT, append extension
 // (extension should include the .)
 //
-	src = path + strlen(path) - 1;
+	src = const_cast<char*>( path + strlen(path) - 1 );
 
 	while (*src != '/' && src != path)
 	{
@@ -919,8 +757,8 @@ void COM_DefaultExtension ( const char *path, char *extension)
 			return;                 // it has an extension
 		src--;
 	}
-
-	strcat (path, (const char*)extension);
+ 
+	strcat ( const_cast<char*>( path ), extension );
 }
 
 /*
@@ -1075,7 +913,7 @@ const char *COM_Parse ( const char **data_p )
 	int		len;
 	char	*data;
 
-	data = *data_p;
+	data = const_cast<char*>( *data_p );
 	len = 0;
 	com_token[0] = 0;
 	
@@ -1220,16 +1058,16 @@ int Q_strcasecmp ( const char *s1, const char *s2)
 
 void Com_sprintf ( const char *dest, int size, const char *fmt, ...)
 {
-	int		len;
+	int			len = 0;
 	va_list		argptr;
-	const char	bigbuffer[0x10000];
+	char		bigbuffer[0x10000];
 
 	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
+	len = vsprintf ( bigbuffer, fmt , argptr );
 	va_end (argptr);
 	if (len >= size)
 		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-	strncpy ( dest, bigbuffer, size-1);
+	strncpy ( const_cast<char*>( dest ), const_cast<const char*>( bigbuffer ), size-1);
 }
 
 /*
@@ -1248,7 +1086,7 @@ Searches the string for the given
 key and returns the associated value, or an empty string.
 ===============
 */
-char *Info_ValueForKey (char *s, char *key)
+const char *Info_ValueForKey ( const char *s, const char *key)
 {
 	char	pkey[512];
 	static	char value[2][512];	// use two buffers so compares

@@ -1,5 +1,5 @@
 
-#include "q_shared.h"
+#include "q_shared.hpp"
 
 #if defined __linux__
 
@@ -78,13 +78,13 @@ size_t	cursize;
 
 #define	VIRTUAL_ALLOC
 
-void *Hunk_Begin ( size_t maxsize)
+void *Hunk_Begin ( size_t maxsize )
 {
 	// reserve a huge chunk of memory, but don't commit any yet
 	cursize = 0;
 	hunkmaxsize = maxsize;
 #ifdef VIRTUAL_ALLOC
-	membase = VirtualAlloc (NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS);
+	membase = static_cast<byte*>( VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS ) );
 #else
 	membase = malloc (maxsize);
 	memset (membase, 0, maxsize);

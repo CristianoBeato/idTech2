@@ -122,12 +122,12 @@ typedef unsigned char 		byte;
 // destination class for gi.multicast()
 typedef enum
 {
-MULTICAST_ALL,
-MULTICAST_PHS,
-MULTICAST_PVS,
-MULTICAST_ALL_R,
-MULTICAST_PHS_R,
-MULTICAST_PVS_R
+	MULTICAST_ALL,
+	MULTICAST_PHS,
+	MULTICAST_PVS,
+	MULTICAST_ALL_R,
+	MULTICAST_PHS_R,
+	MULTICAST_PVS_R
 } multicast_t;
 
 
@@ -139,9 +139,7 @@ MATHLIB
 ==============================================================
 */
 
-typedef float vec_t;
-typedef vec_t vec3_t[3];
-typedef vec_t vec5_t[5];
+#include "q_vector.hpp"
 
 typedef	int	fixed4_t;
 typedef	int	fixed8_t;
@@ -168,43 +166,18 @@ extern long Q_ftol( float f );
 #define Q_ftol( f ) ( long ) (f)
 #endif
 
-#define DotProduct(x,y)			(x[0]*y[0]+x[1]*y[1]+x[2]*y[2])
-#define VectorSubtract(a,b,c)	(c[0]=a[0]-b[0],c[1]=a[1]-b[1],c[2]=a[2]-b[2])
-#define VectorAdd(a,b,c)		(c[0]=a[0]+b[0],c[1]=a[1]+b[1],c[2]=a[2]+b[2])
-#define VectorCopy(a,b)			(b[0]=a[0],b[1]=a[1],b[2]=a[2])
-#define VectorClear(a)			(a[0]=a[1]=a[2]=0)
-#define VectorNegate(a,b)		(b[0]=-a[0],b[1]=-a[1],b[2]=-a[2])
-#define VectorSet(v, x, y, z)	(v[0]=(x), v[1]=(y), v[2]=(z))
-
 /// BEATO Begin
 #ifdef __cplusplus
 extern "C" 
 {
 #endif
 
-void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
 
-// just in case you do't want to use the macros
-vec_t _DotProduct (vec3_t v1, vec3_t v2);
-void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorCopy (vec3_t in, vec3_t out);
-
-void ClearBounds (vec3_t mins, vec3_t maxs);
-void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs);
-int VectorCompare (vec3_t v1, vec3_t v2);
-vec_t VectorLength (vec3_t v);
-void CrossProduct (vec3_t v1, vec3_t v2, vec3_t cross);
-vec_t VectorNormalize (vec3_t v);		// returns vector length
-vec_t VectorNormalize2 (vec3_t v, vec3_t out);
-void VectorInverse (vec3_t v);
-void VectorScale (vec3_t in, vec_t scale, vec3_t out);
 int Q_log2(int val);
 
 void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
 void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
 
-void AngleVectors (vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
 float	anglemod(float a);
 float LerpAngle (float a1, float a2, float frac);
@@ -236,7 +209,7 @@ const char *COM_SkipPath ( const char *pathname);
 void COM_StripExtension ( const char *in, char *out);
 void COM_FileBase ( const char *in, char *out);
 void COM_FilePath ( const char *in, char *out);
-void COM_DefaultExtension ( const char *path, char *extension);
+void COM_DefaultExtension ( const char *path, const char *extension );
 
 const char *COM_Parse ( const char **data_p );
 // data is an in/out parm, returns a parsed out token
@@ -273,7 +246,7 @@ char	*va(char *format, ...);
 #define	MAX_INFO_VALUE		64
 #define	MAX_INFO_STRING		512
 
-char *Info_ValueForKey (char *s, char *key);
+const char *Info_ValueForKey ( const char *s, const char *key);
 void Info_RemoveKey (char *s, char *key);
 void Info_SetValueForKey (char *s, char *key, char *value);
 bool Info_Validate (char *s);
