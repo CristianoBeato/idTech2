@@ -101,8 +101,8 @@ typedef struct refdef_s
 {
 	int			x, y, width, height;// in virtual screen coordinates
 	float		fov_x, fov_y;
-	float		vieworg[3];
-	float		viewangles[3];
+	vec3_t		vieworg;
+	vec3_t		viewangles;
 	float		blend[4];			// rgba 0-1 full screen blend
 	float		time;				// time is uesed to auto animate
 	int			rdflags;			// RDF_UNDERWATER, etc
