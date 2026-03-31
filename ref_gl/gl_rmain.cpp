@@ -631,7 +631,7 @@ void glRenderer::SetupFrame ( void )
 	{
 		r_oldviewcluster = r_viewcluster;
 		r_oldviewcluster2 = r_viewcluster2;
-		leaf = Mod_PointInLeaf (r_origin, r_worldmodel);
+		leaf = r_worldmodel.PointInLeaf ( r_origin );
 		r_viewcluster = r_viewcluster2 = leaf->cluster;
 
 		// check above and below so crossing solid water doesn't draw wrong
@@ -641,7 +641,7 @@ void glRenderer::SetupFrame ( void )
 
 			VectorCopy (r_origin, temp);
 			temp[2] -= 16;
-			leaf = Mod_PointInLeaf (temp, r_worldmodel);
+			leaf = r_worldmodel.PointInLeaf ( temp );
 			if ( !(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != r_viewcluster2) )
 				r_viewcluster2 = leaf->cluster;

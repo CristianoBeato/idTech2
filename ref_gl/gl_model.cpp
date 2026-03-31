@@ -213,7 +213,7 @@ glModel *glModelManager::ForName ( const char *name, const bool crash )
 	if (name[0] == '*')
 	{
 		i = atoi(name+1);
-		if (i < 1 || !r_worldmodel || i >= r_worldmodel->numsubmodels)
+		if (i < 1 || !r_worldmodel || i >= r_worldmodel->Numsubmodels() )
 			ri.Sys_Error (ERR_DROP, "bad inline model number");
 		return &mod_inline[i];
 	}
@@ -574,7 +574,7 @@ void glModel::CalcSurfaceExtents ( msurface_t *s )
 extern void GL_BuildPolygonFromSurface(msurface_t *fa);
 extern void GL_CreateSurfaceLightmap (msurface_t *surf);
 extern void GL_EndBuildingLightmaps (void);
-extern void GL_BeginBuildingLightmaps (model_t *m);
+extern void GL_BeginBuildingLightmaps ( glModel *m);
 extern void GL_SubdivideSurface (msurface_t *fa);
 
 /*
@@ -601,7 +601,7 @@ void glModel::LoadFaces (lump_t *l)
 
 	currentmodel = this;
 
-	GL_BeginBuildingLightmaps ( loadmodel );
+	GL_BeginBuildingLightmaps ( this );
 
 	for ( surfnum=0 ; surfnum<count ; surfnum++, in++, out++)
 	{
@@ -615,12 +615,12 @@ void glModel::LoadFaces (lump_t *l)
 		if (side)
 			out->flags |= SURF_PLANEBACK;			
 
-		out->plane = loadmodel->planes + planenum;
+		out->plane = planes + planenum;
 
 		ti = LittleShort (in->texinfo);
-		if (ti < 0 || ti >= loadmodel->numtexinfo)
+		if (ti < 0 || ti >= numtexinfo )
 			ri.Sys_Error (ERR_DROP, "MOD_LoadBmodel: bad texinfo number");
-		out->texinfo = loadmodel->texinfo + ti;
+		out->texinfo = texinfo + ti;
 
 		CalcSurfaceExtents (out);
 				
@@ -632,7 +632,7 @@ void glModel::LoadFaces (lump_t *l)
 		if (i == -1)
 			out->samples = NULL;
 		else
-			out->samples = loadmodel->lightdata + i;
+			out->samples = lightdata + i;
 		
 	// set the drawing flags
 		
@@ -913,7 +913,7 @@ void glModelManager::LoadBrushModel ( glModel *mod, void *buffer )
 		*starmod = *loadmodel;
 		
 		starmod->SetFirstModelSurface( bm->firstface );
-		starmod->nummodelsurfaces = bm->numfaces;
+		starmod->SetNumModelSurfaces( bm->numfaces );
 		starmod->firstnode = bm->headnode;
 		if (starmod->firstnode >= loadmodel->numnodes)
 			ri.Sys_Error (ERR_DROP, "Inline model %i has bad firstnode", i);

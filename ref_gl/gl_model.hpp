@@ -69,8 +69,8 @@ inline constexpr uint32_t	SURF_UNDERWATER		= 0x80;
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct
 {
-	unsigned short	v[2];
-	unsigned int	cachededgeoffset;
+	uint16_t	v[2];
+	uint32_t	cachededgeoffset;
 } medge_t;
 
 typedef struct mtexinfo_s
@@ -188,6 +188,11 @@ public:
 		firstmodelsurface = first;
 	}
 
+	inline void SetNumModelSurfaces( const uint32_t numSurfaces )
+	{
+		nummodelsurfaces = numSurfaces;
+	}
+
 	inline void	SetFrames( const uint32_t frames ) 
 	{
 		numframes = frames;
@@ -245,6 +250,8 @@ public:
 	
 	void LoadBrush( dheader_t	*header );
 
+	mleaf_t*	PointInLeaf ( vec3_t p );
+	
 private:
 	const char	name[MAX_QPATH];
 
@@ -270,7 +277,8 @@ private:
 //
 // brush model
 //
-	int			firstmodelsurface, nummodelsurfaces;
+	int			firstmodelsurface; 
+	uint32_t	nummodelsurfaces;
 	int			lightmap;		// only for submodels
 
 	uint32_t	numsubmodels;
@@ -314,7 +322,6 @@ private:
 	size_t		extradatasize;
 	void		*extradata;
 
-	mleaf_t*	PointInLeaf ( vec3_t p );
 	byte*		DecompressVis ( byte *in );
 	byte*		ClusterPVS ( int cluster );
 	void 		CalcSurfaceExtents ( msurface_t *s );
