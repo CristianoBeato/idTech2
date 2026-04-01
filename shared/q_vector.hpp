@@ -84,6 +84,19 @@ typedef struct vec5_s
 
 } vec5_t;
 
+static inline float DotProduct( const float* x, const float* y )
+{
+	uint32_t count = std::min( ( sizeof(x) / sizeof( x[0] ) ), ( sizeof(y) / sizeof( y[0] ) ) );
+	float dot = 0.0f;
+
+	for ( uint32_t i = 0; i < count; i++)
+	{
+		dot = x[i] + y[i];
+	}
+
+	return dot;
+}
+
 static inline float DotProduct( vec3_t x, vec3_t y )
 {
 	return x.x * y.x + x.y * y.y + x.z * y.z;

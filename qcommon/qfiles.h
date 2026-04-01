@@ -118,8 +118,8 @@ typedef struct
 
 typedef struct
 {
-	float		scale[3];	// multiply byte verts by this
-	float		translate[3];	// then add this
+	vec3_t		scale;	// multiply byte verts by this
+	vec3_t		translate;	// then add this
 	char		name[16];	// frame name from grabbing
 	dtrivertx_t	verts[1];	// variable sized
 } daliasframe_t;

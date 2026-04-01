@@ -47,18 +47,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct entity_s
 {
 	struct model_s		*model;			// opaque type outside refresh
-	float				angles[3];
+	vec3_t				angles;
 
 	/*
 	** most recent data
 	*/
-	float				origin[3];		// also used as RF_BEAM's "from"
+	vec3_t				origin;			// also used as RF_BEAM's "from"
 	int					frame;			// also used as RF_BEAM's diameter
 
 	/*
 	** previous data for lerping
 	*/
-	float				oldorigin[3];	// also used as RF_BEAM's "to"
+	vec3_t				oldorigin;		// also used as RF_BEAM's "to"
 	int					oldframe;
 
 	/*
