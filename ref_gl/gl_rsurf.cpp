@@ -319,7 +319,7 @@ void glRenderer::BlendLightmaps (void)
 	// don't bother if we're set to fullbright
 	if (r_fullbright->value)
 		return;
-	if (!r_worldmodel->lightdata)
+	if ( !r_worldmodel->LightData() )
 		return;
 
 	// don't bother writing Z
@@ -887,11 +887,11 @@ void glRenderer::DrawInlineBModel (void)
 		lt = r_newrefdef.dlights;
 		for (k=0 ; k<r_newrefdef.num_dlights ; k++, lt++)
 		{
-			R_MarkLights (lt, 1<<k, currentmodel->nodes + currentmodel->firstnode);
+			R_MarkLights (lt, 1<<k, currentmodel->Nodes() + currentmodel->FirstNode() );
 		}
 	}
 
-	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
+	psurf = &currentmodel->Surfaces()[currentmodel->FirstModelSurface()];
 
 	if ( currententity->flags & RF_TRANSLUCENT )
 	{
@@ -903,7 +903,7 @@ void glRenderer::DrawInlineBModel (void)
 	//
 	// draw texture
 	//
-	for (i=0 ; i<currentmodel->nummodelsurfaces ; i++, psurf++)
+	for (i=0 ; i<currentmodel->NumModelSurfaces() ; i++, psurf++)
 	{
 	// find which side of the node we are on
 		pplane = psurf->plane;
@@ -956,7 +956,7 @@ void glRenderer::DrawBrushModel (entity_t *e)
 	int			i;
 	bool	rotated;
 
-	if (currentmodel->nummodelsurfaces == 0)
+	if (currentmodel->NumModelSurfaces() == 0)
 		return;
 
 	currententity = e;
@@ -967,15 +967,15 @@ void glRenderer::DrawBrushModel (entity_t *e)
 		rotated = true;
 		for (i=0 ; i<3 ; i++)
 		{
-			mins[i] = e->origin[i] - currentmodel->radius;
-			maxs[i] = e->origin[i] + currentmodel->radius;
+			mins[i] = e->origin[i] - currentmodel->Radius();
+			maxs[i] = e->origin[i] + currentmodel->Radius();
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd (e->origin, currentmodel->mins, mins);
-		VectorAdd (e->origin, currentmodel->maxs, maxs);
+		VectorAdd ( e->origin, currentmodel->Mins(), mins );
+		VectorAdd ( e->origin, currentmodel->Maxs(), maxs );
 	}
 
 	if (CullBox (mins, maxs))
@@ -1043,7 +1043,7 @@ void glRenderer::RecursiveWorldNode (mnode_t *node)
 
 	if (node->visframe != r_visframecount)
 		return;
-	if ( CullBox (node->minmaxs, node->minmaxs+3))
+	if ( CullBox ( node->minmaxs[0], node->minmaxs[1] ))
 		return;
 	
 // if a leaf node, draw stuff
@@ -1284,8 +1284,8 @@ void glRenderer::MarkLeaves (void)
 		// mark everything
 		for (i=0 ; i<r_worldmodel->numleafs ; i++)
 			r_worldmodel->leafs[i].visframe = r_visframecount;
-		for (i=0 ; i<r_worldmodel->numnodes ; i++)
-			r_worldmodel->nodes[i].visframe = r_visframecount;
+		for (i=0 ; i<r_worldmodel->NumNodes() ; i++)
+			r_worldmodel->Nodes()[i].visframe = r_visframecount;
 		return;
 	}
 
@@ -1448,13 +1448,13 @@ void GL_BuildPolygonFromSurface(msurface_t *fa)
 	int			i, lindex, lnumverts;
 	medge_t		*pedges, *r_pedge;
 	int			vertpage;
-	float		*vec;
+	vec3_t		vec;
 	float		s, t;
 	glpoly_t	*poly;
 	vec3_t		total;
 
 // reconstruct the polygon
-	pedges = currentmodel->edges;
+	pedges = currentmodel->Edges();
 	lnumverts = fa->numedges;
 	vertpage = 0;
 
@@ -1470,26 +1470,26 @@ void GL_BuildPolygonFromSurface(msurface_t *fa)
 
 	for (i=0 ; i<lnumverts ; i++)
 	{
-		lindex = currentmodel->surfedges[fa->firstedge + i];
+		lindex = currentmodel->SurfEdges()[fa->firstedge + i];
 
 		if (lindex > 0)
 		{
 			r_pedge = &pedges[lindex];
-			vec = currentmodel->vertexes[r_pedge->v[0]].position;
+			vec = currentmodel->Vertexes()[r_pedge->v[0]].position;
 		}
 		else
 		{
 			r_pedge = &pedges[-lindex];
-			vec = currentmodel->vertexes[r_pedge->v[1]].position;
+			vec = currentmodel->Vertexes()[r_pedge->v[1]].position;
 		}
-		s = DotProduct (vec, fa->texinfo->vecs[0]) + fa->texinfo->vecs[0][3];
+		s = DotProduct ( vec, fa->texinfo->vecs[0]) + fa->texinfo->vecs[0][3];
 		s /= fa->texinfo->image->width;
 
-		t = DotProduct (vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
+		t = DotProduct ( vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
 		t /= fa->texinfo->image->height;
 
 		VectorAdd (total, vec, total);
-		VectorCopy (vec, poly->verts[i]);
+		VectorCopy ( vec, poly->verts[i]);
 		poly->verts[i][3] = s;
 		poly->verts[i][4] = t;
 
@@ -1558,7 +1558,7 @@ GL_BeginBuildingLightmaps
 
 ==================
 */
-void GL_BeginBuildingLightmaps (model_t *m)
+void GL_BeginBuildingLightmaps ( glModel *m)
 {
 	static lightstyle_t	lightstyles[MAX_LIGHTSTYLES];
 	int				i;

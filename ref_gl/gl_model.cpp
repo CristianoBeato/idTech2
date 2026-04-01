@@ -28,18 +28,45 @@ int		modfilelen;
 byte	mod_novis[MAX_MAP_LEAFS/8];
 
 glModel::glModel( void ) :
-	registration_sequence( 0 ),
 	type( MOD_BAD ),
-	numframes( 0 ),
-	flags( 0 ),
 	clipbox( false ),
+	radius( 0.0f ),
+	registration_sequence( 0 ),
+	flags( 0 ),
 	firstmodelsurface( 0 ),
-
+	lightmap( 0 ),
+	numframes( 0 ),
+	nummodelsurfaces( 0 ),
+	numsubmodels( 0 ),
+	numplanes( 0 ),
+	numleafs( 0 ),
+	numvertexes( 0 ),
+	numedges( 0 ),
+	numnodes( 0 ),
+	numtexinfo( 0 ),
+	numsurfedges( 0 ),
+	numsurfaces( 0 ),
+	nummarksurfaces( 0 ),
+	firstnode( 0 ),
+	extradatasize( 0 ),
+	submodels( nullptr ),
+	planes( nullptr ),
+	leafs( nullptr ),
+	vertexes( nullptr ),
+	edges( nullptr ),
+	nodes( nullptr ),
+	texinfo( nullptr ),
+	surfaces( nullptr ),
+	surfedges( nullptr ),
+	marksurfaces( nullptr ),
+	vis( nullptr ),
+	lightdata( nullptr )
 {
 }
 
 glModel::~glModel( void )
 {
+	Clear();
 }
 
 void glModel::LoadBrush(dheader_t *header)
@@ -213,7 +240,7 @@ glModel *glModelManager::ForName ( const char *name, const bool crash )
 	if (name[0] == '*')
 	{
 		i = atoi(name+1);
-		if (i < 1 || !r_worldmodel || i >= r_worldmodel->Numsubmodels() )
+		if (i < 1 || !r_worldmodel || i >= r_worldmodel->NumSubModels() )
 			ri.Sys_Error (ERR_DROP, "bad inline model number");
 		return &mod_inline[i];
 	}
@@ -903,7 +930,7 @@ void glModelManager::LoadBrushModel ( glModel *mod, void *buffer )
 //
 // set up the submodels
 //
-	for (i=0 ; i< mod->Numsubmodels() ; i++)
+	for (i=0 ; i< mod->NumSubModels() ; i++)
 	{
 		glModel	*starmod;
 
@@ -914,13 +941,14 @@ void glModelManager::LoadBrushModel ( glModel *mod, void *buffer )
 		
 		starmod->SetFirstModelSurface( bm->firstface );
 		starmod->SetNumModelSurfaces( bm->numfaces );
-		starmod->firstnode = bm->headnode;
-		if (starmod->firstnode >= loadmodel->numnodes)
+		starmod->SetFirstNod
+		starmod->FirstNode() = bm->headnode;
+		if (starmod->FirstNode() >= loadmodel->NumNodes() )
 			ri.Sys_Error (ERR_DROP, "Inline model %i has bad firstnode", i);
 
-		VectorCopy (bm->maxs, starmod->maxs);
-		VectorCopy (bm->mins, starmod->mins);
-		starmod->radius = bm->radius;
+		VectorCopy ( bm->maxs, starmod->maxs );
+		VectorCopy ( bm->mins, starmod->mins );
+		starmod->SetRadius( bm->radius );
 	
 		if (i == 0)
 			*loadmodel = *starmod;

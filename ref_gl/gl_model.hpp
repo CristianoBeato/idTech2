@@ -131,7 +131,7 @@ typedef struct mnode_s
 	int			contents;		// -1, to differentiate from leafs
 	int			visframe;		// node needs to be traversed if current
 	
-	float		minmaxs[6];		// for bounding box culling
+	vec3_t		minmaxs[2];		// for bounding box culling
 
 	struct mnode_s	*parent;
 
@@ -168,7 +168,13 @@ typedef struct mleaf_s
 // Whole model
 //
 
-typedef enum { MOD_BAD, MOD_BRUSH, MOD_SPRITE, MOD_ALIAS } modtype_t;
+typedef enum : uint8_t
+{
+	MOD_BAD, 
+	MOD_BRUSH, 
+	MOD_SPRITE, 
+	MOD_ALIAS 
+} modtype_t;
 
 inline constexpr uint32_t MAX_MOD_KNOWN	= 512;
 
@@ -182,6 +188,21 @@ public:
 	~glModel( void );
 
 	void	Clear( void );
+
+	inline void SetFirstNode( const int node )
+	{
+		firstnode = node;
+	}
+
+	inline void	SetNumLeafs( const uint32_t leafs )
+	{
+		numleafs = leafs;
+	}
+
+	inline void	SetRadius( const float _radius )
+	{
+		radius = _radius;
+	}
 
 	inline void SetFirstModelSurface( const int first )
 	{
@@ -218,19 +239,30 @@ public:
 		strncpy( const_cast<char*>( name ), newName, MAX_QPATH );
 	}
 	
+	inline float		Radius( void ) const { return radius; }
 	inline const char*	Name( void ) const { return name; }
-	inline uint32_t		NumTexInfo( void ) const { return numtexinfo; }
-	inline const int	ExtraDataSize( void ) const { return extradatasize; }
 	inline void	*		ExtraData( void ) const { return extradata; };
-	inline uint32_t		Numsubmodels( void ) const { return numsubmodels; }
-	inline mmodel_t*	SubModels( void ) const { return submodels; }
+	inline uint32_t		NumTexInfo( void ) const { return numtexinfo; }
+	inline uint32_t		NumSubModels( void ) const { return numsubmodels; }
+	inline uint32_t		NumNodes( void ) const { return numnodes; }
+	inline uint32_t		NumModelSurfaces( void ) const { return nummodelsurfaces; }
 	inline uint32_t 	RegistrationSequence( void ) const { return registration_sequence; }
 	inline uint32_t		FirstModelSurface( void ) const { return firstmodelsurface; }
+	inline uint32_t		NumLeafs( void ) const { return numleafs; }
+	inline int			FirstNode( void ) const { return firstnode; }
+	inline const int	ExtraDataSize( void ) const { return extradatasize; }
+	inline mmodel_t*	SubModels( void ) const { return submodels; }
 	inline modtype_t 	Type( void ) const { return type; }
 	inline byte*		LightData( void ) const { return lightdata; }
 	inline mnode_t*		Nodes( void ) const { return nodes; }
 	inline msurface_t*	Surfaces( void ) const { return surfaces; }
-	
+	inline mvertex_t*	Vertexes( void ) const { return vertexes; }
+	inline int*			SurfEdges( void ) const { return surfedges; }
+	inline medge_t*		Edges( void ) const { return edges; }
+	inline vec3_t		Mins( void ) const { return mins; };
+	inline vec3_t		Maxs( void ) const { return maxs; };
+	inline image_t**	Skins( void ) const { return const_cast<image_t**>( skins ); }
+
 	inline void	AllocExtraData( const size_t size )
 	{
 		extradatasize = size;
@@ -253,73 +285,52 @@ public:
 	mleaf_t*	PointInLeaf ( vec3_t p );
 	
 private:
-	const char	name[MAX_QPATH];
-
-	uint32_t	registration_sequence;
-
 	modtype_t	type;
-	int			numframes;
-	
-	int			flags;
-
-//
-// volume occupied by the model graphics
-//		
-	vec3_t		mins, maxs;
-	float		radius;
-
-//
-// solid volume for clipping 
-//
 	bool		clipbox;
-	vec3_t		clipmins, clipmaxs;
-
-//
-// brush model
-//
-	int			firstmodelsurface; 
+	float		radius;
+	uint32_t	registration_sequence;
+	uint32_t	flags;
+	uint32_t	firstmodelsurface; 
+	uint32_t	lightmap;		// only for submodels
+	uint32_t	numframes;
 	uint32_t	nummodelsurfaces;
-	int			lightmap;		// only for submodels
-
 	uint32_t	numsubmodels;
-	mmodel_t	*submodels;
-
 	uint32_t	numplanes;
-	cplane_t	*planes;
-
 	uint32_t	numleafs;		// number of visible leafs, not counting 0
-	mleaf_t		*leafs;
-
 	uint32_t	numvertexes;
-	mvertex_t	*vertexes;
-
 	uint32_t	numedges;
-	medge_t		*edges;
-
 	uint32_t	numnodes;
-	int			firstnode;
-	mnode_t		*nodes;
-
 	uint32_t	numtexinfo;
+	uint32_t	numsurfedges;
+	uint32_t	numsurfaces;
+	uint32_t	nummarksurfaces;
+	int			firstnode;
+	size_t		extradatasize;
+	char		name[MAX_QPATH];
+
+// volume occupied by the model graphics
+	vec3_t		mins;
+	vec3_t		maxs;
+
+// solid volume for clipping 
+	vec3_t		clipmins;
+	vec3_t		clipmaxs;
+
+	mmodel_t	*submodels;
+	cplane_t	*planes;
+	mleaf_t		*leafs;
+	mvertex_t	*vertexes;
+	medge_t		*edges;
+	mnode_t		*nodes;
 	mtexinfo_t	*texinfo;
-
-	int			numsurfaces;
 	msurface_t	*surfaces;
-
-	int			numsurfedges;
 	int			*surfedges;
-
-	int			nummarksurfaces;
 	msurface_t	**marksurfaces;
-
 	dvis_t		*vis;
-
 	byte		*lightdata;
 
 	// for alias models and skins
 	image_t		*skins[MAX_MD2SKINS];
-
-	size_t		extradatasize;
 	void		*extradata;
 
 	byte*		DecompressVis ( byte *in );

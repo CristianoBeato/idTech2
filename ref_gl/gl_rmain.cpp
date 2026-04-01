@@ -28,7 +28,7 @@ refimport_t ri;
 glRenderer gRenderer;
 glRenderer*	renderer_global = &gRenderer;
 
-model_t		*r_worldmodel;
+glModel		*r_worldmodel;
 
 float		gldepthmin, gldepthmax;
 
@@ -39,7 +39,7 @@ image_t		*r_notexture;		// use for bad textures
 image_t		*r_particletexture;	// little dot for particles
 
 entity_t	*currententity;
-model_t		*currentmodel;
+glModel		*currentmodel;
 
 
 int			r_visframecount;	// bumped when going to a new PVS
@@ -149,13 +149,13 @@ glRenderer::CullBox
 Returns true if the box is completely outside the frustom
 =================
 */
-bool glRenderer::CullBox (vec3_t mins, vec3_t maxs)
+bool glRenderer::CullBox ( vec3_t mins, vec3_t maxs )
 {
-	if (r_nocull->value)
+	if ( r_nocull->value )
 		return false;
 
 	for ( int i=0 ; i<4 ; i++)
-		if ( BOX_ON_PLANE_SIDE(mins, maxs, &m_frustum[i]) == 2 )
+		if ( BOX_ON_PLANE_SIDE( mins, maxs, &m_frustum[i]) == 2 )
 			return true;
 
 	return false;
@@ -189,14 +189,14 @@ void glRenderer::DrawSpriteModel (entity_t *e)
 {
 	float alpha = 1.0F;
 	vec3_t	point;
+	vec3_t	up, right;
 	dsprframe_t	*frame;
-	float		*up, *right;
 	dsprite_t		*psprite;
 
 	// don't even bother culling, because it's just a single
 	// polygon without a surface cache
 
-	psprite = (dsprite_t *)currentmodel->extradata;
+	psprite = (dsprite_t *)currentmodel->ExtraData();
 
 #if 0
 	if (e->frame < 0 || e->frame >= psprite->numframes)
@@ -233,7 +233,7 @@ void glRenderer::DrawSpriteModel (entity_t *e)
 
 	qglColor4f( 1, 1, 1, alpha );
 
-    GL_Bind(currentmodel->skins[e->frame]->texnum);
+    GL_Bind( currentmodel->Skins()[e->frame]->texnum );
 
 	GL_TexEnv( GL_MODULATE );
 
@@ -346,7 +346,7 @@ void glRenderer::DrawEntitiesOnList (void)
 				DrawNullModel ();
 				continue;
 			}
-			switch (currentmodel->type)
+			switch ( currentmodel->Type() )
 			{
 			case MOD_ALIAS:
 				DrawAliasModel (currententity);
@@ -386,7 +386,7 @@ void glRenderer::DrawEntitiesOnList (void)
 				DrawNullModel ();
 				continue;
 			}
-			switch (currentmodel->type)
+			switch ( currentmodel->Type() )
 			{
 			case MOD_ALIAS:
 				DrawAliasModel (currententity);
@@ -880,7 +880,7 @@ void glRenderer::SetLightLevel (void)
 
 	// save off light value for server to look at (BIG HACK!)
 
-	R_LightPoint (r_newrefdef.vieworg, shadelight);
+	R_LightPoint ( r_newrefdef.vieworg, shadelight);
 
 	// pick the greatest component, which should be the same
 	// as the mono value returned by software
@@ -913,6 +913,8 @@ void glRenderer::RenderFrame (refdef_t *fd)
 	SetLightLevel ();
 	m_draw.SetGL2D();
 }
+
+extern void Mod_Modellist_f (void);
 
 void glRenderer::Register( void )
 {
@@ -1252,7 +1254,7 @@ int glRenderer::Init( void )
 #endif
 
 	GL_InitImages ();
-	Mod_Init ();
+	Mod.Init ();
 	InitParticleTexture ();
 	m_draw.InitLocal ();
 
@@ -1275,7 +1277,7 @@ void glRenderer::Shutdown (void)
 	ri.Cmd_RemoveCommand ("imagelist");
 	ri.Cmd_RemoveCommand ("gl_strings");
 
-	Mod_FreeAll ();
+	Mod.FreeAll ();
 
 	GL_ShutdownImages ();
 
@@ -1536,7 +1538,7 @@ struct image_s	*Draw_FindPic ( const char *name )
 
 static int R_Init( void )
 {
-	gRenderer.Init();
+	return gRenderer.Init();
 }
 
 static void R_Shutdown (void)

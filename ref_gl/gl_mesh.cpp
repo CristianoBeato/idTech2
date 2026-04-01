@@ -42,7 +42,7 @@ static	vec4_t	s_lerped[MAX_VERTS];
 //static	vec3_t	lerped[MAX_VERTS];
 
 vec3_t	shadevector;
-float	shadelight[3];
+vec3_t	shadelight;
 
 // precalculated dot products for quantized angles
 #include "anormtab.h"
@@ -132,7 +132,7 @@ void GL_DrawAliasFrameLerp (dmdl_t *paliashdr, float backlerp)
 	move[1] = -DotProduct (delta, vectors[1]);	// left
 	move[2] = DotProduct (delta, vectors[2]);	// up
 
-	VectorAdd (move, oldframe->translate, move);
+	VectorAdd (move, oldframe->translate, move );
 
 	for (i=0 ; i<3 ; i++)
 	{
@@ -378,18 +378,16 @@ bool glRenderer::CullAliasModel( vec3_t bbox[8], entity_t *e )
 	daliasframe_t *pframe, *poldframe;
 	vec3_t angles;
 
-	paliashdr = (dmdl_t *)currentmodel->extradata;
+	paliashdr = (dmdl_t *)currentmodel->ExtraData();
 
 	if ( ( e->frame >= paliashdr->num_frames ) || ( e->frame < 0 ) )
 	{
-		ri.Con_Printf (PRINT_ALL, "R_CullAliasModel %s: no such frame %d\n", 
-			currentmodel->name, e->frame);
+		ri.Con_Printf (PRINT_ALL, "R_CullAliasModel %s: no such frame %d\n", currentmodel->Name(), e->frame );
 		e->frame = 0;
 	}
 	if ( ( e->oldframe >= paliashdr->num_frames ) || ( e->oldframe < 0 ) )
 	{
-		ri.Con_Printf (PRINT_ALL, "R_CullAliasModel %s: no such oldframe %d\n", 
-			currentmodel->name, e->oldframe);
+		ri.Con_Printf (PRINT_ALL, "R_CullAliasModel %s: no such oldframe %d\n", currentmodel->Name(), e->oldframe);
 		e->oldframe = 0;
 	}
 
@@ -532,7 +530,7 @@ void glRenderer::DrawAliasModel ( entity_t *e )
 			return;
 	}
 
-	paliashdr = (dmdl_t *)currentmodel->extradata;
+	paliashdr = (dmdl_t *)currentmodel->ExtraData();
 
 	//
 	// get lighting information
@@ -551,7 +549,7 @@ void glRenderer::DrawAliasModel ( entity_t *e )
 		}
 		else if ( currententity->flags & ( RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE ) )
 		{
-			VectorClear (shadelight);
+			VectorClear ( shadelight );
 
 			if ( currententity->flags & RF_SHELL_RED )
 			{
@@ -761,7 +759,7 @@ void glRenderer::DrawAliasModel ( entity_t *e )
 		|| (currententity->frame < 0) )
 	{
 		ri.Con_Printf (PRINT_ALL, "R_DrawAliasModel %s: no such frame %d\n",
-			currentmodel->name, currententity->frame);
+			currentmodel->Name(), currententity->frame );
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}
@@ -770,7 +768,7 @@ void glRenderer::DrawAliasModel ( entity_t *e )
 		|| (currententity->oldframe < 0))
 	{
 		ri.Con_Printf (PRINT_ALL, "R_DrawAliasModel %s: no such oldframe %d\n",
-			currentmodel->name, currententity->oldframe);
+			currentmodel->Name(), currententity->oldframe);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}
