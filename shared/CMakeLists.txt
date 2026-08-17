@@ -23,16 +23,17 @@ target_include_directories( qShared PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 # set the precompiled header
 target_precompile_headers( qShared 
 	PUBLIC
-        <stdio.h>
-        <stdlib.h>
-        <stdint.h>
-        <stdarg.h>
-        <stddef.h>
-        <stdbool.h>
-        <assert.h>
-        <math.h>
-        <string.h>
+        <cstdio>
+        <cstdlib>
+        <cstdint>
+        <cstdarg>
+        <cstddef>
+        <cstdbool>
+        <cassert>
+        <cmath>
+        <cstring>
         <time.h>
+        <ctype.h>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.hpp
 	) 

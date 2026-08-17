@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // g_local.h -- local definitions for game module
-
 #ifndef __G_LOCAL_H__
 #define __G_LOCAL_H__
 
@@ -26,11 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // short, server-visible gclient_t and edict_t structures,
 // because we define the full size ones in this file
 #define	GAME_INCLUDE
-#include "game.h"
-
-//ZOID
-#include "p_menu.h"
-//ZOID
+#include "game.hpp"
 
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"baseq2"
@@ -41,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	svc_temp_entity		3
 #define	svc_layout			4
 #define	svc_inventory		5
+#define	svc_stufftext		11
 
 //==================================================================
 
@@ -221,9 +217,6 @@ typedef struct
 #define IT_STAY_COOP	8
 #define IT_KEY			16
 #define IT_POWERUP		32
-//ZOID
-#define IT_TECH			64
-//ZOID
 
 // gitem_t->weapmodel for weapons indicates model index
 #define WEAP_BLASTER			1 
@@ -237,7 +230,6 @@ typedef struct
 #define WEAP_HYPERBLASTER		9 
 #define WEAP_RAILGUN			10
 #define WEAP_BFG				11
-#define WEAP_GRAPPLE			12
 
 typedef struct gitem_s
 {
@@ -298,7 +290,7 @@ typedef struct
 	// items
 	int			num_items;
 
-	bool	autosaved;
+	bool		autosaved;
 } game_locals_t;
 
 
@@ -314,11 +306,10 @@ typedef struct
 	char		level_name[MAX_QPATH];	// the descriptive name (Outer Base, etc)
 	char		mapname[MAX_QPATH];		// the server name (base1, etc)
 	char		nextmap[MAX_QPATH];		// go here when fraglimit is hit
-	char		forcemap[MAX_QPATH];	// go here
 
 	// intermission state
 	float		intermissiontime;		// time the intermission was started
-	char		*changemap;
+	const char*	changemap;
 	int			exitintermission;
 	vec3_t		intermission_origin;
 	vec3_t		intermission_angle;
@@ -438,7 +429,7 @@ typedef struct
 	void		(*attack)(edict_t *self);
 	void		(*melee)(edict_t *self);
 	void		(*sight)(edict_t *self, edict_t *other);
-	bool	(*checkattack)(edict_t *self);
+	bool		(*checkattack)(edict_t *self);
 
 	float		pausetime;
 	float		attack_finished;
@@ -455,6 +446,8 @@ typedef struct
 	int			power_armor_type;
 	int			power_armor_power;
 } monsterinfo_t;
+
+
 
 extern	game_locals_t	game;
 extern	level_locals_t	level;
@@ -505,11 +498,9 @@ extern	int	body_armor_index;
 #define MOD_TRIGGER_HURT	31
 #define MOD_HIT				32
 #define MOD_TARGET_BLASTER	33
-#define MOD_GRAPPLE			34
 #define MOD_FRIENDLY_FIRE	0x8000000
 
 extern	int	meansOfDeath;
-
 
 extern	edict_t			*g_edicts;
 
@@ -528,13 +519,12 @@ extern	cvar_t	*dmflags;
 extern	cvar_t	*skill;
 extern	cvar_t	*fraglimit;
 extern	cvar_t	*timelimit;
-//ZOID
-extern	cvar_t	*capturelimit;
-extern	cvar_t	*instantweap;
-//ZOID
 extern	cvar_t	*password;
+extern	cvar_t	*spectator_password;
 extern	cvar_t	*g_select_empty;
 extern	cvar_t	*dedicated;
+
+extern	cvar_t	*filterban;
 
 extern	cvar_t	*sv_gravity;
 extern	cvar_t	*sv_maxvelocity;
@@ -551,16 +541,13 @@ extern	cvar_t	*bob_roll;
 
 extern	cvar_t	*sv_cheats;
 extern	cvar_t	*maxclients;
+extern	cvar_t	*maxspectators;
 
 extern	cvar_t	*flood_msgs;
 extern	cvar_t	*flood_persecond;
 extern	cvar_t	*flood_waitdelay;
 
 extern	cvar_t	*sv_maplist;
-
-//ZOID
-extern	bool	is_quad;
-//ZOID
 
 #define world	(&g_edicts[0])
 
@@ -578,8 +565,11 @@ extern	bool	is_quad;
 // and saving / loading games
 //
 #define FFL_SPAWNTEMP		1
+#define FFL_NOSPAWN			2
 
-typedef enum {
+enum fieldtype_t 
+{
+	F_NONE = 0,
 	F_INT, 
 	F_FLOAT,
 	F_LSTRING,			// string on disk, pointer in memory, TAG_LEVEL
@@ -589,15 +579,17 @@ typedef enum {
 	F_EDICT,			// index on disk, pointer in memory
 	F_ITEM,				// index on disk, pointer in memory
 	F_CLIENT,			// index on disk, pointer in memory
+	F_FUNCTION,
+	F_MMOVE,
 	F_IGNORE
-} fieldtype_t;
+};
 
 typedef struct
 {
-	char	*name;
-	int		ofs;
+	const char*	name;
+	intptr_t	ofs;
 	fieldtype_t	type;
-	int		flags;
+	int			flags;
 } field_t;
 
 
@@ -608,7 +600,6 @@ extern	gitem_t	itemlist[];
 //
 // g_cmds.c
 //
-bool CheckFlood(edict_t *ent);
 void Cmd_Help_f (edict_t *ent);
 void Cmd_Score_f (edict_t *ent);
 
@@ -637,9 +628,9 @@ void Touch_Item (edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf
 //
 bool	KillBox (edict_t *ent);
 void	G_ProjectSource (vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
-edict_t *G_Find (edict_t *from, int fieldofs, char *match);
+edict_t *G_Find (edict_t *from, intptr_t fieldofs, const char *match);
 edict_t *findradius (edict_t *from, vec3_t org, float rad);
-edict_t *G_PickTarget (char *targetname);
+edict_t *G_PickTarget ( const char *targetname);
 void	G_UseTargets (edict_t *ent, edict_t *activator);
 void	G_SetMovedir (vec3_t angles, vec3_t movedir);
 
@@ -652,7 +643,6 @@ void	G_TouchSolids (edict_t *ent);
 
 char	*G_CopyString (char *in);
 
-
 char	*vtos (vec3_t v);
 
 float vectoyaw (vec3_t vec);
@@ -663,7 +653,6 @@ void vectoangles (vec3_t vec, vec3_t angles);
 //
 bool OnSameTeam (edict_t *ent1, edict_t *ent2);
 bool CanDamage (edict_t *targ, edict_t *inflictor);
-bool CheckTeamDamage (edict_t *targ, edict_t *attacker);
 void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir, vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod);
 void T_RadiusDamage (edict_t *inflictor, edict_t *attacker, float damage, edict_t *ignore, float radius, int mod);
 
@@ -755,7 +744,6 @@ edict_t *PlayerTrail_PickFirst (edict_t *self);
 edict_t *PlayerTrail_PickNext (edict_t *self);
 edict_t	*PlayerTrail_LastSpot (void);
 
-
 //
 // g_client.c
 //
@@ -777,6 +765,7 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 // g_svcmds.c
 //
 void	ServerCommand (void);
+bool	SV_FilterPacket ( const char *from);
 
 //
 // p_view.c
@@ -788,6 +777,8 @@ void ClientEndServerFrame (edict_t *ent);
 //
 void MoveClientToIntermission (edict_t *client);
 void G_SetStats (edict_t *ent);
+void G_SetSpectatorStats (edict_t *ent);
+void G_CheckChaseStats (edict_t *ent);
 void ValidateSelectedItem (edict_t *ent);
 void DeathmatchScoreboardMessage (edict_t *client, edict_t *killer);
 
@@ -795,8 +786,6 @@ void DeathmatchScoreboardMessage (edict_t *client, edict_t *killer);
 // g_pweapon.c
 //
 void PlayerNoise(edict_t *who, vec3_t where, int type);
-void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
-void Weapon_Generic (edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames, int *fire_frames, void (*fire)(edict_t *ent));
 
 //
 // m_move.c
@@ -816,8 +805,14 @@ void G_RunEntity (edict_t *ent);
 //
 void SaveClientData (void);
 void FetchClientEntData (edict_t *ent);
-void EndDMLevel (void);
 
+//
+// g_chase.c
+//
+void UpdateChaseCam(edict_t *ent);
+void ChaseNext(edict_t *ent);
+void ChasePrev(edict_t *ent);
+void GetChaseTarget(edict_t *ent);
 
 //============================================================================
 
@@ -838,13 +833,13 @@ typedef struct
 	char		netname[16];
 	int			hand;
 
-	bool	connected;			// a loadgame will leave valid entities that
+	bool		connected;			// a loadgame will leave valid entities that
 									// just don't have a connection yet
 
 	// values saved and restored from edicts when changing levels
 	int			health;
 	int			max_health;
-	bool	powerArmorActive;
+	int			savedFlags;
 
 	int			selected_item;
 	int			inventory[MAX_ITEMS];
@@ -862,6 +857,11 @@ typedef struct
 
 	int			power_cubes;	// used for tracking the cubes in coop games
 	int			score;			// for calculating total unit score in coop games
+
+	int			game_helpchanged;
+	int			helpchanged;
+
+	bool		spectator;			// client is a spectator
 } client_persistant_t;
 
 // client data that stays across deathmatch respawns
@@ -870,22 +870,9 @@ typedef struct
 	client_persistant_t	coop_respawn;	// what to set client->pers to on a respawn
 	int			enterframe;			// level.framenum the client entered the game
 	int			score;				// frags, etc
-//ZOID
-	int			ctf_team;			// CTF team
-	int			ctf_state;
-	float		ctf_lasthurtcarrier;
-	float		ctf_lastreturnedflag;
-	float		ctf_flagsince;
-	float		ctf_lastfraggedcarrier;
-	bool	id_state;
-	bool	voted; // for elections
-	bool	ready;
-	bool	admin;
-	struct ghost_s *ghost; // for ghost codes
-//ZOID
 	vec3_t		cmd_angles;			// angles sent over in the last command
-	int			game_helpchanged;
-	int			helpchanged;
+
+	bool		spectator;			// client is a spectator
 } client_respawn_t;
 
 // this structure is cleared on each PutClientInServer(),
@@ -901,14 +888,10 @@ struct gclient_s
 	client_respawn_t	resp;
 	pmove_state_t		old_pmove;	// for detecting out-of-pmove changes
 
-	bool	showscores;			// set layout stat
-//ZOID
-	bool	inmenu;				// in menu
-	pmenuhnd_t	*menu;				// current menu
-//ZOID
-	bool	showinventory;		// set layout stat
-	bool	showhelp;
-	bool	showhelpicon;
+	bool		showscores;			// set layout stat
+	bool		showinventory;		// set layout stat
+	bool		showhelp;
+	bool		showhelpicon;
 
 	int			ammo_index;
 
@@ -916,7 +899,7 @@ struct gclient_s
 	int			oldbuttons;
 	int			latched_buttons;
 
-	bool	weapon_thunk;
+	bool		weapon_thunk;
 
 	gitem_t		*newweapon;
 
@@ -952,8 +935,8 @@ struct gclient_s
 	// animation vars
 	int			anim_end;
 	int			anim_priority;
-	bool	anim_duck;
-	bool	anim_run;
+	bool		anim_duck;
+	bool		anim_run;
 
 	// powerup timers
 	float		quad_framenum;
@@ -961,7 +944,7 @@ struct gclient_s
 	float		breather_framenum;
 	float		enviro_framenum;
 
-	bool	grenade_blew_up;
+	bool		grenade_blew_up;
 	float		grenade_time;
 	int			silencer_shots;
 	int			weapon_sound;
@@ -974,20 +957,9 @@ struct gclient_s
 
 	float		respawn_time;		// can respawn when time > this
 
-//ZOID
-	void		*ctf_grapple;		// entity of grapple
-	int			ctf_grapplestate;		// true if pulling
-	float		ctf_grapplereleasetime;	// time of grapple release
-	float		ctf_regentime;		// regen tech
-	float		ctf_techsndtime;
-	float		ctf_lasttechmsg;
-	edict_t		*chase_target;
-	bool	update_chase;
-	float		menutime;			// time to update menu
-	bool	menudirty;
-//ZOID
+	edict_t		*chase_target;		// player we are chasing
+	bool		update_chase;		// need to update chase info?
 };
-
 
 struct edict_s
 {
@@ -997,7 +969,7 @@ struct edict_s
 									// of gclient_s to be a player_state_t
 									// but the rest of it is opaque
 
-	bool	inuse;
+	bool		inuse;
 	int			linkcount;
 
 	// FIXME: move these fields to a server private sv_entity_t
@@ -1025,26 +997,26 @@ struct edict_s
 	int			movetype;
 	int			flags;
 
-	char		*model;
+	const char*	model;
 	float		freetime;			// sv.time when the object was freed
 	
 	//
 	// only used locally in game, not by server
 	//
-	char		*message;
-	char		*classname;
+	const char*	message;
+	const char*	classname;
 	int			spawnflags;
 
 	float		timestamp;
 
 	float		angle;			// set in qe3, -1 = up, -2 = down
-	char		*target;
-	char		*targetname;
-	char		*killtarget;
-	char		*team;
-	char		*pathtarget;
-	char		*deathtarget;
-	char		*combattarget;
+	const char*	target;
+	const char*	targetname;
+	const char*	killtarget;
+	const char*	team;
+	const char*	pathtarget;
+	const char*	deathtarget;
+	const char*	combattarget;
 	edict_t		*target_ent;
 
 	float		speed, accel, decel;
@@ -1082,11 +1054,11 @@ struct edict_s
 	int			max_health;
 	int			gib_health;
 	int			deadflag;
-	bool	show_hostile;
+	bool		show_hostile;
 
 	float		powerarmor_time;
 
-	char		*map;			// target_changelevel
+	const char*	map;			// target_changelevel
 
 	int			viewheight;		// height above origin where eyesight is determined
 	int			takedamage;
@@ -1137,9 +1109,5 @@ struct edict_s
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
 };
-
-//ZOID
-#include "g_ctf.h"
-//ZOID
 
 #endif //!__G_LOCAL_H__

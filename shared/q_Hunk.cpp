@@ -2,8 +2,6 @@
 #include "q_shared.hpp"
 
 #if defined __linux__
-
-#define __USE_GNU
 #include <sys/mman.h>
 #include <errno.h>
 //===============================================================================
@@ -17,7 +15,7 @@ void *Hunk_Begin( const size_t maxsize )
 	// reserve a huge chunk of memory, but don't commit any yet
 	maxhunksize = maxsize + sizeof(int);
 	curhunksize = 0;
-	membase = mmap(0, maxhunksize, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	membase = static_cast<byte*>( mmap(0, maxhunksize, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0) );
 	if (membase == NULL || membase == (byte *)-1)
 		Sys_Error("unable to virtual allocate %d bytes", maxsize);
 

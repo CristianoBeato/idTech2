@@ -38,7 +38,7 @@ static inline const char* strlwr ( char *s )
 {
 	while (*s) 
 	{
-		*s = tolower(*s);
+		*s = std::tolower( *s );
 		s++;
 	}
 

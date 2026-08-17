@@ -149,6 +149,8 @@ static inline void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
 	vecc.z = veca.z + scale * vecb.z;
 }
 
+extern vec3_t tv ( const float x, const float y, const float z );
+
 // just in case you do't want to use the macros
 extern vec_t	_DotProduct (vec3_t v1, vec3_t v2);
 extern void		_VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);

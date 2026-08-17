@@ -1,6 +1,32 @@
 
 #include "q_vector.hpp"
 
+/*
+=============
+TempVector
+
+This is just a convenience function
+for making temporary vectors for function calls
+=============
+*/
+vec3_t tv ( const float x, const float y, const float z )
+{
+	static	int		index;
+	static	vec3_t	vecs[8];
+	vec3_t	v;
+
+	// use an array so that multiple tempvectors won't collide
+	// for a while
+	v = vecs[index];
+	index = (index + 1)&7;
+
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+
+	return v;
+}
+
 vec_t _DotProduct (vec3_t v1, vec3_t v2)
 {
 	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];

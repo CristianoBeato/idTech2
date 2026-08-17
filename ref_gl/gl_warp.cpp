@@ -21,8 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gl_local.hpp"
 
-extern	model_t	*loadmodel;
-
 char	skyname[MAX_QPATH];
 float	skyrotate;
 vec3_t	skyaxis;
@@ -56,7 +54,7 @@ void SubdividePolygon (int numverts, float *verts)
 	int		i, j, k;
 	vec3_t	mins, maxs;
 	float	m;
-	float	*v;
+	vec3_t	v;
 	vec3_t	front[64], back[64];
 	int		f, b;
 	float	dist[64];
