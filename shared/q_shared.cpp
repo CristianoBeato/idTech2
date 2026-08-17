@@ -1019,7 +1019,7 @@ const char *Info_ValueForKey ( const char *s, const char *key)
 	}
 }
 
-void Info_RemoveKey (char *s, char *key)
+void Info_RemoveKey ( char *s, const char *key)
 {
 	char	*start;
 	char	pkey[512];
@@ -1077,7 +1077,7 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-bool Info_Validate (char *s)
+bool Info_Validate ( const char *s)
 {
 	if (strstr (s, "\""))
 		return false;
@@ -1086,7 +1086,7 @@ bool Info_Validate (char *s)
 	return true;
 }
 
-void Info_SetValueForKey (char *s, char *key, char *value)
+void Info_SetValueForKey ( char *s, const char *key, const char *value)
 {
 	char	newi[MAX_INFO_STRING], *v;
 	int		c;

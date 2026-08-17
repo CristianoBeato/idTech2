@@ -1360,7 +1360,7 @@ The game can override any of the settings in place
 (forcing skins or names, etc) before copying it off.
 ============
 */
-void ClientUserinfoChanged (edict_t *ent, char *userinfo)
+void ClientUserinfoChanged (edict_t *ent, const char *userinfo)
 {
 	const char	*s = nullptr;
 	int		playernum = 0;
@@ -1429,7 +1429,7 @@ Changing levels will NOT cause this to be called again, but
 loadgames will.
 ============
 */
-bool ClientConnect (edict_t *ent, char *userinfo)
+bool ClientConnect (edict_t *ent, const char *userinfo)
 {
 	const char	*value = nullptr;
 
@@ -1458,7 +1458,7 @@ bool ClientConnect (edict_t *ent, char *userinfo)
 				numspec++;
 
 		if (numspec >= maxspectators->value) {
-			Info_SetValueForKey(userinfo, "rejmsg", "Server spectator limit is full.");
+			Info_SetValueForKey( userinfo, "rejmsg", "Server spectator limit is full.");
 			return false;
 		}
 	} else {
@@ -1466,7 +1466,7 @@ bool ClientConnect (edict_t *ent, char *userinfo)
 		value = Info_ValueForKey (userinfo, "password");
 		if (*password->string && strcmp(password->string, "none") && 
 			strcmp(password->string, value)) {
-			Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
+			Info_SetValueForKey( userinfo, "rejmsg", "Password required or incorrect.");
 			return false;
 		}
 	}

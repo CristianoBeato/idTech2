@@ -79,19 +79,19 @@ set( GAME_SOURCES
 set( GAME_SOURCE_DEF ${CMAKE_CURRENT_SOURCE_DIR}/game.def )
 
 #set the library souce
-add_library( game SHARED ${GAME_SOURCES} ) #TODO: append on source on windows platforms 
+add_library( gamex86 SHARED ${GAME_SOURCES} ) #TODO: append on source on windows platforms 
 
 #set lib shared sources
-target_link_libraries( game qShared )
+target_link_libraries( gamex86 qShared )
 
 #set the game specific definitions
-target_compile_definitions( game PRIVATE __GAME_DLL__ ) 
+target_compile_definitions( gamex86 PRIVATE __GAME_DLL__ ) 
 
 #set the sound root dir as include
-target_include_directories( game PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories( gamex86 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
 #set the precompiled header
-target_precompile_headers( game 
+target_precompile_headers( gamex86 
 	PUBLIC
         <cstdio>
         <cstdlib>

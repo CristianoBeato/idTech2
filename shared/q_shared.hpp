@@ -239,14 +239,14 @@ char	*va(char *format, ...);
 //
 // key / value info strings
 //
-#define	MAX_INFO_KEY		64
-#define	MAX_INFO_VALUE		64
-#define	MAX_INFO_STRING		512
+inline constexpr uint32_t MAX_INFO_KEY			= 64;
+inline constexpr uint32_t MAX_INFO_VALUE		= 64;
+inline constexpr uint32_t MAX_INFO_STRING		= 512;
 
 const char *Info_ValueForKey ( const char *s, const char *key);
-void Info_RemoveKey (char *s, char *key);
-void Info_SetValueForKey (char *s, char *key, char *value);
-bool Info_Validate (char *s);
+void Info_RemoveKey ( char *s, const char *key);
+void Info_SetValueForKey ( char *s, const char *key, const char *value);
+bool Info_Validate ( const char *s);
 
 /*
 ==============================================================

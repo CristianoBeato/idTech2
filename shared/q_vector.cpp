@@ -145,13 +145,6 @@ void VectorInverse ( vec3_t &v )
 	v.z = -v.z;
 }
 
-void VectorScale ( const vec3_t in, const float scale, vec3_t &out )
-{
-	out.x = in.x * scale;
-	out.y = in.y * scale;
-	out.z = in.z * scale;
-}
-
 void AngleVectors ( const vec3_t angles, vec3_t* forward, vec3_t* right, vec3_t* up )
 {
 	float		angle;

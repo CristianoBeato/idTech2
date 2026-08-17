@@ -271,9 +271,12 @@ static inline void VectorSet( vec3_t &v, const float x, const float y, const flo
 
 static inline void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
 {
-	vecc.x = veca.x + scale * vecb.x;
-	vecc.y = veca.y + scale * vecb.y;
-	vecc.z = veca.z + scale * vecb.z;
+	vecc = vecb * scale + veca;
+}
+
+static inline void VectorScale ( const vec3_t in, const float scale, vec3_t &out )
+{
+	out = in * scale;
 }
 
 extern vec3_t tv ( const float x, const float y, const float z );
@@ -291,7 +294,6 @@ extern void		CrossProduct ( const vec3_t v1, const vec3_t v2, vec3_t &cross );
 extern float	VectorNormalize ( vec3_t &v );		// returns vector length
 extern vec_t	VectorNormalize2 ( const vec3_t v, vec3_t &out );
 extern void		VectorInverse ( vec3_t &v );
-extern void		VectorScale ( const vec3_t in, const float scale, vec3_t &out );
 extern void		AngleVectors ( const vec3_t angles, vec3_t* forward, vec3_t* right, vec3_t* up );
 extern void		ProjectPointOnPlane( vec3_t &dst, const vec3_t p, const vec3_t normal );
 extern void		PerpendicularVector( vec3_t &dst, const vec3_t src );

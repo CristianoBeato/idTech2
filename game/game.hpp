@@ -17,44 +17,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-/*
-Copyright (C) 1997-2001 Id Software, Inc.
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
+#ifndef __GAME_HPP__
+#define __GAME_HPP__
 
 // game.h -- game dll information visible to server
 
-#define	GAME_API_VERSION	3
+inline constexpr uint32_t GAME_API_VERSION	= 3;
 
 // edict->svflags
 
-#define	SVF_NOCLIENT			0x00000001	// don't send entity to clients, even if it has effects
-#define	SVF_DEADMONSTER			0x00000002	// treat as CONTENTS_DEADMONSTER for collision
-#define	SVF_MONSTER				0x00000004	// treat as CONTENTS_MONSTER for collision
+inline constexpr uint32_t SVF_NOCLIENT 		= 0x00000001;	// don't send entity to clients, even if it has effects
+inline constexpr uint32_t SVF_DEADMONSTER	= 0x00000002;	// treat as CONTENTS_DEADMONSTER for collision
+inline constexpr uint32_t SVF_MONSTER 		= 0x00000004;	// treat as CONTENTS_MONSTER for collision
 
 // edict->solid values
 
 typedef enum
 {
-SOLID_NOT,			// no interaction with other objects
-SOLID_TRIGGER,		// only touch when inside, after moving
-SOLID_BBOX,			// touch on edge
-SOLID_BSP			// bsp clip, touch on edge
+	SOLID_NOT,			// no interaction with other objects
+	SOLID_TRIGGER,		// only touch when inside, after moving
+	SOLID_BBOX,			// touch on edge
+	SOLID_BSP			// bsp clip, touch on edge
 } solid_t;
 
 //===============================================================
@@ -65,7 +49,7 @@ typedef struct link_s
 	struct link_s	*prev, *next;
 } link_t;
 
-#define	MAX_ENT_CLUSTERS	16
+inline constexpr uint32_t MAX_ENT_CLUSTERS = 16;
 
 
 typedef struct edict_s edict_t;
@@ -114,6 +98,13 @@ struct edict_s
 #endif		// GAME_INCLUDE
 
 //===============================================================
+
+class crGameMain
+{
+public:
+	crGameMain( void ){}
+	~crGameMain( void ){}
+};
 
 //
 // functions provided by the main engine
@@ -208,26 +199,26 @@ typedef struct
 	void		(*Shutdown) (void);
 
 	// each new level entered will cause a call to SpawnEntities
-	void		(*SpawnEntities) (char *mapname, char *entstring, char *spawnpoint);
+	void		(*SpawnEntities) ( const char *mapname, const char *entstring, const char *spawnpoint );
 
 	// Read/Write Game is for storing persistant cross level information
 	// about the world state and the clients.
 	// WriteGame is called every time a level is exited.
 	// ReadGame is called on a loadgame.
-	void		(*WriteGame) (char *filename, bool autosave);
-	void		(*ReadGame) (char *filename);
+	void		(*WriteGame) ( const char *filename, const bool autosave );
+	void		(*ReadGame) ( const char *filename);
 
 	// ReadLevel is called after the default map information has been
 	// loaded with SpawnEntities
-	void		(*WriteLevel) (char *filename);
-	void		(*ReadLevel) (char *filename);
+	void		(*WriteLevel) ( const char *filename );
+	void		(*ReadLevel) ( const char *filename );
 
-	bool		(*ClientConnect) (edict_t *ent, char *userinfo);
-	void		(*ClientBegin) (edict_t *ent);
-	void		(*ClientUserinfoChanged) (edict_t *ent, char *userinfo);
-	void		(*ClientDisconnect) (edict_t *ent);
-	void		(*ClientCommand) (edict_t *ent);
-	void		(*ClientThink) (edict_t *ent, usercmd_t *cmd);
+	bool		(*ClientConnect) ( edict_t *ent, const char *userinfo );
+	void		(*ClientBegin) ( edict_t *ent);
+	void		(*ClientUserinfoChanged) (edict_t *ent, const char *userinfo );
+	void		(*ClientDisconnect) (edict_t *ent );
+	void		(*ClientCommand) ( edict_t *ent);
+	void		(*ClientThink) ( edict_t *ent, usercmd_t *cmd);
 
 	void		(*RunFrame) (void);
 
@@ -252,3 +243,5 @@ typedef struct
 } game_export_t;
 
 game_export_t *GetGameApi (game_import_t *import);
+
+#endif //!__GAME_HPP__

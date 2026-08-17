@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "g_local.hpp"
+#include "g_main.hpp"
 
 game_locals_t	game;
 level_locals_t	level;
@@ -71,24 +72,15 @@ cvar_t	*flood_waitdelay;
 
 cvar_t	*sv_maplist;
 
-void SpawnEntities (char *mapname, char *entities, char *spawnpoint);
-void ClientThink (edict_t *ent, usercmd_t *cmd);
-bool ClientConnect (edict_t *ent, char *userinfo);
-void ClientUserinfoChanged (edict_t *ent, char *userinfo);
-void ClientDisconnect (edict_t *ent);
-void ClientBegin (edict_t *ent);
-void ClientCommand (edict_t *ent);
-void RunEntity (edict_t *ent);
-void WriteGame (char *filename, bool autosave);
-void ReadGame (char *filename);
-void WriteLevel (char *filename);
-void ReadLevel (char *filename);
-void InitGame (void);
-void G_RunFrame (void);
-
-
 //===================================================================
 
+crGameMainLocal::crGameMainLocal( void )
+{
+}
+
+crGameMainLocal::~crGameMainLocal( void )
+{
+}
 
 void ShutdownGame (void)
 {

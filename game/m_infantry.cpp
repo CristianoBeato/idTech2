@@ -370,18 +370,17 @@ mmove_t infantry_move_death2 = {FRAME_death201, FRAME_death225, infantry_frames_
 
 mframe_t infantry_frames_death3 [] =
 {
-	ai_move, 0,   NULL,
-	ai_move, 0,   NULL,
-	ai_move, 0,   NULL,
-	ai_move, -6,  NULL,
-	ai_move, -11, NULL,
-	ai_move, -3,  NULL,
-	ai_move, -11, NULL,
-	ai_move, 0,   NULL,
-	ai_move, 0,   NULL
+	ai_move, 0,   nullptr,
+	ai_move, 0,   nullptr,
+	ai_move, 0,   nullptr,
+	ai_move, -6,  nullptr,
+	ai_move, -11, nullptr,
+	ai_move, -3,  nullptr,
+	ai_move, -11, nullptr,
+	ai_move, 0,   nullptr,
+	ai_move, 0,   nullptr
 };
 mmove_t infantry_move_death3 = {FRAME_death301, FRAME_death309, infantry_frames_death3, infantry_dead};
-
 
 void infantry_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
