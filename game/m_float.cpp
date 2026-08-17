@@ -67,7 +67,7 @@ void floater_fire_blaster (edict_t *self)
 		effect = EF_HYPERBLASTER;
 	else
 		effect = 0;
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_FLOAT_BLASTER_1], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, end);
@@ -526,7 +526,7 @@ void floater_zap (edict_t *self)
 
 	VectorSubtract (self->enemy->s.origin, self->s.origin, dir);
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	//FIXME use a flash and replace these two lines with the commented one
 	VectorSet (offset, 18.5, -0.9, 10);
 	G_ProjectSource (self->s.origin, offset, forward, right, origin);

@@ -455,7 +455,7 @@ void ChickRocket (edict_t *self)
 	vec3_t	dir;
 	vec3_t	vec;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_CHICK_ROCKET_1], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, vec);

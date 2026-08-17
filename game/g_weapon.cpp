@@ -101,7 +101,7 @@ bool fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 			tr.ent = self->enemy;
 	}
 
-	AngleVectors(self->s.angles, forward, right, up);
+	AngleVectors( self->s.angles, &forward, &right, &up );
 	VectorMA (self->s.origin, range, forward, point);
 	VectorMA (point, aim[1], right, point);
 	VectorMA (point, aim[2], up, point);
@@ -147,7 +147,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 	if (!(tr.fraction < 1.0))
 	{
 		vectoangles (aimdir, dir);
-		AngleVectors (dir, forward, right, up);
+		AngleVectors (dir, &forward, &right, &up );
 
 		r = crandom()*hspread;
 		u = crandom()*vspread;
@@ -202,7 +202,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 				// change bullet's course when it enters water
 				VectorSubtract (end, start, dir);
 				vectoangles (dir, dir);
-				AngleVectors (dir, forward, right, up);
+				AngleVectors (dir, &forward, &right, &up );
 				r = crandom()*hspread*2;
 				u = crandom()*vspread*2;
 				VectorMA (water_start, 8192, forward, end);
@@ -490,7 +490,7 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	vec3_t	forward, right, up;
 
 	vectoangles (aimdir, dir);
-	AngleVectors (dir, forward, right, up);
+	AngleVectors (dir, &forward, &right, &up );
 
 	grenade = G_Spawn();
 	VectorCopy (start, grenade->s.origin);
@@ -523,7 +523,7 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	vec3_t	forward, right, up;
 
 	vectoangles (aimdir, dir);
-	AngleVectors (dir, forward, right, up);
+	AngleVectors (dir, &forward, &right, &up);
 
 	grenade = G_Spawn();
 	VectorCopy (start, grenade->s.origin);

@@ -354,7 +354,7 @@ void medic_fire_blaster (edict_t *self)
 	else
 		effect = 0;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_MEDIC_BLASTER_1], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, end);
@@ -583,7 +583,7 @@ void medic_cable_attack (edict_t *self)
 	if (!self->enemy->inuse)
 		return;
 
-	AngleVectors (self->s.angles, f, r, NULL);
+	AngleVectors (self->s.angles, &f, &r, nullptr );
 	VectorCopy (medic_cable_offsets[self->s.frame - FRAME_attack42], offset);
 	G_ProjectSource (self->s.origin, offset, f, r, start);
 

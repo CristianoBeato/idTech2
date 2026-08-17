@@ -319,7 +319,7 @@ void parasite_drain_attack (edict_t *self)
 	trace_t	tr;
 	int damage;
 
-	AngleVectors (self->s.angles, f, r, NULL);
+	AngleVectors (self->s.angles, &f, &r, nullptr );
 	VectorSet (offset, 24, 0, 6);
 	G_ProjectSource (self->s.origin, offset, f, r, start);
 

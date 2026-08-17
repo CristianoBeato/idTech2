@@ -433,7 +433,7 @@ void GunnerFire (edict_t *self)
 
 	flash_number = MZ2_GUNNER_MACHINEGUN_1 + (self->s.frame - FRAME_attak216);
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	// project enemy back a bit and target there
@@ -462,7 +462,7 @@ void GunnerGrenade (edict_t *self)
 	else // (self->s.frame == FRAME_attak114)
 		flash_number = MZ2_GUNNER_GRENADE_4;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	//FIXME : do a spread -225 -75 75 225 degrees around forward

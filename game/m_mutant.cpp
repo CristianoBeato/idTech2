@@ -347,7 +347,7 @@ void mutant_jump_takeoff (edict_t *self)
 	vec3_t	forward;
 
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
-	AngleVectors (self->s.angles, forward, NULL, NULL);
+	AngleVectors (self->s.angles, &forward, nullptr, nullptr );
 	self->s.origin[2] += 1;
 	VectorScale (forward, 600, self->velocity);
 	self->velocity[2] = 250;

@@ -1999,7 +1999,7 @@ void SP_func_door_secret (edict_t *ent)
 	ent->moveinfo.speed = 50;
 
 	// calculate positions
-	AngleVectors (ent->s.angles, forward, right, up);
+	AngleVectors (ent->s.angles, &forward, &right, &up );
 	VectorClear (ent->s.angles);
 	side = 1.0 - (ent->spawnflags & SECRET_1ST_LEFT);
 	if (ent->spawnflags & SECRET_1ST_DOWN)

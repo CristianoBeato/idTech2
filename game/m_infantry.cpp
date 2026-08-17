@@ -267,7 +267,7 @@ void InfantryMachineGun (edict_t *self)
 	if (self->s.frame == FRAME_attak111)
 	{
 		flash_number = MZ2_INFANTRY_MACHINEGUN_1;
-		AngleVectors (self->s.angles, forward, right, NULL);
+		AngleVectors (self->s.angles, &forward, &right, nullptr );
 		G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 		if (self->enemy)
@@ -279,18 +279,18 @@ void InfantryMachineGun (edict_t *self)
 		}
 		else
 		{
-			AngleVectors (self->s.angles, forward, right, NULL);
+			AngleVectors (self->s.angles, &forward, &right, nullptr );
 		}
 	}
 	else
 	{
 		flash_number = MZ2_INFANTRY_MACHINEGUN_2 + (self->s.frame - FRAME_death211);
 
-		AngleVectors (self->s.angles, forward, right, NULL);
+		AngleVectors (self->s.angles, &forward, &right, nullptr );
 		G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 		VectorSubtract (self->s.angles, aimangles[flash_number-MZ2_INFANTRY_MACHINEGUN_2], vec);
-		AngleVectors (vec, forward, NULL, NULL);
+		AngleVectors (vec, &forward, nullptr, nullptr );
 	}
 
 	monster_fire_bullet (self, start, forward, 3, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, flash_number);

@@ -506,7 +506,7 @@ void supertankRocket (edict_t *self)
 	else // (self->s.frame == FRAME_attak2_14)
 		flash_number = MZ2_SUPERTANK_ROCKET_3;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, vec);
@@ -532,7 +532,7 @@ void supertankMachineGun (edict_t *self)
 	dir[1] = self->s.angles[1];
 	dir[2] = 0;
 
-	AngleVectors (dir, forward, right, NULL);
+	AngleVectors (dir, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	if (self->enemy)

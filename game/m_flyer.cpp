@@ -376,7 +376,7 @@ void flyer_fire (edict_t *self, int flash_number)
 		effect = EF_HYPERBLASTER;
 	else
 		effect = 0;
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 	
 	VectorCopy (self->enemy->s.origin, end);

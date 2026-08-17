@@ -59,7 +59,7 @@ void Boss2Rocket (edict_t *self)
 	vec3_t	dir;
 	vec3_t	vec;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 
 //1
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
@@ -99,7 +99,7 @@ void boss2_firebullet_right (edict_t *self)
 	vec3_t	forward, right, target;
 	vec3_t	start;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_MACHINEGUN_R1], forward, right, start);
 
 	VectorMA (self->enemy->s.origin, -0.2, self->enemy->velocity, target);
@@ -115,7 +115,7 @@ void boss2_firebullet_left (edict_t *self)
 	vec3_t	forward, right, target;
 	vec3_t	start;
 	
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_BOSS2_MACHINEGUN_L1], forward, right, start);
 
 	VectorMA (self->enemy->s.origin, -0.2, self->enemy->velocity, target);

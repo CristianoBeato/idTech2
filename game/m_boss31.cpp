@@ -479,7 +479,7 @@ void jorgBFG (edict_t *self)
 	vec3_t	dir;
 	vec3_t	vec;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_JORG_BFG_1], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, vec);
@@ -503,7 +503,7 @@ void jorg_firebullet_right (edict_t *self)
 	vec3_t	forward, right, target;
 	vec3_t	start;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_JORG_MACHINEGUN_R1], forward, right, start);
 
 	VectorMA (self->enemy->s.origin, -0.2, self->enemy->velocity, target);
@@ -519,7 +519,7 @@ void jorg_firebullet_left (edict_t *self)
 	vec3_t	forward, right, target;
 	vec3_t	start;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_JORG_MACHINEGUN_L1], forward, right, start);
 
 	VectorMA (self->enemy->s.origin, -0.2, self->enemy->velocity, target);

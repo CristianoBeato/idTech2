@@ -343,7 +343,7 @@ void TankBlaster (edict_t *self)
 	else // (self->s.frame == FRAME_attak116)
 		flash_number = MZ2_TANK_BLASTER_3;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, end);
@@ -373,7 +373,7 @@ void TankRocket (edict_t *self)
 	else // (self->s.frame == FRAME_attak330)
 		flash_number = MZ2_TANK_ROCKET_3;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	VectorCopy (self->enemy->s.origin, vec);
@@ -394,7 +394,7 @@ void TankMachineGun (edict_t *self)
 
 	flash_number = MZ2_TANK_MACHINEGUN_1 + (self->s.frame - FRAME_attak406);
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, start);
 
 	if (self->enemy)
@@ -415,7 +415,7 @@ void TankMachineGun (edict_t *self)
 		dir[1] = self->s.angles[1] + 8 * (self->s.frame - FRAME_attak419);
 	dir[2] = 0;
 
-	AngleVectors (dir, forward, NULL, NULL);
+	AngleVectors (dir, &forward, nullptr, nullptr );
 
 	monster_fire_bullet (self, start, forward, 20, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, flash_number);
 }	

@@ -216,7 +216,7 @@ static int CheckPowerArmor (edict_t *ent, vec3_t point, vec3_t normal, int damag
 		vec3_t		forward;
 
 		// only works if damage point is in front
-		AngleVectors (ent->s.angles, forward, NULL, NULL);
+		AngleVectors (ent->s.angles, &forward, nullptr, nullptr );
 		VectorSubtract (point, ent->s.origin, vec);
 		VectorNormalize (vec);
 		dot = DotProduct (vec, forward);

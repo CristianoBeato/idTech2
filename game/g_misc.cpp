@@ -115,7 +115,7 @@ void gib_touch (edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/fhit3.wav"), 1, ATTN_NORM, 0);
 
 		vectoangles (plane->normal, normal_angles);
-		AngleVectors (normal_angles, NULL, right, NULL);
+		AngleVectors (normal_angles, nullptr, &right, nullptr );
 		vectoangles (right, self->s.angles);
 
 		if (self->s.modelindex == sm_meat_index)

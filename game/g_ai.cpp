@@ -315,13 +315,14 @@ bool infront (edict_t *self, edict_t *other)
 	float	dot;
 	vec3_t	forward;
 	
-	AngleVectors (self->s.angles, forward, NULL, NULL);
+	AngleVectors ( self->s.angles, &forward, nullptr, nullptr );
 	VectorSubtract (other->s.origin, self->s.origin, vec);
 	VectorNormalize (vec);
 	dot = DotProduct (vec, forward);
 	
 	if (dot > 0.3)
 		return true;
+		
 	return false;
 }
 
@@ -1061,7 +1062,7 @@ void ai_run (edict_t *self, float dist)
 			center = tr.fraction;
 			d2 = d1 * ((center+1)/2);
 			self->s.angles[YAW] = self->ideal_yaw = vectoyaw(v);
-			AngleVectors(self->s.angles, v_forward, v_right, NULL);
+			AngleVectors(self->s.angles, &v_forward, &v_right, nullptr );
 
 			VectorSet(v, d2, -16, 0);
 			G_ProjectSource (self->s.origin, v, v_forward, v_right, left_target);

@@ -271,7 +271,7 @@ void actorMachineGun (edict_t *self)
 	vec3_t	start, target;
 	vec3_t	forward, right;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors (self->s.angles, &forward, &right, nullptr );
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_ACTOR_MACHINEGUN_1], forward, right, start);
 	if (self->enemy)
 	{
@@ -290,7 +290,7 @@ void actorMachineGun (edict_t *self)
 	}
 	else
 	{
-		AngleVectors (self->s.angles, forward, NULL, NULL);
+		AngleVectors (self->s.angles, &forward, nullptr, nullptr );
 	}
 	monster_fire_bullet (self, start, forward, 3, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MZ2_ACTOR_MACHINEGUN_1);
 }

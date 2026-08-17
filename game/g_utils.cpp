@@ -295,7 +295,7 @@ void G_SetMovedir (vec3_t angles, vec3_t movedir)
 	}
 	else
 	{
-		AngleVectors (angles, movedir, NULL, NULL);
+		AngleVectors (angles, &movedir, nullptr, nullptr );
 	}
 
 	VectorClear (angles);
