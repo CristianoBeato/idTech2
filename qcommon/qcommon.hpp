@@ -29,6 +29,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	BASEDIRNAME	"baseq2"
 
+#define ERR_FATAL 0		// exit the entire game with a popup window
+#define ERR_DROP 1		// print to console and disconnect from game
+#define ERR_QUIT 2		// not an error, just a normal exit
+
+inline constexpr uint32_t 	EXEC_NOW	= 0;		// don't return until completed
+inline constexpr uint32_t 	EXEC_INSERT	= 1;		// insert at current position, but don't run yet
+inline constexpr uint32_t 	EXEC_APPEND	= 2;		// add to end of the command buffer
+//inline constexpr uint32_t 	EXEC_NOW 	= 0;		// don't return until completed
+//inline constexpr uint32_t 	EXEC_INSERT =	1;		// insert at current position, but don't run yet
+//inline constexpr uint32_t 	EXEC_APPEND =	2;		// add to end of the command buffer
+
+//inline constexpr uint32_t PRINT_ALL = 0;
+//inline constexpr uint32_t PRINT_DEVELOPER = 1;	// only print when "developer 1"
+
+
 #ifdef _WIN32
 
 #ifdef NDEBUG
@@ -353,10 +368,6 @@ The + command line options are also added to the command buffer.
 The game starts with a Cbuf_AddText ("exec quake.rc\n"); Cbuf_Execute ();
 
 */
-
-inline constexpr uint32_t EXEC_NOW 	= 0;		// don't return until completed
-inline constexpr uint32_t EXEC_INSERT =	1;		// insert at current position, but don't run yet
-inline constexpr uint32_t EXEC_APPEND =	2;		// add to end of the command buffer
 
 void Cbuf_Init (void);
 // allocates an initial text buffer that will grow as needed
@@ -759,17 +770,6 @@ MISC
 
 ==============================================================
 */
-
-#define ERR_FATAL 0		// exit the entire game with a popup window
-#define ERR_DROP 1		// print to console and disconnect from game
-#define ERR_QUIT 2		// not an error, just a normal exit
-
-inline constexpr uint32_t 	EXEC_NOW	= 0;		// don't return until completed
-inline constexpr uint32_t 	EXEC_INSERT	= 1;		// insert at current position, but don't run yet
-inline constexpr uint32_t 	EXEC_APPEND	= 2;		// add to end of the command buffer
-
-#define	PRINT_ALL		0
-#define PRINT_DEVELOPER	1	// only print when "developer 1"
 
 void		Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush));
 void		Com_EndRedirect (void);
