@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cvar.c -- dynamic variable tracking
 
-#include "qcommon.h"
+#include "qcommon.hpp"
 
 cvar_t	*cvar_vars;
 
@@ -28,14 +28,11 @@ cvar_t	*cvar_vars;
 Cvar_InfoValidate
 ============
 */
-static bool Cvar_InfoValidate (char *s)
+static bool Cvar_InfoValidate ( const char *s)
 {
-	if (strstr (s, "\\"))
-		return false;
-	if (strstr (s, "\""))
-		return false;
-	if (strstr (s, ";"))
-		return false;
+	if ( std::strstr( s, "\\" ) )	return false;
+	if ( std::strstr( s, "\"" ) )	return false;
+	if ( std::strstr( s, ";" ) ) 	return false;
 	return true;
 }
 
@@ -44,12 +41,12 @@ static bool Cvar_InfoValidate (char *s)
 Cvar_FindVar
 ============
 */
-static cvar_t *Cvar_FindVar (char *var_name)
+static cvar_t *Cvar_FindVar ( const char *var_name )
 {
 	cvar_t	*var;
 	
 	for (var=cvar_vars ; var ; var=var->next)
-		if (!strcmp (var_name, var->name))
+		if (!std::strcmp (var_name, var->name))
 			return var;
 
 	return NULL;
@@ -76,7 +73,7 @@ float Cvar_VariableValue ( const char *var_name )
 Cvar_VariableString
 ============
 */
-char *Cvar_VariableString ( const char *var_name )
+const char *Cvar_VariableString ( const char *var_name )
 {
 	cvar_t *var;
 	
@@ -92,7 +89,7 @@ char *Cvar_VariableString ( const char *var_name )
 Cvar_CompleteVariable
 ============
 */
-char *Cvar_CompleteVariable ( const char *partial )
+const char *Cvar_CompleteVariable ( const char *partial )
 {
 	cvar_t		*cvar;
 	int			len;
@@ -133,7 +130,7 @@ cvar_t *Cvar_Get ( const char *var_name, const char *var_value, int flags)
 		if (!Cvar_InfoValidate (var_name))
 		{
 			Com_Printf("invalid info cvar name\n");
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -145,7 +142,7 @@ cvar_t *Cvar_Get ( const char *var_name, const char *var_value, int flags)
 	}
 
 	if (!var_value)
-		return NULL;
+		return nullptr;
 
 	if (flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{

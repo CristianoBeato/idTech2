@@ -1360,7 +1360,7 @@ The game can override any of the settings in place
 (forcing skins or names, etc) before copying it off.
 ============
 */
-void ClientUserinfoChanged (edict_t *ent, const char *userinfo)
+void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 {
 	const char	*s = nullptr;
 	int		playernum = 0;
@@ -1368,7 +1368,7 @@ void ClientUserinfoChanged (edict_t *ent, const char *userinfo)
 	// check for malformed or illegal info strings
 	if (!Info_Validate(userinfo))
 	{
-		strcpy (userinfo, "\\name\\badinfo\\skin\\male/grunt");
+		std::strcpy( userinfo, "\\name\\badinfo\\skin\\male/grunt");
 	}
 
 	// set name
@@ -1429,14 +1429,15 @@ Changing levels will NOT cause this to be called again, but
 loadgames will.
 ============
 */
-bool ClientConnect (edict_t *ent, const char *userinfo)
+bool ClientConnect (edict_t *ent, char *userinfo)
 {
 	const char	*value = nullptr;
 
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey (userinfo, "ip");
-	if (SV_FilterPacket(value)) {
-		Info_SetValueForKey(userinfo, "rejmsg", "Banned.");
+	if (SV_FilterPacket(value)) 
+	{
+		Info_SetValueForKey( userinfo, "rejmsg", "Banned.");
 		return false;
 	}
 

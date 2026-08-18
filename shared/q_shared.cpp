@@ -1086,49 +1086,50 @@ bool Info_Validate ( const char *s)
 	return true;
 }
 
-void Info_SetValueForKey ( char *s, const char *key, const char *value)
+void Info_SetValueForKey ( char *s, const char *key, const char *value )
 {
 	char	newi[MAX_INFO_STRING], *v;
 	int		c;
 	int		maxsize = MAX_INFO_STRING;
 
-	if (strstr (key, "\\") || strstr (value, "\\") )
+	if ( std::strstr (key, "\\") || std::strstr (value, "\\") )
 	{
 		Com_Printf ("Can't use keys or values with a \\\n");
 		return;
 	}
 
-	if (strstr (key, ";") )
+	if ( std::strstr (key, ";") )
 	{
 		Com_Printf ("Can't use keys or values with a semicolon\n");
 		return;
 	}
 
-	if (strstr (key, "\"") || strstr (value, "\"") )
+	if ( std::strstr (key, "\"") || std::strstr (value, "\"") )
 	{
 		Com_Printf ("Can't use keys or values with a \"\n");
 		return;
 	}
 
-	if (strlen(key) > MAX_INFO_KEY-1 || strlen(value) > MAX_INFO_KEY-1)
+	if ( std::strlen( key ) > MAX_INFO_KEY-1 || std::strlen( value ) > MAX_INFO_KEY-1)
 	{
 		Com_Printf ("Keys and values must be < 64 characters.\n");
 		return;
 	}
+
 	Info_RemoveKey (s, key);
-	if (!value || !strlen(value))
+	if (!value || !std::strlen(value))
 		return;
 
 	Com_sprintf (newi, sizeof(newi), "\\%s\\%s", key, value);
 
-	if (strlen(newi) + strlen(s) > maxsize)
+	if ( std::strlen(newi) + std::strlen(s) > maxsize)
 	{
 		Com_Printf ("Info string length exceeded\n");
 		return;
 	}
 
 	// only copy ascii values
-	s += strlen(s);
+	s += std::strlen(s);
 	v = newi;
 	while (*v)
 	{

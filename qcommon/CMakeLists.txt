@@ -2,18 +2,18 @@
 ## Engine common lib sources 
 ## qCommon.so
 set( COMMON_SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmodel.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/crc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/crc.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/cvar.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/files.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/md4.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/net_chan.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/pmove.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/qcommon.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/qfiles.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmd.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmodel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/crc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/crc.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cvar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/files.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/md4.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/net_chan.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/pmove.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/qcommon.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/qfiles.hpp
     )
 
 #set the library souce
@@ -28,17 +28,17 @@ target_include_directories( qCommon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 # set the precompiled header
 target_precompile_headers( qCommon
 	PUBLIC
-        <stdio.h>
-        <stdlib.h>
-        <stdint.h>
-        <stdarg.h>
-        <stddef.h>
-        <stdbool.h>
-        <assert.h>
-        <math.h>
-        <string.h>
-        <time.h>	
+        <cstdio>
+        <cstdlib>
+        <cstdint>
+        <cstdarg>
+        <cstddef>
+        <cassert>
+        <cmath>
+        <cstring>
+        <ctime>
+        <cctype>
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/shared/q_shared.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/qcommon.h
+        ${CMAKE_SOURCE_DIR}/shared/q_shared.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/qcommon.hpp
 	) 
