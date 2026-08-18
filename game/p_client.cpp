@@ -168,7 +168,7 @@ void SP_info_player_coop(edict_t *self)
 The deathmatch intermission point will be at one of these
 Use 'angles' instead of 'angle', so you can set pitch or roll as well as yaw.  'pitch yaw roll'
 */
-void SP_info_player_intermission(void)
+void SP_info_player_intermission( edict_t *ent )
 {
 }
 
@@ -1360,20 +1360,18 @@ The game can override any of the settings in place
 (forcing skins or names, etc) before copying it off.
 ============
 */
-void ClientUserinfoChanged (edict_t *ent, const char *userinfo)
+void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 {
 	const char	*s = nullptr;
 	int		playernum = 0;
 
 	// check for malformed or illegal info strings
 	if (!Info_Validate(userinfo))
-	{
-		strcpy (userinfo, "\\name\\badinfo\\skin\\male/grunt");
-	}
+		std::strcpy ( userinfo, "\\name\\badinfo\\skin\\male/grunt");
 
 	// set name
 	s = Info_ValueForKey (userinfo, "name");
-	strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
+	std::strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
 
 	// set spectator
 	s = Info_ValueForKey (userinfo, "spectator");
@@ -1413,7 +1411,7 @@ void ClientUserinfoChanged (edict_t *ent, const char *userinfo)
 	}
 
 	// save off the userinfo in case we want to check something later
-	strncpy (ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo)-1);
+	std::strncpy (ent->client->pers.userinfo, userinfo, sizeof(ent->client->pers.userinfo)-1);
 }
 
 
@@ -1429,7 +1427,7 @@ Changing levels will NOT cause this to be called again, but
 loadgames will.
 ============
 */
-bool ClientConnect (edict_t *ent, const char *userinfo)
+bool ClientConnect (edict_t *ent, char *userinfo)
 {
 	const char	*value = nullptr;
 

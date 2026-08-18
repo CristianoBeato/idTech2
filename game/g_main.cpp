@@ -74,6 +74,7 @@ cvar_t	*sv_maplist;
 
 //===================================================================
 
+#if 0
 crGameMainLocal::crGameMainLocal( void )
 {
 }
@@ -81,6 +82,7 @@ crGameMainLocal::crGameMainLocal( void )
 crGameMainLocal::~crGameMainLocal( void )
 {
 }
+#endif
 
 void ShutdownGame (void)
 {

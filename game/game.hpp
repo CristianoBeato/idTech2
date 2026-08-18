@@ -213,9 +213,9 @@ typedef struct
 	void		(*WriteLevel) ( const char *filename );
 	void		(*ReadLevel) ( const char *filename );
 
-	bool		(*ClientConnect) ( edict_t *ent, const char *userinfo );
+	bool		(*ClientConnect) ( edict_t *ent, char *userinfo );
 	void		(*ClientBegin) ( edict_t *ent);
-	void		(*ClientUserinfoChanged) (edict_t *ent, const char *userinfo );
+	void		(*ClientUserinfoChanged) (edict_t *ent, char *userinfo );
 	void		(*ClientDisconnect) (edict_t *ent );
 	void		(*ClientCommand) ( edict_t *ent);
 	void		(*ClientThink) ( edict_t *ent, usercmd_t *cmd);
