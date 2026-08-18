@@ -70,53 +70,44 @@ static inline const char* strlwr ( char *s )
 #endif
 
 typedef unsigned char 		byte;
-// typedef bool qboolean; 
-// typedef enum {false, true}	qboolean;
-
-
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
-
 
 // angle indexes
-#define	PITCH				0		// up / down
-#define	YAW					1		// left / right
-#define	ROLL				2		// fall over
+inline constexpr uint32_t PITCH = 0;		// up / down
+inline constexpr uint32_t YAW = 1;		// left / right
+inline constexpr uint32_t ROLL = 2;		// fall over
 
-#define	MAX_STRING_CHARS	1024	// max length of a string passed to Cmd_TokenizeString
-#define	MAX_STRING_TOKENS	80		// max tokens resulting from Cmd_TokenizeString
-#define	MAX_TOKEN_CHARS		128		// max length of an individual token
+inline constexpr uint32_t MAX_STRING_CHARS = 1024;	// max length of a string passed to Cmd_TokenizeString
+inline constexpr uint32_t MAX_STRING_TOKENS = 80;		// max tokens resulting from Cmd_TokenizeString
+inline constexpr uint32_t MAX_TOKEN_CHARS =	128;		// max length of an individual token
 
-#define	MAX_QPATH			64		// max length of a quake game pathname
-#define	MAX_OSPATH			128		// max length of a filesystem pathname
+inline constexpr uint32_t MAX_QPATH = 64;	// max length of a quake game pathname
+inline constexpr uint32_t MAX_OSPATH = 128;	// max length of a filesystem pathname
 
 //
 // per-level limits
 //
-#define	MAX_CLIENTS			256		// absolute limit
-#define	MAX_EDICTS			1024	// must change protocol to increase more
-#define	MAX_LIGHTSTYLES		256
-#define	MAX_MODELS			256		// these are sent over the net as bytes
-#define	MAX_SOUNDS			256		// so they cannot be blindly increased
-#define	MAX_IMAGES			256
-#define	MAX_ITEMS			256
-#define MAX_GENERAL			(MAX_CLIENTS*2)	// general config strings
-
+inline constexpr uint32_t MAX_CLIENTS 	= 256;		// absolute limit
+inline constexpr uint32_t MAX_EDICTS 		= 1024;	// must change protocol to increase more
+inline constexpr uint32_t MAX_LIGHTSTYLES = 256;
+inline constexpr uint32_t MAX_MODELS 		= 256;		// these are sent over the net as bytes
+inline constexpr uint32_t MAX_SOUNDS 		= 256;		// so they cannot be blindly increased
+inline constexpr uint32_t MAX_IMAGES 		= 256;
+inline constexpr uint32_t MAX_ITEMS 		= 256;
+inline constexpr uint32_t MAX_GENERAL		= ( MAX_CLIENTS * 2 );	// general config strings
 
 // game print flags
-#define	PRINT_LOW			0		// pickup messages
-#define	PRINT_MEDIUM		1		// death messages
-#define	PRINT_HIGH			2		// critical messages
-#define	PRINT_CHAT			3		// chat messages
+inline constexpr uint32_t PRINT_LOW			= 0;		// pickup messages
+inline constexpr uint32_t PRINT_MEDIUM		= 1;		// death messages
+inline constexpr uint32_t PRINT_HIGH		= 2;		// critical messages
+inline constexpr uint32_t PRINT_CHAT		= 3;		// chat messages
 
-#define	ERR_FATAL			0		// exit the entire game with a popup window
-#define	ERR_DROP			1		// print to console and disconnect from game
-#define	ERR_DISCONNECT		2		// don't kill server
+inline constexpr uint32_t ERR_FATAL 		= 0;		// exit the entire game with a popup window
+inline constexpr uint32_t ERR_DROP			= 1;		// print to console and disconnect from game
+inline constexpr uint32_t ERR_DISCONNECT	= 2;		// don't kill server
 
-#define	PRINT_ALL			0
-#define PRINT_DEVELOPER		1		// only print when "developer 1"
-#define PRINT_ALERT			2		
+inline constexpr uint32_t PRINT_ALL			= 0;
+inline constexpr uint32_t PRINT_DEVELOPER	= 1;		// only print when "developer 1"
+inline constexpr uint32_t PRINT_ALERT		= 2;		
 
 
 // destination class for gi.multicast()

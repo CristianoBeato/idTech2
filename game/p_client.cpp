@@ -1361,6 +1361,7 @@ The game can override any of the settings in place
 ============
 */
 void ClientUserinfoChanged (edict_t *ent, char *userinfo)
+void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 {
 	const char	*s = nullptr;
 	int		playernum = 0;
@@ -1428,13 +1429,15 @@ loadgames will.
 ============
 */
 bool ClientConnect (edict_t *ent, char *userinfo)
+bool ClientConnect (edict_t *ent, char *userinfo)
 {
 	const char	*value = nullptr;
 
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey (userinfo, "ip");
-	if (SV_FilterPacket(value)) {
-		Info_SetValueForKey(userinfo, "rejmsg", "Banned.");
+	if (SV_FilterPacket(value)) 
+	{
+		Info_SetValueForKey( userinfo, "rejmsg", "Banned.");
 		return false;
 	}
 

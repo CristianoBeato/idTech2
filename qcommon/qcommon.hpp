@@ -29,6 +29,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	BASEDIRNAME	"baseq2"
 
+#define ERR_FATAL 0		// exit the entire game with a popup window
+#define ERR_DROP 1		// print to console and disconnect from game
+#define ERR_QUIT 2		// not an error, just a normal exit
+
+inline constexpr uint32_t 	EXEC_NOW	= 0;		// don't return until completed
+inline constexpr uint32_t 	EXEC_INSERT	= 1;		// insert at current position, but don't run yet
+inline constexpr uint32_t 	EXEC_APPEND	= 2;		// add to end of the command buffer
+//inline constexpr uint32_t 	EXEC_NOW 	= 0;		// don't return until completed
+//inline constexpr uint32_t 	EXEC_INSERT =	1;		// insert at current position, but don't run yet
+//inline constexpr uint32_t 	EXEC_APPEND =	2;		// add to end of the command buffer
+
+//inline constexpr uint32_t PRINT_ALL = 0;
+//inline constexpr uint32_t PRINT_DEVELOPER = 1;	// only print when "developer 1"
+
+
 #ifdef _WIN32
 
 #ifdef NDEBUG
@@ -354,10 +369,6 @@ The game starts with a Cbuf_AddText ("exec quake.rc\n"); Cbuf_Execute ();
 
 */
 
-#define	EXEC_NOW	0		// don't return until completed
-#define	EXEC_INSERT	1		// insert at current position, but don't run yet
-#define	EXEC_APPEND	2		// add to end of the command buffer
-
 void Cbuf_Init (void);
 // allocates an initial text buffer that will grow as needed
 
@@ -483,10 +494,10 @@ void	Cvar_SetValue ( const char *var_name, float value );
 float	Cvar_VariableValue ( const char *var_name );
 // returns 0 if not defined or non numeric
 
-char	*Cvar_VariableString ( const char *var_name );
+const char	*Cvar_VariableString ( const char *var_name );
 // returns an empty string if not defined
 
-char 	*Cvar_CompleteVariable ( const char *partial );
+const char 	*Cvar_CompleteVariable ( const char *partial );
 // attempts to match a partial variable name for command line completion
 // returns NULL if nothing fits
 
@@ -504,10 +515,10 @@ void 	Cvar_WriteVariables (char *path);
 
 void	Cvar_Init (void);
 
-char	*Cvar_Userinfo (void);
+const char	*Cvar_Userinfo (void);
 // returns an info string containing all the CVAR_USERINFO cvars
 
-char	*Cvar_Serverinfo (void);
+const char	*Cvar_Serverinfo (void);
 // returns an info string containing all the CVAR_SERVERINFO cvars
 
 extern	bool	userinfo_modified;
@@ -524,14 +535,25 @@ NET
 
 // net.h -- quake's interface to the networking layer
 
-#define	PORT_ANY	-1
+inline constexpr int32_t PORT_ANY = -1;
 
-#define	MAX_MSGLEN		1400		// max length of a message
-#define	PACKET_HEADER	10			// two ints and a short
+inline constexpr uint32_t	MAX_MSGLEN = 1400;		// max length of a message
+inline constexpr uint32_t	PACKET_HEADER =	10;			// two ints and a short
 
-typedef enum {NA_LOOPBACK, NA_BROADCAST, NA_IP, NA_IPX, NA_BROADCAST_IPX} netadrtype_t;
+enum netadrtype_t : uint32_t
+{
+	NA_LOOPBACK, 
+	NA_BROADCAST, 
+	NA_IP, 
+	NA_IPX, 
+	NA_BROADCAST_IPX
+};
 
-typedef enum {NS_CLIENT, NS_SERVER} netsrc_t;
+enum netsrc_t : uint32_t
+{
+	NS_CLIENT, 
+	NS_SERVER 
+};
 
 typedef struct
 {
@@ -631,10 +653,10 @@ extern	byte		net_message_buffer[MAX_MSGLEN];
 void Netchan_Init (void);
 void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int qport);
 
-bool Netchan_NeedReliable (netchan_t *chan);
-void Netchan_Transmit (netchan_t *chan, int length, byte *data);
-void Netchan_OutOfBand (int net_socket, netadr_t adr, int length, byte *data);
-void Netchan_OutOfBandPrint (int net_socket, netadr_t adr, char *format, ...);
+bool Netchan_NeedReliable ( netchan_t *chan);
+void Netchan_Transmit ( netchan_t *chan, int length, byte *data);
+void Netchan_OutOfBand ( const uint32_t net_socket, netadr_t adr, int length, byte *data);
+void Netchan_OutOfBandPrint ( const uint32_t net_socket, netadr_t adr, char *format, ...);
 bool Netchan_Process (netchan_t *chan, sizebuf_t *msg);
 
 bool Netchan_CanReliable (netchan_t *chan);
@@ -649,7 +671,7 @@ CMODEL
 */
 
 
-#include "../qcommon/qfiles.h"
+#include "qcommon/qfiles.hpp"
 
 cmodel_t	*CM_LoadMap (char *name, bool clientload, unsigned *checksum);
 cmodel_t	*CM_InlineModel (char *name);	// *1, *2, etc
@@ -748,18 +770,6 @@ MISC
 
 ==============================================================
 */
-
-
-#define	ERR_FATAL	0		// exit the entire game with a popup window
-#define	ERR_DROP	1		// print to console and disconnect from game
-#define	ERR_QUIT	2		// not an error, just a normal exit
-
-#define	EXEC_NOW	0		// don't return until completed
-#define	EXEC_INSERT	1		// insert at current position, but don't run yet
-#define	EXEC_APPEND	2		// add to end of the command buffer
-
-#define	PRINT_ALL		0
-#define PRINT_DEVELOPER	1	// only print when "developer 1"
 
 void		Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush));
 void		Com_EndRedirect (void);
