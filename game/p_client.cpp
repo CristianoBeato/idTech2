@@ -1361,7 +1361,6 @@ The game can override any of the settings in place
 ============
 */
 void ClientUserinfoChanged (edict_t *ent, char *userinfo)
-void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 {
 	const char	*s = nullptr;
 	int		playernum = 0;
@@ -1428,7 +1427,6 @@ Changing levels will NOT cause this to be called again, but
 loadgames will.
 ============
 */
-bool ClientConnect (edict_t *ent, char *userinfo)
 bool ClientConnect (edict_t *ent, char *userinfo)
 {
 	const char	*value = nullptr;

@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "qcommon.hpp"
+#include "File_system.hpp"
 
 // define this to dissalow any data but the demo pak file
 //#define	NO_ADDONS
@@ -39,6 +40,13 @@ QUAKE FILESYSTEM
 =============================================================================
 */
 
+crFileSystem::crFileSystem( void )
+{
+}
+
+crFileSystem::~crFileSystem( void )
+{
+}
 
 //
 // in memory
@@ -182,7 +190,7 @@ int	Developer_searchpath (int who)
 		if (start == NULL)
 			continue;
 
-		if (strcmp (start ,"xatrix") == 0)
+		if (std::strcmp (start ,"xatrix") == 0)
 			return (1);
 */
 	}
@@ -289,7 +297,7 @@ int FS_FOpenFile (char *filename, FILE **file)
 	file_from_pak = 0;
 
 	// get config from directory, everything else from pak
-	if (!strcmp(filename, "config.cfg") || !strncmp(filename, "players/", 8))
+	if (!std::strcmp(filename, "config.cfg") || !strncmp(filename, "players/", 8))
 	{
 		Com_sprintf (netpath, sizeof(netpath), "%s/%s",FS_Gamedir(), filename);
 		
@@ -404,7 +412,7 @@ int FS_LoadFile ( const char *path, void **buffer )
 	if (!h)
 	{
 		if (buffer)
-			*buffer = NULL;
+			*buffer = nullptr;
 		return -1;
 	}
 	
@@ -414,7 +422,7 @@ int FS_LoadFile ( const char *path, void **buffer )
 		return len;
 	}
 
-	buf = Z_Malloc(len);
+	buf = static_cast<byte*>(Z_Malloc( len ));
 	*buffer = buf;
 
 	FS_Read (buf, len, h);
@@ -486,13 +494,13 @@ pack_t *FS_LoadPackFile (char *packfile)
 // parse the directory
 	for (i=0 ; i<numpackfiles ; i++)
 	{
-		strcpy (newfiles[i].name, info[i].name);
+		std::strcpy (newfiles[i].name, info[i].name);
 		newfiles[i].filepos = LittleLong(info[i].filepos);
 		newfiles[i].filelen = LittleLong(info[i].filelen);
 	}
 
-	pack = Z_Malloc (sizeof (pack_t));
-	strcpy (pack->filename, packfile);
+	pack = static_cast<pack_t>(Z_Malloc (sizeof (pack_t)));
+	std::strcpy (pack->filename, packfile);
 	pack->handle = packhandle;
 	pack->numfiles = numpackfiles;
 	pack->files = newfiles;
@@ -510,20 +518,20 @@ Sets fs_gamedir, adds the directory to the head of the path,
 then loads and adds pak1.pak pak2.pak ... 
 ================
 */
-void FS_AddGameDirectory (char *dir)
+void FS_AddGameDirectory ( const char *dir)
 {
-	int				i;
-	searchpath_t	*search;
-	pack_t			*pak;
+	int				i = 0;
+	searchpath_t	*search = nullptr;
+	pack_t			*pak = nullptr;
 	char			pakfile[MAX_OSPATH];
 
-	strcpy (fs_gamedir, dir);
+	std::strcpy (fs_gamedir, dir);
 
 	//
 	// add the directory to the search path
 	//
-	search = Z_Malloc (sizeof(searchpath_t));
-	strcpy (search->filename, dir);
+	search = static_cast<searchpath_t*>( Z_Malloc (sizeof(searchpath_t)) );
+	std::strcpy (search->filename, dir);
 	search->next = fs_searchpaths;
 	fs_searchpaths = search;
 
@@ -536,13 +544,11 @@ void FS_AddGameDirectory (char *dir)
 		pak = FS_LoadPackFile (pakfile);
 		if (!pak)
 			continue;
-		search = Z_Malloc (sizeof(searchpath_t));
+		search = static_cast<searchpath_t*>( Z_Malloc (sizeof(searchpath_t)) );
 		search->pack = pak;
 		search->next = fs_searchpaths;
 		fs_searchpaths = search;		
 	}
-
-
 }
 
 /*
@@ -564,7 +570,7 @@ FS_ExecAutoexec
 */
 void FS_ExecAutoexec (void)
 {
-	char *dir;
+	const char *dir;
 	char name [MAX_QPATH];
 
 	dir = Cvar_VariableString("gamedir");
@@ -620,7 +626,7 @@ void FS_SetGamedir (char *dir)
 
 	Com_sprintf (fs_gamedir, sizeof(fs_gamedir), "%s/%s", fs_basedir->string, dir);
 
-	if (!strcmp(dir,BASEDIRNAME) || (*dir == 0))
+	if (!std::strcmp(dir,BASEDIRNAME) || (*dir == 0))
 	{
 		Cvar_FullSet ("gamedir", "", CVAR_SERVERINFO|CVAR_NOSET);
 		Cvar_FullSet ("game", "", CVAR_LATCH|CVAR_SERVERINFO);
@@ -656,10 +662,10 @@ void FS_Link_f (void)
 	prev = &fs_links;
 	for (l=fs_links ; l ; l=l->next)
 	{
-		if (!strcmp (l->from, Cmd_Argv(1)))
+		if (!std::strcmp (l->from, Cmd_Argv(1)))
 		{
 			Z_Free (l->to);
-			if (!strlen(Cmd_Argv(2)))
+			if (!std::strlen(Cmd_Argv(2)))
 			{	// delete it
 				*prev = l->next;
 				Z_Free (l->from);
@@ -673,11 +679,11 @@ void FS_Link_f (void)
 	}
 
 	// create a new link
-	l = Z_Malloc(sizeof(*l));
+	l = static_cast<filelink_t*>( Z_Malloc(sizeof(*l)) );
 	l->next = fs_links;
 	fs_links = l;
 	l->from = CopyString(Cmd_Argv(1));
-	l->fromlength = strlen(l->from);
+	l->fromlength = std::strlen(l->from);
 	l->to = CopyString(Cmd_Argv(2));
 }
 
@@ -693,7 +699,7 @@ const char **FS_ListFiles( const char *findname, int *numfiles, unsigned musthav
 	s = Sys_FindFirst( findname, musthave, canthave );
 	while ( s )
 	{
-		if ( s[strlen(s)-1] != '.' )
+		if ( s[std::strlen(s)-1] != '.' )
 			nfiles++;
 		s = Sys_FindNext( musthave, canthave );
 	}
@@ -705,17 +711,17 @@ const char **FS_ListFiles( const char *findname, int *numfiles, unsigned musthav
 	nfiles++; // add space for a guard
 	*numfiles = nfiles;
 
-	list = malloc( sizeof( char * ) * nfiles );
-	memset( list, 0, sizeof( char * ) * nfiles );
+	list = static_cast<const char**>( std::malloc( sizeof( char * ) * nfiles ) );
+	std::memset( list, 0, sizeof( char * ) * nfiles );
 
 	s = Sys_FindFirst( findname, musthave, canthave );
 	nfiles = 0;
 	while ( s )
 	{
-		if ( s[strlen(s)-1] != '.' )
+		if ( s[std::strlen(s)-1] != '.' )
 		{
 			list[nfiles] = strdup( s );
-			strlwr( list[nfiles] );
+			strlwr( const_cast<char*>( list[nfiles] ) );
 			nfiles++;
 		}
 		s = Sys_FindNext( musthave, canthave );
@@ -730,15 +736,15 @@ const char **FS_ListFiles( const char *findname, int *numfiles, unsigned musthav
 */
 void FS_Dir_f( void )
 {
-	const char	*path = NULL;
-	const char	findname[1024];
-	const char	wildcard[1024] = "*.*";
+	const char	*path = nullptr;
 	const char	**dirnames;
-	int			ndirs;
+	char	findname[1024];
+	char	wildcard[1024] = "*.*";
+	int		ndirs;
 
 	if ( Cmd_Argc() != 1 )
 	{
-		strcpy( wildcard, Cmd_Argv( 1 ) );
+		std::strcpy( wildcard, Cmd_Argv( 1 ) );
 	}
 
 	while ( ( path = FS_NextPath( path ) ) != NULL )
@@ -827,7 +833,7 @@ const char *FS_NextPath ( const char *prevpath )
 		prev = s->filename;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

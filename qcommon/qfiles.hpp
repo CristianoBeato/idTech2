@@ -256,7 +256,7 @@ typedef struct miptex_s
 
 typedef struct
 {
-	int		fileofs, filelen;
+	intptr_t	fileofs, filelen;
 } lump_t;
 
 #define	LUMP_ENTITIES		0

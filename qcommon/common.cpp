@@ -18,13 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // common.c -- misc functions used in client and server
-#include "qcommon.h"
+#include "qcommon.hpp"
 #include <setjmp.h>
 
-#define	MAXPRINTMSG	4096
+constexpr uint32_t MAXPRINTMSG = 4096;
 
-#define MAX_NUM_ARGVS	50
-
+constexpr uint32_t MAX_NUM_ARGVS = 50;
 
 int		com_argc;
 char	*com_argv[MAX_NUM_ARGVS+1];
@@ -183,7 +182,7 @@ void Com_Error ( int code, const char *fmt, ...)
 	recursive = true;
 
 	va_start (argptr,fmt);
-	vsprintf (msg,fmt,argptr);
+	std::vsprintf (msg,fmt,argptr);
 	va_end (argptr);
 	
 	if (code == ERR_DISCONNECT)
@@ -313,7 +312,7 @@ void MSG_WriteShort (sizebuf_t *sb, int c)
 		Com_Error (ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 2);
+	buf = static_cast<byte*>(SZ_GetSpace (sb, 2));
 	buf[0] = c&0xff;
 	buf[1] = c>>8;
 }
@@ -322,7 +321,7 @@ void MSG_WriteLong (sizebuf_t *sb, int c)
 {
 	byte	*buf;
 	
-	buf = SZ_GetSpace (sb, 4);
+	buf = static_cast<byte*>(SZ_GetSpace (sb, 4));
 	buf[0] = c&0xff;
 	buf[1] = (c>>8)&0xff;
 	buf[2] = (c>>16)&0xff;
@@ -875,7 +874,7 @@ void MSG_ReadData (sizebuf_t *msg_read, void *data, int len)
 
 void SZ_Init (sizebuf_t *buf, byte *data, int length)
 {
-	memset (buf, 0, sizeof(*buf));
+	std::memset (buf, 0, sizeof(*buf));
 	buf->data = data;
 	buf->maxsize = length;
 }
@@ -1026,12 +1025,12 @@ int	memsearch (byte *start, int count, int search)
 }
 
 
-char *CopyString (char *in)
+char *CopyString ( const char *in)
 {
 	char	*out;
 	
-	out = Z_Malloc (strlen(in)+1);
-	strcpy (out, in);
+	out = static_cast<char*>( Z_Malloc ( std::strlen( in ) + 1 ) );
+	std::strcpy (out, in);
 	return out;
 }
 
@@ -1160,7 +1159,7 @@ void Z_FreeTags (int tag)
 Z_TagMalloc
 ========================
 */
-void *Z_TagMalloc (int size, int tag)
+void *Z_TagMalloc ( size_t size, int tag )
 {
 	zhead_t	*z;
 	
@@ -1188,7 +1187,7 @@ void *Z_TagMalloc (int size, int tag)
 Z_Malloc
 ========================
 */
-void *Z_Malloc (int size)
+void *Z_Malloc ( size_t size )
 {
 	return Z_TagMalloc (size, 0);
 }
@@ -1488,7 +1487,7 @@ void Qcommon_Init (int argc, char **argv)
 Qcommon_Frame
 =================
 */
-void Qcommon_Frame (int msec)
+void Qcommon_Frame ( uint64_t msec )
 {
 	char	*s;
 	int		time_before, time_between, time_after;

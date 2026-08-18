@@ -119,7 +119,7 @@ void Netchan_OutOfBand ( const uint32_t net_socket, netadr_t adr, int length, by
 	SZ_Write (&send, data, length);
 
 // send the datagram
-	NET_SendPacket (net_socket, send.cursize, send.data, adr);
+	NET_SendPacket ( static_cast<netsrc_t>( net_socket ), send.cursize, send.data, adr);
 }
 
 /*

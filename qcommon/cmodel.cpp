@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // cmodel.c -- model loading
 
-#include "qcommon.h"
+#include "qcommon.hpp"
 
 typedef struct
 {
@@ -140,7 +140,7 @@ void CMod_LoadSubmodels (lump_t *l)
 	cmodel_t	*out;
 	int			i, j, count;
 
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<dmodel_t*>( cmod_base + l->fileofs );
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -178,7 +178,7 @@ void CMod_LoadSurfaces (lump_t *l)
 	mapsurface_t	*out;
 	int			i, count;
 
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<texinfo_t*>(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -213,7 +213,7 @@ void CMod_LoadNodes (lump_t *l)
 	cnode_t		*out;
 	int			i, j, count;
 	
-	in = (void *)(cmod_base + l->fileofs);
+	in = static_cast<dnode_t*>( cmod_base + l->fileofs );
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -284,7 +284,7 @@ void CMod_LoadLeafs (lump_t *l)
 	dleaf_t 	*in;
 	int			count;
 	
-	in = (void *)(cmod_base + l->fileofs);
+	in = static_cast<dleaf_t*>( cmod_base + l->fileofs );
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -413,7 +413,7 @@ void CMod_LoadBrushSides (lump_t *l)
 	int			count;
 	int			num;
 
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<dbrushside_t*>(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -448,7 +448,7 @@ void CMod_LoadAreas (lump_t *l)
 	darea_t 	*in;
 	int			count;
 
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<darea_t*>(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -480,8 +480,8 @@ void CMod_LoadAreaPortals (lump_t *l)
 	dareaportal_t 	*in;
 	int			count;
 
-	in = (void *)(cmod_base + l->fileofs);
-	if (l->filelen % sizeof(*in))
+	in = reinterpret_cast<dareaportal_t*>( cmod_base + l->fileofs );
+	if ( l->filelen % sizeof(*in) )
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
 
@@ -948,7 +948,7 @@ int	CM_TransformedPointContents (vec3_t p, int headnode, vec3_t origin, vec3_t a
 	if (headnode != box_headnode && 
 	(angles[0] || angles[1] || angles[2]) )
 	{
-		AngleVectors (angles, forward, right, up);
+		AngleVectors ( angles, &forward, &right, &up );
 
 		VectorCopy (p_l, temp);
 		p_l[0] = DotProduct (temp, forward);
@@ -1473,7 +1473,7 @@ trace_t		CM_TransformedBoxTrace (vec3_t start, vec3_t end,
 
 	if (rotated)
 	{
-		AngleVectors (angles, forward, right, up);
+		AngleVectors (angles, &forward, &right, &up );
 
 		VectorCopy (start_l, temp);
 		start_l[0] = DotProduct (temp, forward);
@@ -1493,7 +1493,7 @@ trace_t		CM_TransformedBoxTrace (vec3_t start, vec3_t end,
 	{
 		// FIXME: figure out how to do this with existing angles
 		VectorNegate (angles, a);
-		AngleVectors (a, forward, right, up);
+		AngleVectors (a, &forward, &right, &up);
 
 		VectorCopy (trace.plane.normal, temp);
 		trace.plane.normal[0] = DotProduct (temp, forward);

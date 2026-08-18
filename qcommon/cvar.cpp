@@ -173,7 +173,7 @@ cvar_t *Cvar_Get ( const char *var_name, const char *var_value, int flags)
 Cvar_Set2
 ============
 */
-cvar_t *Cvar_Set2 (char *var_name, char *value, bool force)
+cvar_t *Cvar_Set2 ( const char *var_name, const char *value, bool force)
 {
 	cvar_t	*var;
 

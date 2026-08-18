@@ -94,9 +94,9 @@ typedef struct sizebuf_s
 	bool	allowoverflow;	// if false, do a Com_Error
 	bool	overflowed;		// set to true if the buffer size failed
 	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
+	size_t	maxsize;
+	size_t	cursize;
+	int32_t	readcount;
 } sizebuf_t;
 
 void SZ_Init (sizebuf_t *buf, byte *data, int length);
@@ -168,7 +168,7 @@ void COM_AddParm (char *parm);
 void COM_Init (void);
 void COM_InitArgv (int argc, char **argv);
 
-char *CopyString (char *in);
+char *CopyString ( const char *in);
 
 //============================================================================
 
@@ -372,11 +372,11 @@ The game starts with a Cbuf_AddText ("exec quake.rc\n"); Cbuf_Execute ();
 void Cbuf_Init (void);
 // allocates an initial text buffer that will grow as needed
 
-void Cbuf_AddText (char *text);
+void Cbuf_AddText ( const char *text);
 // as new commands are generated from the console or keybindings,
 // the text is added to the end of the command buffer.
 
-void Cbuf_InsertText (char *text);
+void Cbuf_InsertText ( const char *text);
 // when a command wants to issue other commands immediately, the text is
 // inserted at the beginning of the buffer, before any remaining unexecuted
 // commands.
@@ -384,7 +384,7 @@ void Cbuf_InsertText (char *text);
 void Cbuf_ExecuteText (int exec_when, const char *text);
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
-void Cbuf_AddEarlyCommands (bool clear);
+void Cbuf_AddEarlyCommands ( const bool clear);
 // adds all the +set commands from the command line
 
 bool Cbuf_AddLateCommands (void);
@@ -801,12 +801,12 @@ extern	int		time_before_ref;
 extern	int		time_after_ref;
 
 void Z_Free (void *ptr);
-void *Z_Malloc (int size);			// returns 0 filled memory
-void *Z_TagMalloc (int size, int tag);
+void *Z_Malloc ( size_t size );			// returns 0 filled memory
+void *Z_TagMalloc ( size_t size, int tag );
 void Z_FreeTags (int tag);
 
 void Qcommon_Init (int argc, char **argv);
-void Qcommon_Frame (int msec);
+void Qcommon_Frame ( uint64_t msec);
 void Qcommon_Shutdown (void);
 
 #define NUMVERTEXNORMALS	162

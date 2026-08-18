@@ -20,10 +20,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cmd.c -- Quake script command processing module
 
 #include "qcommon.hpp"
+#include "cmd.hpp"
 
 void Cmd_ForwardToServer (void);
 
-#define	MAX_ALIAS_NAME	32
+constexpr uint32_t MAX_ALIAS_NAME = 32;
+constexpr uint32_t CMD_BUFF_LEN = 8192;
 
 typedef struct cmdalias_s
 {
@@ -36,11 +38,20 @@ cmdalias_t	*cmd_alias;
 
 bool	cmd_wait;
 
-#define	ALIAS_LOOP_COUNT	16
+constexpr	uint32_t ALIAS_LOOP_COUNT = 16;
 int		alias_count;		// for detecting runaway loops
 
 
 //=============================================================================
+
+
+crCMD::crCMD( void )
+{
+}
+
+crCMD::~crCMD( void )
+{
+}
 
 /*
 ============
@@ -56,7 +67,6 @@ void Cmd_Wait_f (void)
 	cmd_wait = true;
 }
 
-
 /*
 =============================================================================
 
@@ -66,9 +76,8 @@ void Cmd_Wait_f (void)
 */
 
 sizebuf_t	cmd_text;
-byte		cmd_text_buf[8192];
-
-byte		defer_text_buf[8192];
+byte		cmd_text_buf[CMD_BUFF_LEN];
+byte		defer_text_buf[CMD_BUFF_LEN];
 
 /*
 ============
@@ -87,18 +96,18 @@ Cbuf_AddText
 Adds command text at the end of the buffer
 ============
 */
-void Cbuf_AddText (char *text)
+void Cbuf_AddText ( const char *text)
 {
 	int		l;
 	
-	l = strlen (text);
+	l = std::strlen (text);
 
 	if (cmd_text.cursize + l >= cmd_text.maxsize)
 	{
 		Com_Printf ("Cbuf_AddText: overflow\n");
 		return;
 	}
-	SZ_Write (&cmd_text, text, strlen (text));
+	SZ_Write (&cmd_text, text, std::strlen (text));
 }
 
 
@@ -111,7 +120,7 @@ Adds a \n to the text
 FIXME: actually change the command buffer to do less copying
 ============
 */
-void Cbuf_InsertText (char *text)
+void Cbuf_InsertText ( const char *text)
 {
 	char	*temp;
 	int		templen;
@@ -120,12 +129,12 @@ void Cbuf_InsertText (char *text)
 	templen = cmd_text.cursize;
 	if (templen)
 	{
-		temp = Z_Malloc (templen);
-		memcpy (temp, cmd_text.data, templen);
+		temp = static_cast<char*>( Z_Malloc (templen) );
+		std::memcpy (temp, cmd_text.data, templen);
 		SZ_Clear (&cmd_text);
 	}
 	else
-		temp = NULL;	// shut up compiler
+		temp = nullptr;	// shut up compiler
 		
 // add the entire text of the file
 	Cbuf_AddText (text);
@@ -146,7 +155,7 @@ Cbuf_CopyToDefer
 */
 void Cbuf_CopyToDefer (void)
 {
-	memcpy(defer_text_buf, cmd_text_buf, cmd_text.cursize);
+	std::memcpy(defer_text_buf, cmd_text_buf, cmd_text.cursize);
 	defer_text_buf[cmd_text.cursize] = 0;
 	cmd_text.cursize = 0;
 }
@@ -158,7 +167,7 @@ Cbuf_InsertFromDefer
 */
 void Cbuf_InsertFromDefer (void)
 {
-	Cbuf_InsertText (defer_text_buf);
+	Cbuf_InsertText ( defer_text_buf );
 	defer_text_buf[0] = 0;
 }
 
@@ -217,7 +226,7 @@ void Cbuf_Execute (void)
 		}
 			
 				
-		memcpy (line, text, i);
+		std::memcpy (line, text, i);
 		line[i] = 0;
 		
 // delete the text from the command buffer and move remaining commands down
@@ -268,7 +277,7 @@ void Cbuf_AddEarlyCommands (bool clear)
 	for (i=0 ; i<COM_Argc() ; i++)
 	{
 		s = COM_Argv(i);
-		if (strcmp (s, "+set"))
+		if (std::strcmp (s, "+set"))
 			continue;
 		Cbuf_AddText (va("set %s %s\n", COM_Argv(i+1), COM_Argv(i+2)));
 		if (clear)
@@ -306,22 +315,22 @@ bool Cbuf_AddLateCommands (void)
 	argc = COM_Argc();
 	for (i=1 ; i<argc ; i++)
 	{
-		s += strlen (COM_Argv(i)) + 1;
+		s += std::strlen (COM_Argv(i)) + 1;
 	}
 	if (!s)
 		return false;
 		
-	text = Z_Malloc (s+1);
+	text =  static_cast<char*>( Z_Malloc (s+1) );
 	text[0] = 0;
 	for (i=1 ; i<argc ; i++)
 	{
-		strcat (text,COM_Argv(i));
+		std::strcat (text,COM_Argv(i));
 		if (i != argc-1)
-			strcat (text, " ");
+			std::strcat (text, " ");
 	}
 	
 // pull out the commands
-	build = Z_Malloc (s+1);
+	build = static_cast<char*>( Z_Malloc (s+1) );
 	build[0] = 0;
 	
 	for (i=0 ; i<s-1 ; i++)
@@ -388,8 +397,8 @@ void Cmd_Exec_f (void)
 	Com_Printf ("execing %s\n",Cmd_Argv(1));
 	
 	// the file doesn't have a trailing 0, so we need to copy it off
-	f2 = Z_Malloc(len+1);
-	memcpy (f2, f, len);
+	f2 = static_cast<char*>( Z_Malloc( len + 1 ) );
+	std::memcpy (f2, f, len);
 	f2[len] = 0;
 
 	Cbuf_InsertText (f2);
@@ -438,7 +447,7 @@ void Cmd_Alias_f (void)
 	}
 
 	s = Cmd_Argv(1);
-	if (strlen(s) >= MAX_ALIAS_NAME)
+	if (std::strlen(s) >= MAX_ALIAS_NAME)
 	{
 		Com_Printf ("Alias name is too long\n");
 		return;
@@ -447,7 +456,7 @@ void Cmd_Alias_f (void)
 	// if the alias already exists, reuse it
 	for (a = cmd_alias ; a ; a=a->next)
 	{
-		if (!strcmp(s, a->name))
+		if (!std::strcmp(s, a->name))
 		{
 			Z_Free (a->value);
 			break;
@@ -456,11 +465,11 @@ void Cmd_Alias_f (void)
 
 	if (!a)
 	{
-		a = Z_Malloc (sizeof(cmdalias_t));
+		a = static_cast<cmdalias_t*>( Z_Malloc (sizeof(cmdalias_t)) );
 		a->next = cmd_alias;
 		cmd_alias = a;
 	}
-	strcpy (a->name, s);	
+	std::strcpy (a->name, s);	
 
 // copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
@@ -487,7 +496,7 @@ void Cmd_Alias_f (void)
 typedef struct cmd_function_s
 {
 	struct cmd_function_s	*next;
-	char					*name;
+	const char				*name;
 	xcommand_t				function;
 } cmd_function_t;
 
@@ -539,19 +548,19 @@ char		*Cmd_Args (void)
 Cmd_MacroExpandString
 ======================
 */
-char *Cmd_MacroExpandString (char *text)
+char *Cmd_MacroExpandString ( const char *text )
 {
 	int		i, j, count, len;
 	bool	inquote;
-	char	*scan;
+	char	*scan = nullptr;
 	static	char	expanded[MAX_STRING_CHARS];
 	char	temporary[MAX_STRING_CHARS];
-	char	*token, *start;
+	const char	*token, *start;
 
 	inquote = false;
-	scan = text;
+	scan = const_cast<char*>( text );
 
-	len = strlen (scan);
+	len = std::strlen (scan);
 	if (len >= MAX_STRING_CHARS)
 	{
 		Com_Printf ("Line exceeded %i chars, discarded.\n", MAX_STRING_CHARS);
@@ -576,26 +585,26 @@ char *Cmd_MacroExpandString (char *text)
 	
 		token = Cvar_VariableString (token);
 
-		j = strlen(token);
+		j = std::strlen( token );
 		len += j;
 		if (len >= MAX_STRING_CHARS)
 		{
 			Com_Printf ("Expanded line exceeded %i chars, discarded.\n", MAX_STRING_CHARS);
-			return NULL;
+			return nullptr;
 		}
 
-		strncpy (temporary, scan, i);
-		strcpy (temporary+i, token);
-		strcpy (temporary+i+j, start);
+		std::strncpy (temporary, scan, i);
+		std::strcpy (temporary+i, token);
+		std::strcpy (temporary+i+j, start);
 
-		strcpy (expanded, temporary);
+		std::strcpy (expanded, temporary);
 		scan = expanded;
 		i--;
 
 		if (++count == 100)
 		{
 			Com_Printf ("Macro expansion loop, discarded.\n");
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -620,7 +629,7 @@ $Cvars will be expanded unless they are in a quoted token
 void Cmd_TokenizeString ( const char *text, bool macroExpand )
 {
 	int		i;
-	char	*com_token;
+	const char	*com_token;
 
 // clear the args from the last string
 	for (i=0 ; i<cmd_argc ; i++)
@@ -631,7 +640,7 @@ void Cmd_TokenizeString ( const char *text, bool macroExpand )
 	
 	// macro expand the text
 	if (macroExpand)
-		text = Cmd_MacroExpandString (text);
+		text = Cmd_MacroExpandString ( text );
 	if (!text)
 		return;
 
@@ -657,10 +666,10 @@ void Cmd_TokenizeString ( const char *text, bool macroExpand )
 		{
 			int		l;
 
-			strcpy (cmd_args, text);
+			std::strcpy (cmd_args, text);
 
 			// strip off any trailing whitespace
-			l = strlen(cmd_args) - 1;
+			l = std::strlen(cmd_args) - 1;
 			for ( ; l >= 0 ; l--)
 				if (cmd_args[l] <= ' ')
 					cmd_args[l] = 0;
@@ -674,8 +683,8 @@ void Cmd_TokenizeString ( const char *text, bool macroExpand )
 
 		if (cmd_argc < MAX_STRING_TOKENS)
 		{
-			cmd_argv[cmd_argc] = Z_Malloc (strlen(com_token)+1);
-			strcpy (cmd_argv[cmd_argc], com_token);
+			cmd_argv[cmd_argc] = static_cast<char*>( Z_Malloc ( std::strlen( com_token ) + 1 ) );
+			std::strcpy (cmd_argv[cmd_argc], com_token);
 			cmd_argc++;
 		}
 	}
@@ -702,14 +711,14 @@ void	Cmd_AddCommand ( const char *cmd_name, xcommand_t function)
 // fail if the command already exists
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!strcmp (cmd_name, cmd->name))
+		if (!std::strcmp (cmd_name, cmd->name))
 		{
 			Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
 			return;
 		}
 	}
 
-	cmd = Z_Malloc (sizeof(cmd_function_t));
+	cmd = static_cast<cmd_function_t*>( Z_Malloc (sizeof(cmd_function_t)) );
 	cmd->name = cmd_name;
 	cmd->function = function;
 	cmd->next = cmd_functions;
@@ -734,7 +743,7 @@ void	Cmd_RemoveCommand ( const char *cmd_name)
 			Com_Printf ("Cmd_RemoveCommand: %s not added\n", cmd_name);
 			return;
 		}
-		if (!strcmp (cmd_name, cmd->name))
+		if (!std::strcmp (cmd_name, cmd->name))
 		{
 			*back = cmd->next;
 			Z_Free (cmd);
@@ -755,7 +764,7 @@ bool	Cmd_Exists (const char *cmd_name)
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
 	{
-		if (!strcmp (cmd_name,cmd->name))
+		if (!std::strcmp (cmd_name,cmd->name))
 			return true;
 	}
 
@@ -775,17 +784,17 @@ const char *Cmd_CompleteCommand ( const char *partial)
 	int				len;
 	cmdalias_t		*a;
 	
-	len = strlen(partial);
+	len = std::strlen(partial);
 	
 	if (!len)
 		return NULL;
 		
 // check for exact match
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next)
-		if (!strcmp (partial,cmd->name))
+		if (!std::strcmp (partial,cmd->name))
 			return cmd->name;
 	for (a=cmd_alias ; a ; a=a->next)
-		if (!strcmp (partial, a->name))
+		if (!std::strcmp (partial, a->name))
 			return a->name;
 
 // check for partial match

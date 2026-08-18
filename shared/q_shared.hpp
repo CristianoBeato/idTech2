@@ -101,9 +101,15 @@ inline constexpr uint32_t PRINT_MEDIUM		= 1;		// death messages
 inline constexpr uint32_t PRINT_HIGH		= 2;		// critical messages
 inline constexpr uint32_t PRINT_CHAT		= 3;		// chat messages
 
+#if 0
 inline constexpr uint32_t ERR_FATAL 		= 0;		// exit the entire game with a popup window
 inline constexpr uint32_t ERR_DROP			= 1;		// print to console and disconnect from game
 inline constexpr uint32_t ERR_DISCONNECT	= 2;		// don't kill server
+#else
+#define ERR_FATAL 0		// exit the entire game with a popup window
+#define ERR_DROP 1		// print to console and disconnect from game
+#define ERR_DISCONNECT 2		// don't kill server
+#endif
 
 inline constexpr uint32_t PRINT_ALL			= 0;
 inline constexpr uint32_t PRINT_DEVELOPER	= 1;		// only print when "developer 1"

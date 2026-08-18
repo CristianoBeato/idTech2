@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "qcommon.h"
+#include "qcommon.hpp"
 
 
 
@@ -1100,13 +1100,16 @@ void PM_SnapPosition (void)
 		if (pm->s.origin[i]*0.125 == pml.origin[i])
 			sign[i] = 0;
 	}
-	VectorCopy (pm->s.origin, base);
+
+	std::memcpy( base, pm->s.origin, sizeof(short) * 3 ); // VectorCopy (pm->s.origin, base);
 
 	// try all combinations
 	for (j=0 ; j<8 ; j++)
 	{
 		bits = jitterbits[j];
-		VectorCopy (base, pm->s.origin);
+		
+		std::memcpy( pm->s.origin, base, sizeof(short) * 3 ); // VectorCopy (base, pm->s.origin );
+
 		for (i=0 ; i<3 ; i++)
 			if (bits & (1<<i) )
 				pm->s.origin[i] += sign[i];
@@ -1116,7 +1119,8 @@ void PM_SnapPosition (void)
 	}
 
 	// go back to the last position
-	VectorCopy (pml.previous_origin, pm->s.origin);
+	std::memcpy( pm->s.origin, pml.previous_origin, sizeof(short) * 3 ); // VectorCopy (pml.previous_origin, pm->s.origin);
+
 //	Com_DPrintf ("using previous_origin\n");
 }
 
@@ -1171,19 +1175,29 @@ void PM_InitialSnapPosition(void)
 	short      base[3];
 	static int offset[3] = { 0, -1, 1 };
 
-	VectorCopy (pm->s.origin, base);
+	std::memcpy( base, pm->s.origin, sizeof( short ) * 3 ); // VectorCopy (pm->s.origin, base);
 
-	for ( z = 0; z < 3; z++ ) {
+	for ( z = 0; z < 3; z++ ) 
+	{
 		pm->s.origin[2] = base[2] + offset[ z ];
-		for ( y = 0; y < 3; y++ ) {
+		for ( y = 0; y < 3; y++ ) 
+		{
 			pm->s.origin[1] = base[1] + offset[ y ];
-			for ( x = 0; x < 3; x++ ) {
+			for ( x = 0; x < 3; x++ ) 
+			{
 				pm->s.origin[0] = base[0] + offset[ x ];
-				if (PM_GoodPosition ()) {
+				if (PM_GoodPosition ()) 
+				{
 					pml.origin[0] = pm->s.origin[0]*0.125;
 					pml.origin[1] = pm->s.origin[1]*0.125;
 					pml.origin[2] = pm->s.origin[2]*0.125;
+
+#if 0
 					VectorCopy (pm->s.origin, pml.previous_origin);
+#else
+					std::memcpy( pml.previous_origin, pm->s.origin, sizeof( short ) * 3 );
+#endif
+
 					return;
 				}
 			}
@@ -1227,7 +1241,8 @@ void PM_ClampAngles (void)
 		else if (pm->viewangles[PITCH] < 271 && pm->viewangles[PITCH] >= 180)
 			pm->viewangles[PITCH] = 271;
 	}
-	AngleVectors (pm->viewangles, pml.forward, pml.right, pml.up);
+
+	AngleVectors (pm->viewangles, &pml.forward, &pml.right, &pml.up );
 }
 
 /*
@@ -1262,7 +1277,8 @@ void Pmove (pmove_t *pmove)
 	pml.velocity[2] = pm->s.velocity[2]*0.125;
 
 	// save old org in case we get stuck
-	VectorCopy (pm->s.origin, pml.previous_origin);
+	
+	std:memcpy( pml.previous_origin, pm->s.origin, sizeof( short ) * 3 ); // VectorCopy (pm->s.origin, pml.previous_origin);
 
 	pml.frametime = pm->cmd.msec * 0.001;
 
@@ -1346,7 +1362,7 @@ void Pmove (pmove_t *pmove)
 				angles[PITCH] = angles[PITCH] - 360;
 			angles[PITCH] /= 3;
 
-			AngleVectors (angles, pml.forward, pml.right, pml.up);
+			AngleVectors (angles, &pml.forward, &pml.right, &pml.up );
 
 			PM_AirMove ();
 		}
