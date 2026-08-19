@@ -21,6 +21,110 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __COMAND_LINE_HPP__
 #define __COMAND_LINE_HPP__
 
+
+/*
+==============================================================
+
+CMD
+
+Command text buffering and command execution
+
+==============================================================
+*/
+
+inline constexpr uint32_t MAX_ALIAS_NAME = 32;
+inline constexpr uint32_t CMD_BUFF_LEN = 8192;
+
+/*
+
+Any number of commands can be added in a frame, from several different sources.
+Most commands come from either keybindings or console line input, but remote
+servers can also send across commands and entire text files can be execed.
+
+The + command line options are also added to the command buffer.
+
+The game starts with a Cbuf_AddText ("exec quake.rc\n"); Cbuf_Execute ();
+
+*/
+
+/*
+void Cbuf_AddText ( const char *text);
+// as new commands are generated from the console or keybindings,
+// the text is added to the end of the command buffer.
+
+void Cbuf_InsertText ( const char *text);
+// when a command wants to issue other commands immediately, the text is
+// inserted at the beginning of the buffer, before any remaining unexecuted
+// commands.
+
+void Cbuf_ExecuteText (int exec_when, const char *text);
+// this can be used in place of either Cbuf_AddText or Cbuf_InsertText
+
+void Cbuf_AddEarlyCommands ( const bool clear);
+// adds all the +set commands from the command line
+
+bool Cbuf_AddLateCommands (void);
+// adds all the remaining + commands from the command line
+// Returns true if any late commands were added, which
+// will keep the demoloop from immediately starting
+
+void Cbuf_Execute (void);
+// Pulls off \n terminated lines of text from the command buffer and sends
+// them through Cmd_ExecuteString.  Stops when the buffer is empty.
+// Normally called once per frame, but may be explicitly invoked.
+// Do not call inside a command function!
+
+void Cbuf_CopyToDefer (void);
+void Cbuf_InsertFromDefer (void);
+// These two functions are used to defer any pending commands while a map
+// is being loaded
+
+//===========================================================================
+
+
+extern void	Cmd_Init (void);
+
+/// @brief called by the init functions of other parts of the program to
+/// register commands and functions to call for them.
+/// The cmd_name is referenced later, so it should not be in temp memory
+/// if function is NULL, the command will be forwarded to the server
+/// as a clc_stringcmd instead of executed locally
+extern void	Cmd_AddCommand ( const char *cmd_name, xcommand_t function);
+
+void	Cmd_RemoveCommand ( const char *cmd_name);
+
+/// @brief used by the cvar code to check for cvar / command name overlap
+bool Cmd_Exists ( const char *cmd_name);
+
+/// @brief attempts to match a partial command for automatic command line completion
+/// returns NULL if nothing fits
+const char 	*Cmd_CompleteCommand ( const char *partial);
+
+int		    Cmd_Argc (void);
+/// @brief The functions that execute commands get their parameters with these
+/// functions. Cmd_Argv () will return an empty string, not a NULL
+/// if arg > argc, so string operations are always safe.
+const char	*Cmd_Argv ( int arg );
+const char	*Cmd_Args (void);
+
+/// @brief Takes a null terminated string.  Does not need to be /n terminated.
+/// breaks the string up into arg tokens.
+void	Cmd_TokenizeString ( const char *text, bool macroExpand);
+
+/// @brief Parses a single line of text into arguments and tries to execute it
+/// as if it was typed at the console
+void	Cmd_ExecuteString ( const char *text );
+*/
+
+/// Command execution takes a null terminated string, breaks it into tokens,
+/// then searches for a command or variable that matches the first token.
+typedef void (*xcommand_t) (void);
+
+/// @brief adds the current command line as a clc_stringcmd to the client message.
+/// things like godmode, noclip, etc, are commands directed to the server,
+/// so when they are typed in at the console, they will need to be forwarded.
+void	Cmd_ForwardToServer (void);
+
 class crCMD
 {
 public:
@@ -40,10 +144,17 @@ public:
     void InsertText ( const char *text);
 
     /// @brief this can be used in place of either Cbuf_AddText or Cbuf_InsertText
-    void ExecuteText ( int exec_when, const char *text );
+    void ExecuteText ( const uint32_t exec_when, const char *text );
+
+    /// @brief called by the init functions of other parts of the program to
+    /// register commands and functions to call for them.
+    /// The cmd_name is referenced later, so it should not be in temp memory
+    /// if function is NULL, the command will be forwarded to the server
+    /// as a clc_stringcmd instead of executed locally
+    void    AddCommand ( const char *cmd_name, xcommand_t function);
 
     /// @brief adds all the +set commands from the command line
-    void AddEarlyCommands (bool clear);
+    void AddEarlyCommands ( const bool clear );
 
     /// @brief adds all the remaining + commands from the command line
     /// Returns true if any late commands were added, which
@@ -58,13 +169,81 @@ public:
 
     /// These two functions are used to defer any pending commands while a map
     /// is being loaded
-    void Cbuf_CopyToDefer (void);
-    void Cbuf_InsertFromDefer (void);
+    void CopyToDefer (void);
+    void InsertFromDefer (void);
+
+    /// @brief The functions that execute commands get their parameters with these
+    /// functions. Cmd_Argv () will return an empty string, not a NULL
+    /// if arg > argc, so string operations are always safe.
+    int		    Argc (void) const;
+    const char* Argv ( const int arg ) const;
+    const char* Args ( void ) const;
 
 private:
+    typedef struct cmd_function_s
+    {
+	    struct cmd_function_s	*next;
+	    const char				*name;
+	    xcommand_t				function;
+    } cmd_function_t;
 
+    typedef struct cmdalias_s
+    {
+	    struct cmdalias_s	*next;
+	    char	name[MAX_ALIAS_NAME];
+	    char	*value;
+    } cmdalias_t;
+
+    int             m_argc;
+    int             m_aliasCount;		// for detecting runaway loops
+    char		    m_args[MAX_STRING_CHARS];
+    char	        m_expanded[MAX_STRING_CHARS];
+    char*           m_argv[MAX_STRING_TOKENS];
+    sizebuf_t	    m_text;
+    cmdalias_t*     m_alias;
+    byte		    m_textBuf[CMD_BUFF_LEN];
+    byte		    m_deferTextBuf[CMD_BUFF_LEN];
+
+	
+    cmd_function_t* m_functions;    // possible commands to execute
+
+    inline void             SetAlias( cmdalias_t* alias ) { m_alias = alias; }
+    inline cmdalias_t*      Alias( void ) const { return m_alias; }
+    inline cmd_function_t*  Functions( void ) const { return m_functions; }
+    
+    const char* MacroExpandString ( const char *text );
+
+    /// @brief Takes a null terminated string.  Does not need to be /n terminated.
+    /// breaks the string up into arg tokens.
+    void    TokenizeString ( const char *text, const bool macroExpand );
+
+    
+
+    void	RemoveCommand ( const char *cmd_name);
+
+    /// @brief used by the cvar code to check for cvar / command name overlap
+    bool Exists ( const char *cmd_name) const;
+
+    /// @brief attempts to match a partial command for automatic command line completion
+    /// returns NULL if nothing fits
+    const char 	*CompleteCommand ( const char *partial );
+
+    /// @brief Parses a single line of text into arguments and tries to execute it
+    /// as if it was typed at the console
+    void    ExecuteString ( const char *text );
+
+    /// @brief adds the current command line as a clc_stringcmd to the client message.
+    /// things like godmode, noclip, etc, are commands directed to the server,
+    /// so when they are typed in at the console, they will need to be forwarded.
+    // void ForwardToServer (void);
+
+    static void Alias_f( void );
+    static void List_f( void );
+    static void Exec_f( void );
+    static void Echo_f( void );
+    static void Wait_f( void );
 };
 
-
+extern crCMD* gCmd;
 
 #endif //!__COMAND_LINE_HPP__
