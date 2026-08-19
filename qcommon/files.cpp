@@ -479,7 +479,7 @@ pack_t *FS_LoadPackFile (char *packfile)
 	if (numpackfiles > MAX_FILES_IN_PACK)
 		Com_Error (ERR_FATAL, "%s has %i files", packfile, numpackfiles);
 
-	newfiles = Z_Malloc (numpackfiles * sizeof(packfile_t));
+	newfiles = static_cast<packfile_t*>( Z_Malloc (numpackfiles * sizeof(packfile_t)) );
 
 	fseek (packhandle, header.dirofs, SEEK_SET);
 	fread (info, 1, header.dirlen, packhandle);
@@ -499,7 +499,7 @@ pack_t *FS_LoadPackFile (char *packfile)
 		newfiles[i].filelen = LittleLong(info[i].filelen);
 	}
 
-	pack = static_cast<pack_t>(Z_Malloc (sizeof (pack_t)));
+	pack = static_cast<pack_t*>(Z_Malloc (sizeof (pack_t)));
 	std::strcpy (pack->filename, packfile);
 	pack->handle = packhandle;
 	pack->numfiles = numpackfiles;
@@ -579,7 +579,7 @@ void FS_ExecAutoexec (void)
 	else
 		Com_sprintf(name, sizeof(name), "%s/%s/autoexec.cfg", fs_basedir->string, BASEDIRNAME); 
 	if (Sys_FindFirst(name, 0, SFF_SUBDIR | SFF_HIDDEN | SFF_SYSTEM))
-		Cbuf_AddText ("exec autoexec.cfg\n");
+		gCmd->AddText ("exec autoexec.cfg\n");
 	Sys_FindClose();
 }
 
@@ -622,7 +622,7 @@ void FS_SetGamedir (char *dir)
 	// flush all data, so it will be forced to reload
 	//
 	if (dedicated && !dedicated->value)
-		Cbuf_AddText ("vid_restart\nsnd_restart\n");
+		gCmd->AddText ("vid_restart\nsnd_restart\n");
 
 	Com_sprintf (fs_gamedir, sizeof(fs_gamedir), "%s/%s", fs_basedir->string, dir);
 
@@ -652,7 +652,7 @@ void FS_Link_f (void)
 {
 	filelink_t	*l, **prev;
 
-	if (Cmd_Argc() != 3)
+	if (gCmd->Argc() != 3)
 	{
 		Com_Printf ("USAGE: link <from> <to>\n");
 		return;
@@ -662,17 +662,17 @@ void FS_Link_f (void)
 	prev = &fs_links;
 	for (l=fs_links ; l ; l=l->next)
 	{
-		if (!std::strcmp (l->from, Cmd_Argv(1)))
+		if (!std::strcmp (l->from, gCmd->Argv(1)))
 		{
 			Z_Free (l->to);
-			if (!std::strlen(Cmd_Argv(2)))
+			if (!std::strlen( gCmd->Argv(2) ) )
 			{	// delete it
 				*prev = l->next;
 				Z_Free (l->from);
 				Z_Free (l);
 				return;
 			}
-			l->to = CopyString (Cmd_Argv(2));
+			l->to = CopyString ( gCmd->Argv(2) );
 			return;
 		}
 		prev = &l->next;
@@ -682,9 +682,9 @@ void FS_Link_f (void)
 	l = static_cast<filelink_t*>( Z_Malloc(sizeof(*l)) );
 	l->next = fs_links;
 	fs_links = l;
-	l->from = CopyString(Cmd_Argv(1));
+	l->from = CopyString( gCmd->Argv(1));
 	l->fromlength = std::strlen(l->from);
-	l->to = CopyString(Cmd_Argv(2));
+	l->to = CopyString(gCmd->Argv(2));
 }
 
 /*
@@ -742,9 +742,9 @@ void FS_Dir_f( void )
 	char	wildcard[1024] = "*.*";
 	int		ndirs;
 
-	if ( Cmd_Argc() != 1 )
+	if ( gCmd->Argc() != 1 )
 	{
-		std::strcpy( wildcard, Cmd_Argv( 1 ) );
+		std::strcpy( wildcard, gCmd->Argv( 1 ) );
 	}
 
 	while ( ( path = FS_NextPath( path ) ) != NULL )
@@ -844,9 +844,9 @@ FS_InitFilesystem
 */
 void FS_InitFilesystem (void)
 {
-	Cmd_AddCommand ("path", FS_Path_f);
-	Cmd_AddCommand ("link", FS_Link_f);
-	Cmd_AddCommand ("dir", FS_Dir_f );
+	gCmd->AddCommand ("path", FS_Path_f);
+	gCmd->AddCommand ("link", FS_Link_f);
+	gCmd->AddCommand ("dir", FS_Dir_f );
 
 	//
 	// basedir <path>

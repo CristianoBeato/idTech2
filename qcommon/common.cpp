@@ -67,7 +67,7 @@ static char	*rd_buffer;
 static int	rd_buffersize;
 static void	(*rd_flush)(int target, char *buffer);
 
-void Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush))
+void Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush)(int, char* ))
 {
 	if (!target || !buffer || !buffersize || !flush)
 		return;
@@ -84,9 +84,9 @@ void Com_EndRedirect (void)
 	rd_flush(rd_target, rd_buffer);
 
 	rd_target = 0;
-	rd_buffer = NULL;
+	rd_buffer = nullptr;
 	rd_buffersize = 0;
-	rd_flush = NULL;
+	rd_flush = nullptr;
 }
 
 /*
@@ -279,27 +279,27 @@ vec3_t	bytedirs[NUMVERTEXNORMALS] =
 
 void MSG_WriteChar (sizebuf_t *sb, int c)
 {
-	byte	*buf;
+	byte	*buf = nullptr;
 	
 #ifdef PARANOID
 	if (c < -128 || c > 127)
 		Com_Error (ERR_FATAL, "MSG_WriteChar: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 1);
+	buf = static_cast<byte*>( SZ_GetSpace (sb, 1) );
 	buf[0] = c;
 }
 
 void MSG_WriteByte (sizebuf_t *sb, int c)
 {
-	byte	*buf;
+	byte	*buf = nullptr;
 	
 #ifdef PARANOID
 	if (c < 0 || c > 255)
 		Com_Error (ERR_FATAL, "MSG_WriteByte: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 1);
+	buf = static_cast<byte*>( SZ_GetSpace (sb, 1) );
 	buf[0] = c;
 }
 
@@ -346,7 +346,7 @@ void MSG_WriteFloat (sizebuf_t *sb, float f)
 void MSG_WriteString (sizebuf_t *sb, char *s)
 {
 	if (!s)
-		SZ_Write (sb, "", 1);
+		SZ_Write (sb, (void*)"", 1);
 	else
 		SZ_Write (sb, s, strlen(s)+1);
 }
@@ -872,20 +872,20 @@ void MSG_ReadData (sizebuf_t *msg_read, void *data, int len)
 
 //===========================================================================
 
-void SZ_Init (sizebuf_t *buf, byte *data, int length)
+void SZ_Init ( sizebuf_t *buf, byte *data, size_t length )
 {
-	std::memset (buf, 0, sizeof(*buf));
+	std::memset ( buf, 0, sizeof(sizebuf_t) );
 	buf->data = data;
 	buf->maxsize = length;
 }
 
-void SZ_Clear (sizebuf_t *buf)
+void SZ_Clear ( sizebuf_t *buf )
 {
 	buf->cursize = 0;
 	buf->overflowed = false;
 }
 
-void *SZ_GetSpace (sizebuf_t *buf, int length)
+void *SZ_GetSpace ( sizebuf_t *buf, size_t length)
 {
 	void	*data;
 	
@@ -908,9 +908,9 @@ void *SZ_GetSpace (sizebuf_t *buf, int length)
 	return data;
 }
 
-void SZ_Write (sizebuf_t *buf, void *data, int length)
+void SZ_Write ( sizebuf_t *buf , void *data, size_t length )
 {
-	memcpy (SZ_GetSpace(buf,length),data,length);		
+	std::memcpy ( SZ_GetSpace( buf, length ), data, length );
 }
 
 void SZ_Print (sizebuf_t *buf, char *data)
@@ -960,7 +960,7 @@ int COM_Argc (void)
 	return com_argc;
 }
 
-char *COM_Argv (int arg)
+const char *COM_Argv (int arg)
 {
 	if (arg < 0 || arg >= com_argc || !com_argv[arg])
 		return "";
@@ -1003,11 +1003,11 @@ COM_AddParm
 Adds the given string at the end of the current argument list
 ================
 */
-void COM_AddParm (char *parm)
+void COM_AddParm ( const char *parm)
 {
 	if (com_argc == MAX_NUM_ARGVS)
 		Com_Error (ERR_FATAL, "COM_AddParm: MAX_NUM)ARGS");
-	com_argv[com_argc++] = parm;
+	com_argv[com_argc++] = const_cast<char*>( parm );
 }
 
 
@@ -1161,13 +1161,13 @@ Z_TagMalloc
 */
 void *Z_TagMalloc ( size_t size, int tag )
 {
-	zhead_t	*z;
+	zhead_t	*z = nullptr;
 	
 	size = size + sizeof(zhead_t);
-	z = malloc(size);
+	z = static_cast<zhead_t*>( std::malloc(size) );
 	if (!z)
 		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes",size);
-	memset (z, 0, size);
+	std::memset (z, 0, size);
 	z_count++;
 	z_bytes += size;
 	z->magic = Z_MAGIC;
@@ -1385,7 +1385,7 @@ test error shutdown procedures
 */
 void Com_Error_f (void)
 {
-	Com_Error (ERR_FATAL, "%s", Cmd_Argv(1));
+	Com_Error (ERR_FATAL, "%s", gCmd->Argv(1));
 }
 
 
@@ -1408,10 +1408,16 @@ void Qcommon_Init (int argc, char **argv)
 	COM_InitArgv (argc, argv);
 
 	Swap_Init ();
-	Cbuf_Init ();
 
-	Cmd_Init ();
-	Cvar_Init ();
+	/// BEATO Begin: 
+	
+	// initialize command console 
+	// Cbuf_Init ();
+	// Cmd_Init ();
+	gCmd->Init();
+
+	// initialize console variables
+	gCvar->Init(); // Cvar_Init ();
 
 	Key_Init ();
 
@@ -1419,22 +1425,22 @@ void Qcommon_Init (int argc, char **argv)
 	// a basedir or cddir needs to be set before execing
 	// config files, but we want other parms to override
 	// the settings of the config files
-	Cbuf_AddEarlyCommands (false);
-	Cbuf_Execute ();
+	gCmd->AddEarlyCommands (false);
+	gCmd->Execute ();
 
 	FS_InitFilesystem ();
 
-	Cbuf_AddText ("exec default.cfg\n");
-	Cbuf_AddText ("exec config.cfg\n");
+	gCmd->AddText ("exec default.cfg\n");
+	gCmd->AddText ("exec config.cfg\n");
 
-	Cbuf_AddEarlyCommands (true);
-	Cbuf_Execute ();
+	gCmd->AddEarlyCommands (true);
+	gCmd->Execute ();
 
 	//
 	// init commands and vars
 	//
-    Cmd_AddCommand ("z_stats", Z_Stats_f);
-    Cmd_AddCommand ("error", Com_Error_f);
+    gCmd->AddCommand ("z_stats", Z_Stats_f);
+    gCmd->AddCommand ("error", Com_Error_f);
 
 	host_speeds = Cvar_Get ("host_speeds", "0", 0);
 	log_stats = Cvar_Get ("log_stats", "0", 0);
@@ -1454,7 +1460,7 @@ void Qcommon_Init (int argc, char **argv)
 
 
 	if (dedicated->value)
-		Cmd_AddCommand ("quit", Com_Quit);
+		gCmd->AddCommand ("quit", Com_Quit);
 
 	Sys_Init ();
 
@@ -1465,13 +1471,13 @@ void Qcommon_Init (int argc, char **argv)
 	CL_Init ();
 
 	// add + commands from command line
-	if (!Cbuf_AddLateCommands ())
+	if (!gCmd->AddLateCommands ())
 	{	// if the user didn't give any commands, run default action
 		if (!dedicated->value)
-			Cbuf_AddText ("d1\n");
+			gCmd->AddText ("d1\n");
 		else
-			Cbuf_AddText ("dedicated_start\n");
-		Cbuf_Execute ();
+			gCmd->AddText ("dedicated_start\n");
+		gCmd->Execute ();
 	}
 	else
 	{	// the user asked for something explicit
@@ -1489,7 +1495,7 @@ Qcommon_Frame
 */
 void Qcommon_Frame ( uint64_t msec )
 {
-	char	*s;
+	const char	*s = nullptr;
 	int		time_before, time_between, time_after;
 
 	if (setjmp (abortframe) )
@@ -1543,9 +1549,10 @@ void Qcommon_Frame ( uint64_t msec )
 	{
 		s = Sys_ConsoleInput ();
 		if (s)
-			Cbuf_AddText (va("%s\n",s));
+			gCmd->AddText (va("%s\n",s));
 	} while (s);
-	Cbuf_Execute ();
+
+	gCmd->Execute ();
 
 	if (host_speeds->value)
 		time_before = Sys_Milliseconds ();

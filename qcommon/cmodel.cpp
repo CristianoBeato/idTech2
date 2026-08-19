@@ -213,7 +213,7 @@ void CMod_LoadNodes (lump_t *l)
 	cnode_t		*out;
 	int			i, j, count;
 	
-	in = static_cast<dnode_t*>( cmod_base + l->fileofs );
+	in = reinterpret_cast<dnode_t*>( cmod_base + l->fileofs );
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -251,7 +251,7 @@ void CMod_LoadBrushes (lump_t *l)
 	cbrush_t	*out;
 	int			i, count;
 	
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<dbrush_t*>(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -284,7 +284,7 @@ void CMod_LoadLeafs (lump_t *l)
 	dleaf_t 	*in;
 	int			count;
 	
-	in = static_cast<dleaf_t*>( cmod_base + l->fileofs );
+	in = reinterpret_cast<dleaf_t*>( cmod_base + l->fileofs );
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -340,7 +340,7 @@ void CMod_LoadPlanes (lump_t *l)
 	int			count;
 	int			bits;
 	
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<dplane_t*>(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -382,7 +382,7 @@ void CMod_LoadLeafBrushes (lump_t *l)
 	unsigned short 	*in;
 	int			count;
 	
-	in = (void *)(cmod_base + l->fileofs);
+	in = reinterpret_cast<unsigned short*>(cmod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "MOD_LoadBmodel: funny lump size");
 	count = l->filelen / sizeof(*in);
@@ -841,7 +841,7 @@ Fills in a list of all the leafs touched
 */
 int		leaf_count, leaf_maxcount;
 int		*leaf_list;
-float	*leaf_mins, *leaf_maxs;
+vec3_t	leaf_mins, leaf_maxs;
 int		leaf_topnode;
 
 void CM_BoxLeafnums_r (int nodenum)

@@ -3,11 +3,13 @@
 ## qCommon.so
 set( COMMON_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/cmd.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmd.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cmodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/crc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/crc.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cvar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cvar.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/files.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/md4.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/net_chan.cpp
