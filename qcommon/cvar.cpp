@@ -20,19 +20,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cvar.c -- dynamic variable tracking
 
 #include "qcommon.hpp"
+#include "cvar.hpp"
 
-cvar_t	*cvar_vars;
+/// @brief local cvar 
+static crCVAR lCvar = crCVAR();
+static crCVAR* gCvar = &lCvar;
+
+crCVAR::crCVAR( void )
+{
+}
+
+crCVAR::~crCVAR( void )
+{
+}
+
 
 /*
 ============
-Cvar_InfoValidate
+InfoValidate
 ============
 */
-static bool Cvar_InfoValidate ( const char *s)
+static bool InfoValidate ( const char *s)
 {
-	if ( std::strstr( s, "\\" ) )	return false;
-	if ( std::strstr( s, "\"" ) )	return false;
-	if ( std::strstr( s, ";" ) ) 	return false;
+	if ( std::strstr( s, "\\" ) )	
+		return false;
+	if ( std::strstr( s, "\"" ) )	
+		return false;
+	if ( std::strstr( s, ";" ) ) 	
+		return false;
 	return true;
 }
 
@@ -41,75 +56,80 @@ static bool Cvar_InfoValidate ( const char *s)
 Cvar_FindVar
 ============
 */
-static cvar_t *Cvar_FindVar ( const char *var_name )
+cvar_t* crCVAR::FindVar ( const char *var_name ) const
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
 	
-	for (var=cvar_vars ; var ; var=var->next)
+	for ( var = m_vars ; var ; var=var->next )
+	{
 		if (!std::strcmp (var_name, var->name))
 			return var;
-
-	return NULL;
+	}
+	
+	return nullptr;
 }
 
 /*
 ============
-Cvar_VariableValue
+ crCvar::VariableValue
 ============
 */
-float Cvar_VariableValue ( const char *var_name )
+float crCVAR::VariableValue ( const char *var_name ) const
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
 	
-	var = Cvar_FindVar (var_name);
+	var = FindVar (var_name);
 	if (!var)
 		return 0;
-	return atof (var->string);
+		
+	return std::atof( var->string );
 }
-
 
 /*
 ============
 Cvar_VariableString
 ============
 */
-const char *Cvar_VariableString ( const char *var_name )
+const char *crCVAR::VariableString ( const char *var_name ) const
 {
-	cvar_t *var;
+	cvar_t *var = nullptr;
 	
-	var = Cvar_FindVar (var_name);
+	var = FindVar (var_name);
 	if (!var)
 		return "";
+
 	return var->string;
 }
 
 
 /*
 ============
-Cvar_CompleteVariable
+CompleteVariable
 ============
 */
-const char *Cvar_CompleteVariable ( const char *partial )
+const char *crCVAR::CompleteVariable ( const char *partial ) const
 {
-	cvar_t		*cvar;
-	int			len;
+	size_t	len = 0;
+	cvar_t*	cvar = nullptr;
 	
-	len = strlen(partial);
+	len = std::strlen( partial );
 	
 	if (!len)
-		return NULL;
+		return nullptr;
 		
 	// check exact match
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!strcmp (partial,cvar->name))
+	for ( cvar = m_vars; cvar; cvar=cvar->next )
+	{
+		if (!std::strcmp (partial,cvar->name))
 			return cvar->name;
+	}
 
 	// check partial match
-	for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-		if (!strncmp (partial,cvar->name, len))
+	for ( cvar = m_vars ; cvar; cvar=cvar->next )
+		if (!std::strncmp (partial,cvar->name, len))
 			return cvar->name;
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -121,20 +141,20 @@ If the variable already exists, the value will not be set
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *Cvar_Get ( const char *var_name, const char *var_value, int flags)
+cvar_t *crCVAR::Get ( const char *var_name, const char *var_value, const uint32_t flags )
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
 	
 	if (flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
-		if (!Cvar_InfoValidate (var_name))
+		if ( !InfoValidate (var_name) )
 		{
 			Com_Printf("invalid info cvar name\n");
 			return nullptr;
 		}
 	}
 
-	var = Cvar_FindVar (var_name);
+	var = FindVar (var_name);
 	if (var)
 	{
 		var->flags |= flags;
@@ -146,22 +166,22 @@ cvar_t *Cvar_Get ( const char *var_name, const char *var_value, int flags)
 
 	if (flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
-		if (!Cvar_InfoValidate (var_value))
+		if (!InfoValidate (var_value))
 		{
 			Com_Printf("invalid info cvar value\n");
-			return NULL;
+			return nullptr;
 		}
 	}
 
-	var = Z_Malloc (sizeof(*var));
+	var = static_cast<cvar_t*>(Z_Malloc (sizeof(cvar_t)));
 	var->name = CopyString (var_name);
 	var->string = CopyString (var_value);
 	var->modified = true;
-	var->value = atof (var->string);
+	var->value = std::atof ( var->string );
 
 	// link the variable in
-	var->next = cvar_vars;
-	cvar_vars = var;
+	var->next = m_vars;
+	m_vars = var;
 
 	var->flags = flags;
 
@@ -170,22 +190,20 @@ cvar_t *Cvar_Get ( const char *var_name, const char *var_value, int flags)
 
 /*
 ============
-Cvar_Set2
+crCVAR::Set2
 ============
 */
-cvar_t *Cvar_Set2 ( const char *var_name, const char *value, bool force)
+cvar_t*	crCVAR::Set2( const char *var_name, const char *value, bool force)
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
 
-	var = Cvar_FindVar (var_name);
-	if (!var)
-	{	// create it
-		return Cvar_Get (var_name, value, 0);
-	}
+	var = FindVar (var_name);
+	if (!var) // create it
+		return Get (var_name, value, 0);
 
 	if (var->flags & (CVAR_USERINFO | CVAR_SERVERINFO))
 	{
-		if (!Cvar_InfoValidate (value))
+		if ( !InfoValidate (value) )
 		{
 			Com_Printf("invalid info cvar value\n");
 			return var;
@@ -204,13 +222,13 @@ cvar_t *Cvar_Set2 ( const char *var_name, const char *value, bool force)
 		{
 			if (var->latched_string)
 			{
-				if (strcmp(value, var->latched_string) == 0)
+				if ( std::strcmp( value, var->latched_string ) == 0)
 					return var;
 				Z_Free (var->latched_string);
 			}
 			else
 			{
-				if (strcmp(value, var->string) == 0)
+				if ( std::strcmp(value, var->string) == 0)
 					return var;
 			}
 
@@ -222,8 +240,8 @@ cvar_t *Cvar_Set2 ( const char *var_name, const char *value, bool force)
 			else
 			{
 				var->string = CopyString(value);
-				var->value = atof (var->string);
-				if (!strcmp(var->name, "game"))
+				var->value = std::atof (var->string);
+				if (!std::strcmp( var->name, "game") )
 				{
 					FS_SetGamedir (var->string);
 					FS_ExecAutoexec ();
@@ -237,11 +255,11 @@ cvar_t *Cvar_Set2 ( const char *var_name, const char *value, bool force)
 		if (var->latched_string)
 		{
 			Z_Free (var->latched_string);
-			var->latched_string = NULL;
+			var->latched_string = nullptr;
 		}
 	}
 
-	if (!strcmp(value, var->string))
+	if (!std::strcmp(value, var->string))
 		return var;		// not changed
 
 	var->modified = true;
@@ -252,45 +270,43 @@ cvar_t *Cvar_Set2 ( const char *var_name, const char *value, bool force)
 	Z_Free (var->string);	// free the old value string
 	
 	var->string = CopyString(value);
-	var->value = atof (var->string);
+	var->value = std::atof (var->string);
 
 	return var;
 }
 
 /*
 ============
-Cvar_ForceSet
+crCVAR::ForceSet
 ============
 */
-cvar_t *Cvar_ForceSet ( const char *var_name, const char *value )
+cvar_t *crCVAR::ForceSet ( const char *var_name, const char *value )
 {
-	return Cvar_Set2 (var_name, value, true);
+	return Set2 (var_name, value, true);
 }
 
 /*
 ============
-Cvar_Set
+crCVAR::Set
 ============
 */
-cvar_t *Cvar_Set ( const char *var_name, const char *value )
+cvar_t *crCVAR::Set ( const char *var_name, const char *value )
 {
-	return Cvar_Set2 (var_name, value, false);
+	return Set2 (var_name, value, false);
 }
 
 /*
 ============
-Cvar_FullSet
+crCvar::FullSet
 ============
 */
-cvar_t *Cvar_FullSet ( const char *var_name, const char *value, int flags )
+cvar_t *crCVAR::FullSet ( const char *var_name, const char *value, const uint32_t flags )
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
 	
-	var = Cvar_FindVar (var_name);
-	if (!var)
-	{	// create it
-		return Cvar_Get (var_name, value, flags);
-	}
+	var = FindVar (var_name);
+	if (!var) // create it
+		return Get (var_name, value, flags);
 
 	var->modified = true;
 
@@ -300,7 +316,7 @@ cvar_t *Cvar_FullSet ( const char *var_name, const char *value, int flags )
 	Z_Free (var->string);	// free the old value string
 	
 	var->string = CopyString(value);
-	var->value = atof (var->string);
+	var->value = std::atof (var->string);
 	var->flags = flags;
 
 	return var;
@@ -308,18 +324,19 @@ cvar_t *Cvar_FullSet ( const char *var_name, const char *value, int flags )
 
 /*
 ============
-Cvar_SetValue
+crCvar::SetValue
 ============
 */
-void Cvar_SetValue ( const char *var_name, float value )
+void crCVAR::SetValue ( const char *var_name, float value )
 {
-	char	val[32];
+	char	val[32]{0};
 
 	if (value == (int)value)
 		Com_sprintf (val, sizeof(val), "%i",(int)value);
 	else
 		Com_sprintf (val, sizeof(val), "%f",value);
-	Cvar_Set (var_name, val);
+
+	Set (var_name, val);
 }
 
 
@@ -330,19 +347,20 @@ Cvar_GetLatchedVars
 Any variables with latched values will now be updated
 ============
 */
-void Cvar_GetLatchedVars (void)
+void crCVAR::GetLatchedVars (void)
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
 
-	for (var = cvar_vars ; var ; var = var->next)
+	for (var = m_vars ; var ; var = var->next)
 	{
 		if (!var->latched_string)
 			continue;
+
 		Z_Free (var->string);
 		var->string = var->latched_string;
-		var->latched_string = NULL;
-		var->value = atof(var->string);
-		if (!strcmp(var->name, "game"))
+		var->latched_string = nullptr;
+		var->value = std::atof(var->string);
+		if ( !std::strcmp( var->name, "game" ) )
 		{
 			FS_SetGamedir (var->string);
 			FS_ExecAutoexec ();
@@ -357,26 +375,25 @@ Cvar_Command
 Handles variable inspection and changing from the console
 ============
 */
-bool Cvar_Command (void)
+bool crCVAR::Command (void)
 {
-	cvar_t			*v;
+	cvar_t			*v = nullptr;
 
 // check variables
-	v = Cvar_FindVar (Cmd_Argv(0));
+	v = FindVar (gCmd->Argv(0));
 	if (!v)
 		return false;
 		
 // perform a variable print or set
-	if (Cmd_Argc() == 1)
+	if (gCmd->Argc() == 1)
 	{
 		Com_Printf ("\"%s\" is \"%s\"\n", v->name, v->string);
 		return true;
 	}
 
-	Cvar_Set (v->name, Cmd_Argv(1));
+	Set (v->name, gCmd->Argv(1));
 	return true;
 }
-
 
 /*
 ============
@@ -385,12 +402,12 @@ Cvar_Set_f
 Allows setting and defining of arbitrary cvars from console
 ============
 */
-void Cvar_Set_f (void)
+void Set_f (void)
 {
-	int		c;
-	int		flags;
+	int		c = 0;
+	int		flags = 0;
 
-	c = Cmd_Argc();
+	c = gCmd->Argc();
 	if (c != 3 && c != 4)
 	{
 		Com_Printf ("usage: set <variable> <value> [u / s]\n");
@@ -399,19 +416,19 @@ void Cvar_Set_f (void)
 
 	if (c == 4)
 	{
-		if (!strcmp(Cmd_Argv(3), "u"))
+		if (!std::strcmp(gCmd->Argv(3), "u"))
 			flags = CVAR_USERINFO;
-		else if (!strcmp(Cmd_Argv(3), "s"))
+		else if (!std::strcmp(gCmd->Argv(3), "s"))
 			flags = CVAR_SERVERINFO;
 		else
 		{
 			Com_Printf ("flags can only be 'u' or 's'\n");
 			return;
 		}
-		Cvar_FullSet (Cmd_Argv(1), Cmd_Argv(2), flags);
+		Cvar_FullSet (gCmd->Argv(1), gCmd->Argv(2), flags);
 	}
 	else
-		Cvar_Set (Cmd_Argv(1), Cmd_Argv(2));
+		Cvar_Set (gCmd->Argv(1), gCmd->Argv(2));
 }
 
 
@@ -423,11 +440,11 @@ Appends lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 */
-void Cvar_WriteVariables (char *path)
+void Cvar_WriteVariables ( const char *path)
 {
-	cvar_t	*var;
+	cvar_t	*var = nullptr;
+	FILE	*f = nullptr;
 	char	buffer[1024];
-	FILE	*f;
 
 	f = fopen (path, "a");
 	for (var = cvar_vars ; var ; var = var->next)
@@ -449,10 +466,9 @@ Cvar_List_f
 */
 void Cvar_List_f (void)
 {
-	cvar_t	*var;
-	int		i;
+	int		i = 0;
+	cvar_t	*var = nullptr;
 
-	i = 0;
 	for (var = cvar_vars ; var ; var = var->next, i++)
 	{
 		if (var->flags & CVAR_ARCHIVE)
@@ -482,10 +498,10 @@ void Cvar_List_f (void)
 bool userinfo_modified;
 
 
-char	*Cvar_BitInfo (int bit)
+const char	*Cvar_BitInfo (int bit)
 {
-	static char	info[MAX_INFO_STRING];
-	cvar_t	*var;
+	static char	info[MAX_INFO_STRING]{0};
+	cvar_t	*var = nullptr;
 
 	info[0] = 0;
 
@@ -498,13 +514,13 @@ char	*Cvar_BitInfo (int bit)
 }
 
 // returns an info string containing all the CVAR_USERINFO cvars
-char	*Cvar_Userinfo (void)
+const char	*Cvar_Userinfo (void)
 {
 	return Cvar_BitInfo (CVAR_USERINFO);
 }
 
 // returns an info string containing all the CVAR_SERVERINFO cvars
-char	*Cvar_Serverinfo (void)
+const char	*Cvar_Serverinfo (void)
 {
 	return Cvar_BitInfo (CVAR_SERVERINFO);
 }
@@ -518,7 +534,6 @@ Reads in all archived cvars
 */
 void Cvar_Init (void)
 {
-	Cmd_AddCommand ("set", Cvar_Set_f);
-	Cmd_AddCommand ("cvarlist", Cvar_List_f);
-
+	gCmd->AddCommand ("set", Cvar_Set_f);
+	gCmd->AddCommand ("cvarlist", Cvar_List_f);
 }

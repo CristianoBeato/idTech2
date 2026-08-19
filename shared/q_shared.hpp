@@ -297,12 +297,15 @@ CVARS (console variables)
 #ifndef CVAR
 #define	CVAR
 
-#define	CVAR_ARCHIVE	1	// set to cause it to be saved to vars.rc
-#define	CVAR_USERINFO	2	// added to userinfo  when changed
-#define	CVAR_SERVERINFO	4	// added to serverinfo when changed
-#define	CVAR_NOSET		8	// don't allow change from console at all,
-							// but can be set from the command line
-#define	CVAR_LATCH		16	// save changes until server restart
+enum cvar_flags_e : uint32_t
+{
+	CVAR_ARCHIVE 	= 1 << 0,	// set to cause it to be saved to vars.rc
+	CVAR_USERINFO	= 1 << 1,	// added to userinfo  when changed
+	CVAR_SERVERINFO = 1 << 2,	// added to serverinfo when changed
+	CVAR_NOSET		= 1 << 3,	// don't allow change from console at all,
+								// but can be set from the command line
+	CVAR_LATCH		= 1 << 4	// save changes until server restart
+};
 
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s
@@ -310,7 +313,7 @@ typedef struct cvar_s
 	char		*name;
 	char		*string;
 	char		*latched_string;	// for CVAR_LATCH vars
-	int			flags;
+	uint32_t	flags;
 	bool		modified;	// set each time the cvar is changed
 	float		value;
 	struct cvar_s *next;
