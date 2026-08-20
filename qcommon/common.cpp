@@ -1442,21 +1442,21 @@ void Qcommon_Init (int argc, char **argv)
     gCmd->AddCommand ("z_stats", Z_Stats_f);
     gCmd->AddCommand ("error", Com_Error_f);
 
-	host_speeds = Cvar_Get ("host_speeds", "0", 0);
-	log_stats = Cvar_Get ("log_stats", "0", 0);
-	developer = Cvar_Get ("developer", "0", 0);
-	timescale = Cvar_Get ("timescale", "1", 0);
-	fixedtime = Cvar_Get ("fixedtime", "0", 0);
-	logfile_active = Cvar_Get ("logfile", "0", 0);
-	showtrace = Cvar_Get ("showtrace", "0", 0);
+	host_speeds = gCvar->Get ("host_speeds", "0", 0);
+	log_stats = gCvar->Get ("log_stats", "0", 0);
+	developer = gCvar->Get ("developer", "0", 0);
+	timescale = gCvar->Get ("timescale", "1", 0);
+	fixedtime = gCvar->Get ("fixedtime", "0", 0);
+	logfile_active = gCvar->Get ("logfile", "0", 0);
+	showtrace = gCvar->Get ("showtrace", "0", 0);
 #ifdef DEDICATED_ONLY
-	dedicated = Cvar_Get ("dedicated", "1", CVAR_NOSET);
+	dedicated = gCvar->Get ("dedicated", "1", CVAR_NOSET);
 #else
-	dedicated = Cvar_Get ("dedicated", "0", CVAR_NOSET);
+	dedicated = gCvar->Get ("dedicated", "0", CVAR_NOSET);
 #endif
 
 	s = va("%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING);
-	Cvar_Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
+	gCvar->Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
 
 
 	if (dedicated->value)

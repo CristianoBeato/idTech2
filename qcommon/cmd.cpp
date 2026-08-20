@@ -28,6 +28,9 @@ static const char*	cmd_null_string = "";
 static bool	cmd_wait = false;
 constexpr	uint32_t ALIAS_LOOP_COUNT = 16;
 
+static crCMD lCmd = crCMD();
+crCMD* gCmd;
+
 
 //=============================================================================
 
@@ -354,27 +357,27 @@ void crCMD::Exec_f (void)
 	char	*f, *f2;
 	int		len;
 
-	if ( gCmd->Argc() != 2)
+	if ( lCmd.Argc() != 2)
 	{
 		Com_Printf ("exec <filename> : execute a script file\n");
 		return;
 	}
 
-	len = FS_LoadFile ( gCmd->Argv(1), reinterpret_cast<void **>(&f));
+	len = FS_LoadFile ( lCmd.Argv(1), reinterpret_cast<void **>(&f));
 	if (!f)
 	{
-		Com_Printf ("couldn't exec %s\n", gCmd->Argv(1));
+		Com_Printf ("couldn't exec %s\n", lCmd.Argv(1));
 		return;
 	}
 
-	Com_Printf ("execing %s\n", gCmd->Argv(1));
+	Com_Printf ("execing %s\n", lCmd.Argv(1));
 	
 	// the file doesn't have a trailing 0, so we need to copy it off
 	f2 = static_cast<char*>( Z_Malloc( len + 1 ) );
 	std::memcpy (f2, f, len);
 	f2[len] = 0;
 
-	gCmd->InsertText ( f2 );
+	lCmd.InsertText ( f2 );
 
 	Z_Free (f2);
 	FS_FreeFile (f);
@@ -391,8 +394,8 @@ void crCMD::Echo_f (void)
 {
 	int		i;
 	
-	for (i=1 ; i< gCmd->Argc() ; i++)
-		Com_Printf ("%s ", gCmd->Argv(i));
+	for (i=1 ; i< lCmd.Argc() ; i++)
+		Com_Printf ("%s ", lCmd.Argv(i));
 	Com_Printf ("\n");
 }
 
@@ -410,15 +413,15 @@ void crCMD::Alias_f ( void )
 	cmdalias_t*	a = nullptr;
 	char		cmd[1024]{ 0 };
 
-	if ( gCmd->Argc() == 1 )
+	if ( lCmd.Argc() == 1 )
 	{
 		Com_Printf ("Current alias commands:\n");
-		for (a = gCmd->Alias() ; a; a = a->next)
+		for (a = lCmd.Alias() ; a; a = a->next)
 			Com_Printf ("%s : %s\n", a->name, a->value);
 		return;
 	}
 
-	s = gCmd->Argv(1);
+	s = lCmd.Argv(1);
 	if (std::strlen(s) >= MAX_ALIAS_NAME)
 	{
 		Com_Printf ("Alias name is too long\n");
@@ -426,7 +429,7 @@ void crCMD::Alias_f ( void )
 	}
 
 	// if the alias already exists, reuse it
-	for (a = gCmd->Alias() ; a; a = a->next)
+	for (a = lCmd.Alias() ; a; a = a->next)
 	{
 		if (!std::strcmp(s, a->name))
 		{
@@ -438,17 +441,17 @@ void crCMD::Alias_f ( void )
 	if (!a)
 	{
 		a = static_cast<cmdalias_t*>( Z_Malloc (sizeof(cmdalias_t)) );
-		a->next = gCmd->Alias();
-		gCmd->SetAlias( a );
+		a->next = lCmd.Alias();
+		lCmd.SetAlias( a );
 	}
 	std::strcpy (a->name, s);	
 
 // copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
-	c = gCmd->Argc();
+	c = lCmd.Argc();
 	for (i=2 ; i< c ; i++)
 	{
-		std::strcat (cmd, gCmd->Argv(i));
+		std::strcat (cmd, lCmd.Argv(i));
 		if (i != (c - 1))
 			std::strcat (cmd, " ");
 	}
@@ -847,7 +850,7 @@ void crCMD::List_f (void)
 	cmd_function_t	*cmd = nullptr;
 
 	i = 0;
-	for ( cmd= gCmd->Functions(); cmd ; cmd=cmd->next, i++ )
+	for ( cmd= lCmd.Functions(); cmd ; cmd=cmd->next, i++ )
 		Com_Printf ("%s\n", cmd->name);
 	Com_Printf ("%i commands\n", i);
 }

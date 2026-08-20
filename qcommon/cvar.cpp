@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /// @brief local cvar 
 static crCVAR lCvar = crCVAR();
-static crCVAR* gCvar = &lCvar;
+crCVAR* gCvar = &lCvar;
 
 crCVAR::crCVAR( void )
 {
@@ -265,7 +265,7 @@ cvar_t*	crCVAR::Set2( const char *var_name, const char *value, bool force)
 	var->modified = true;
 
 	if (var->flags & CVAR_USERINFO)
-		userinfo_modified = true;	// transmit at next oportunity
+		m_userInfoModified = true;	// transmit at next oportunity
 	
 	Z_Free (var->string);	// free the old value string
 	
@@ -311,7 +311,7 @@ cvar_t *crCVAR::FullSet ( const char *var_name, const char *value, const uint32_
 	var->modified = true;
 
 	if (var->flags & CVAR_USERINFO)
-		userinfo_modified = true;	// transmit at next oportunity
+		m_userInfoModified = true;	// transmit at next oportunity
 	
 	Z_Free (var->string);	// free the old value string
 	
@@ -402,10 +402,10 @@ Cvar_Set_f
 Allows setting and defining of arbitrary cvars from console
 ============
 */
-void Set_f (void)
+void crCVAR::Set_f (void)
 {
-	int		c = 0;
-	int		flags = 0;
+	int	c = 0;
+	int	flags = 0;
 
 	c = gCmd->Argc();
 	if (c != 3 && c != 4)
@@ -425,10 +425,10 @@ void Set_f (void)
 			Com_Printf ("flags can only be 'u' or 's'\n");
 			return;
 		}
-		Cvar_FullSet (gCmd->Argv(1), gCmd->Argv(2), flags);
+		lCvar.FullSet (gCmd->Argv(1), gCmd->Argv(2), flags);
 	}
 	else
-		Cvar_Set (gCmd->Argv(1), gCmd->Argv(2));
+		lCvar.Set (gCmd->Argv(1), gCmd->Argv(2));
 }
 
 
@@ -440,14 +440,14 @@ Appends lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 */
-void Cvar_WriteVariables ( const char *path)
+void crCVAR::WriteVariables ( const char *path)
 {
 	cvar_t	*var = nullptr;
 	FILE	*f = nullptr;
 	char	buffer[1024];
 
 	f = fopen (path, "a");
-	for (var = cvar_vars ; var ; var = var->next)
+	for (var = m_vars ; var ; var = var->next)
 	{
 		if (var->flags & CVAR_ARCHIVE)
 		{
@@ -464,12 +464,12 @@ Cvar_List_f
 
 ============
 */
-void Cvar_List_f (void)
+void crCVAR::List_f (void)
 {
 	int		i = 0;
 	cvar_t	*var = nullptr;
 
-	for (var = cvar_vars ; var ; var = var->next, i++)
+	for (var = lCvar.m_vars ; var ; var = var->next, i++)
 	{
 		if (var->flags & CVAR_ARCHIVE)
 			Com_Printf ("*");
@@ -494,35 +494,32 @@ void Cvar_List_f (void)
 	Com_Printf ("%i cvars\n", i);
 }
 
-
-bool userinfo_modified;
-
-
-const char	*Cvar_BitInfo (int bit)
+const char* crCVAR::BitInfo ( const uint32_t bit ) const
 {
 	static char	info[MAX_INFO_STRING]{0};
 	cvar_t	*var = nullptr;
 
 	info[0] = 0;
 
-	for (var = cvar_vars ; var ; var = var->next)
+	for (var = m_vars ; var ; var = var->next)
 	{
 		if (var->flags & bit)
 			Info_SetValueForKey (info, var->name, var->string);
 	}
+
 	return info;
 }
 
 // returns an info string containing all the CVAR_USERINFO cvars
-const char	*Cvar_Userinfo (void)
+const char* crCVAR::Userinfo( void ) const
 {
-	return Cvar_BitInfo (CVAR_USERINFO);
+	return BitInfo (CVAR_USERINFO);
 }
 
 // returns an info string containing all the CVAR_SERVERINFO cvars
-const char	*Cvar_Serverinfo (void)
+const char* crCVAR::Serverinfo( void ) const
 {
-	return Cvar_BitInfo (CVAR_SERVERINFO);
+	return BitInfo (CVAR_SERVERINFO);
 }
 
 /*
@@ -532,8 +529,8 @@ Cvar_Init
 Reads in all archived cvars
 ============
 */
-void Cvar_Init (void)
+void crCVAR::Init (void)
 {
-	gCmd->AddCommand ("set", Cvar_Set_f);
-	gCmd->AddCommand ("cvarlist", Cvar_List_f);
+	gCmd->AddCommand ("set", Set_f);
+	gCmd->AddCommand ("cvarlist", List_f);
 }

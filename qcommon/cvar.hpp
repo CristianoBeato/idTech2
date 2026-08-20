@@ -104,7 +104,10 @@ private:
     cvar_t *FindVar ( const char *var_name ) const;
     cvar_t*	Set2( const char *var_name, const char *value, bool force );
 
-    static 
+    const char* BitInfo ( const uint32_t bit ) const;
+    
+    static void Set_f (void);
+    static void List_f (void);
 };
 
 extern crCVAR* gCvar;

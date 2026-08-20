@@ -573,7 +573,7 @@ void FS_ExecAutoexec (void)
 	const char *dir;
 	char name [MAX_QPATH];
 
-	dir = Cvar_VariableString("gamedir");
+	dir = gCvar->VariableString("gamedir");
 	if (*dir)
 		Com_sprintf(name, sizeof(name), "%s/%s/autoexec.cfg", fs_basedir->string, dir); 
 	else
@@ -628,12 +628,12 @@ void FS_SetGamedir (char *dir)
 
 	if (!std::strcmp(dir,BASEDIRNAME) || (*dir == 0))
 	{
-		Cvar_FullSet ("gamedir", "", CVAR_SERVERINFO|CVAR_NOSET);
-		Cvar_FullSet ("game", "", CVAR_LATCH|CVAR_SERVERINFO);
+		gCvar->FullSet ("gamedir", "", CVAR_SERVERINFO|CVAR_NOSET);
+		gCvar->FullSet ("game", "", CVAR_LATCH|CVAR_SERVERINFO);
 	}
 	else
 	{
-		Cvar_FullSet ("gamedir", dir, CVAR_SERVERINFO|CVAR_NOSET);
+		gCvar->FullSet ("gamedir", dir, CVAR_SERVERINFO|CVAR_NOSET);
 		if (fs_cddir->string[0])
 			FS_AddGameDirectory (va("%s/%s", fs_cddir->string, dir) );
 		FS_AddGameDirectory (va("%s/%s", fs_basedir->string, dir) );
@@ -852,27 +852,27 @@ void FS_InitFilesystem (void)
 	// basedir <path>
 	// allows the game to run from outside the data tree
 	//
-	fs_basedir = Cvar_Get ("basedir", ".", CVAR_NOSET);
+	fs_basedir = gCvar->Get ("basedir", ".", CVAR_NOSET);
 
 	//
 	// cddir <path>
 	// Logically concatenates the cddir after the basedir for 
 	// allows the game to run from outside the data tree
 	//
-	fs_cddir = Cvar_Get ("cddir", "", CVAR_NOSET);
+	fs_cddir = gCvar->Get ("cddir", "", CVAR_NOSET);
 	if (fs_cddir->string[0])
-		FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_cddir->string) );
+		FS_AddGameDirectory ( va( "%s/" BASEDIRNAME, fs_cddir->string ) );
 
 	//
 	// start up with baseq2 by default
 	//
-	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
+	FS_AddGameDirectory ( va( "%s/" BASEDIRNAME, fs_basedir->string ) );
 
 	// any set gamedirs will be freed up to here
 	fs_base_searchpaths = fs_searchpaths;
 
 	// check for game override
-	fs_gamedirvar = Cvar_Get ("game", "", CVAR_LATCH|CVAR_SERVERINFO);
+	fs_gamedirvar = gCvar->Get ("game", "", CVAR_LATCH|CVAR_SERVERINFO);
 	if (fs_gamedirvar->string[0])
 		FS_SetGamedir (fs_gamedirvar->string);
 }

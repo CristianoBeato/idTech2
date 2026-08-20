@@ -553,14 +553,14 @@ cmodel_t *CM_LoadMap (char *name, bool clientload, unsigned *checksum)
 	int				length;
 	static unsigned	last_checksum;
 
-	map_noareas = Cvar_Get ("map_noareas", "0", 0);
+	map_noareas = gCvar->Get ("map_noareas", "0", 0);
 
-	if (  !strcmp (map_name, name) && (clientload || !Cvar_VariableValue ("flushmap")) )
+	if (  !std::strcmp (map_name, name) && (clientload || !gCvar->VariableValue ("flushmap")) )
 	{
 		*checksum = last_checksum;
 		if (!clientload)
 		{
-			memset (portalopen, 0, sizeof(portalopen));
+			std::memset (portalopen, 0, sizeof(portalopen));
 			FloodAreaConnections ();
 		}
 		return &map_cmodels[0];		// still have the right version
@@ -626,7 +626,7 @@ cmodel_t *CM_LoadMap (char *name, bool clientload, unsigned *checksum)
 	memset (portalopen, 0, sizeof(portalopen));
 	FloodAreaConnections ();
 
-	strcpy (map_name, name);
+	std::strcpy (map_name, name);
 
 	return &map_cmodels[0];
 }
@@ -642,7 +642,7 @@ cmodel_t	*CM_InlineModel (char *name)
 
 	if (!name || name[0] != '*')
 		Com_Error (ERR_DROP, "CM_InlineModel: bad name");
-	num = atoi (name+1);
+	num = std::atoi (name+1);
 	if (num < 1 || num >= numcmodels)
 		Com_Error (ERR_DROP, "CM_InlineModel: bad number");
 

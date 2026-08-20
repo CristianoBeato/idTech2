@@ -95,9 +95,9 @@ void Netchan_Init (void)
 	// pick a port value that should be nice and random
 	port = Sys_Milliseconds() & 0xffff;
 
-	showpackets = Cvar_Get ("showpackets", "0", 0);
-	showdrop = Cvar_Get ("showdrop", "0", 0);
-	qport = Cvar_Get ("qport", va("%i", port), CVAR_NOSET);
+	showpackets = gCvar->Get ("showpackets", "0", 0);
+	showdrop = gCvar->Get ("showdrop", "0", 0);
+	qport = gCvar->Get ("qport", va("%i", port), CVAR_NOSET);
 }
 
 /*
