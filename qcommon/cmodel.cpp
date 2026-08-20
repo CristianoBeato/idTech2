@@ -545,7 +545,7 @@ CM_LoadMap
 Loads in the map and all submodels
 ==================
 */
-cmodel_t *CM_LoadMap (char *name, bool clientload, unsigned *checksum)
+cmodel_t *CM_LoadMap (char *name, bool clientload, uint32_t *checksum )
 {
 	unsigned		*buf;
 	int				i;
@@ -636,7 +636,7 @@ cmodel_t *CM_LoadMap (char *name, bool clientload, unsigned *checksum)
 CM_InlineModel
 ==================
 */
-cmodel_t	*CM_InlineModel (char *name)
+cmodel_t	*CM_InlineModel ( const char *name)
 {
 	int		num;
 

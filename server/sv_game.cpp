@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // sv_game.c -- interface to the game dll
 
-#include "server.h"
+#include "server.hpp"
 
 game_export_t	*ge;
 
@@ -61,7 +61,7 @@ PF_dprintf
 Debug print to server console
 ===============
 */
-void PF_dprintf (char *fmt, ...)
+void PF_dprintf ( const char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
@@ -81,7 +81,7 @@ PF_cprintf
 Print to a single client
 ===============
 */
-void PF_cprintf (edict_t *ent, int level, char *fmt, ...)
+void PF_cprintf ( edict_t *ent, int level, const char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
@@ -139,7 +139,7 @@ PF_error
 Abort the server with a game error
 ===============
 */
-void PF_error (char *fmt, ...)
+void PF_error ( const char *fmt, ...)
 {
 	char		msg[1024];
 	va_list		argptr;
@@ -159,7 +159,7 @@ PF_setmodel
 Also sets mins and maxs for inline bmodels
 =================
 */
-void PF_setmodel (edict_t *ent, char *name)
+void PF_setmodel (edict_t *ent, const char *name)
 {
 	int		i;
 	cmodel_t	*mod;
@@ -189,7 +189,7 @@ PF_Configstring
 
 ===============
 */
-void PF_Configstring (int index, char *val)
+void PF_Configstring (int index, const char *val)
 {
 	if (index < 0 || index >= MAX_CONFIGSTRINGS)
 		Com_Error (ERR_DROP, "configstring: bad index %i\n", index);

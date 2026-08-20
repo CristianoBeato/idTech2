@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "server.h"
+#include "server.hpp"
 
 server_static_t	svs;				// persistant server info
 server_t		sv;					// local server
@@ -29,7 +29,7 @@ SV_FindIndex
 
 ================
 */
-int SV_FindIndex (char *name, int start, int max, bool create)
+int SV_FindIndex ( const char *name, int start, int max, bool create)
 {
 	int		i;
 	
@@ -61,7 +61,7 @@ int SV_FindIndex (char *name, int start, int max, bool create)
 }
 
 
-int SV_ModelIndex (char *name)
+int SV_ModelIndex ( const char *name)
 {
 	return SV_FindIndex (name, CS_MODELS, MAX_MODELS, true);
 }

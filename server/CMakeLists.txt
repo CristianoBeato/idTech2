@@ -2,15 +2,15 @@
 ## Server lib sources 
 ## qServer.so
 set( SERVER_SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/server.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_ccmds.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_ents.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_game.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_init.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_main.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_send.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_user.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/sv_world.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/server.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_ccmds.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_ents.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_game.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_init.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_send.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_user.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sv_world.cpp
     )
 
 #set the library souce
@@ -25,16 +25,16 @@ target_include_directories( qServer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 # set the precompiled header
 target_precompile_headers( qServer
 	PUBLIC
-        <stdio.h>
-        <stdlib.h>
-        <stdint.h>
-        <stdarg.h>
-        <stddef.h>
-        <stdbool.h>
-        <assert.h>
-        <math.h>
-        <string.h>
-        <time.h>	
+        <cstdio>
+        <cstdlib>
+        <cstdint>
+        <cstdarg>
+        <cstddef>
+        <cassert>
+        <cctype>
+        <cmath>
+        <cstring>
+        <ctime>	
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/shared/q_shared.h
+        ${CMAKE_SOURCE_DIR}/shared/q_shared.hpp
 	) 

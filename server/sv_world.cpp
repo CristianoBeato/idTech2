@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // world.c -- world query functions
 
-#include "server.h"
+#include "server.hpp"
 
 /*
 ===============================================================================
@@ -465,9 +465,10 @@ int SV_PointContents (vec3_t p)
 typedef struct
 {
 	vec3_t		boxmins, boxmaxs;// enclose the test object along entire move
-	float		*mins, *maxs;	// size of the moving object
+	vec3_t		mins, 	maxs;	// size of the moving object
 	vec3_t		mins2, maxs2;	// size when clipping against mosnters
-	float		*start, *end;
+	vec3_t		start;
+	vec3_t 		end;
 	trace_t		trace;
 	edict_t		*passedict;
 	int			contentmask;
@@ -520,7 +521,7 @@ void SV_ClipMoveToEntities ( moveclip_t *clip )
 	edict_t		*touchlist[MAX_EDICTS], *touch;
 	trace_t		trace;
 	int			headnode;
-	float		*angles;
+	vec3_t		angles;
 
 	num = SV_AreaEdicts (clip->boxmins, clip->boxmaxs, touchlist
 		, MAX_EDICTS, AREA_SOLID);
