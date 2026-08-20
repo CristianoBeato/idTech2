@@ -398,7 +398,7 @@ Dumps the serverinfo info string
 */
 void SV_ShowServerinfo_f (void)
 {
-	Info_Print (Cvar_Serverinfo());
+	Info_Print (gCvar->Serverinfo());
 }
 
 
@@ -407,19 +407,20 @@ void SV_Nextserver (void)
 	char	*v;
 
 	//ZOID, ss_pic can be nextserver'd in coop mode
-	if (sv.state == ss_game || (sv.state == ss_pic && !Cvar_VariableValue("coop")))
+	if (sv.state == ss_game || (sv.state == ss_pic && ! gCvar->VariableValue("coop")))
 		return;		// can't nextserver while playing a normal game
 
 	svs.spawncount++;	// make sure another doesn't sneak in
-	v = Cvar_VariableString ("nextserver");
+	v = gCvar->VariableString ("nextserver");
 	if (!v[0])
-		Cbuf_AddText ("killserver\n");
+		gCvar->AddText ("killserver\n");
 	else
 	{
-		Cbuf_AddText (v);
-		Cbuf_AddText ("\n");
+		gCvar->AddText (v);
+		gCvar->AddText ("\n");
 	}
-	Cvar_Set ("nextserver","");
+
+	gCvar->Set ("nextserver","");
 }
 
 /*
@@ -432,7 +433,8 @@ to the next server,
 */
 void SV_Nextserver_f (void)
 {
-	if ( atoi(Cmd_Argv(1)) != svs.spawncount ) {
+	if ( std::atoi( gCmd->Argv(1)) != svs.spawncount ) 
+	{
 		Com_DPrintf ("Nextserver() from wrong level, from %s\n", sv_client->name);
 		return;		// leftover from last server
 	}
@@ -466,7 +468,7 @@ ucmd_t ucmds[] =
 	{"download", SV_BeginDownload_f},
 	{"nextdl", SV_NextDownload_f},
 
-	{NULL, NULL}
+	{ nullptr, nullptr }
 };
 
 /*
@@ -484,7 +486,7 @@ void SV_ExecuteUserCommand (char *s)
 //	SV_BeginRedirect (RD_CLIENT);
 
 	for (u=ucmds ; u->name ; u++)
-		if (!strcmp (Cmd_Argv(0), u->name) )
+		if (!std::strcmp ( Cmd_Argv(0), u->name ) )
 		{
 			u->func ();
 			break;

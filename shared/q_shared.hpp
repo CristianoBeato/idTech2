@@ -221,15 +221,15 @@ int Q_strncasecmp ( const char *s1, const char *s2, int n );
 
 //=============================================
 
-short	BigShort(short l);
-short	LittleShort(short l);
-int		BigLong (int l);
-int		LittleLong (int l);
-float	BigFloat (float l);
-float	LittleFloat (float l);
+short		BigShort(short l);
+short		LittleShort(short l);
+int			BigLong (int l);
+int			LittleLong (int l);
+float		BigFloat (float l);
+float		LittleFloat (float l);
 
-void	Swap_Init (void);
-char	*va(char *format, ...);
+void		Swap_Init (void);
+const char*	va( const char *format, ...);
 
 //=============================================
 

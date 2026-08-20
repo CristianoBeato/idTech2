@@ -193,19 +193,19 @@ PROTOCOL
 
 // protocol.h -- communications protocols
 
-#define	PROTOCOL_VERSION	34
+inline constexpr uint32_t	PROTOCOL_VERSION = 34;
 
 //=========================================
 
-#define	PORT_MASTER	27900
-#define	PORT_CLIENT	27901
-#define	PORT_SERVER	27910
+inline constexpr uint32_t PORT_MASTER = 27900;
+inline constexpr uint32_t PORT_CLIENT = 27901;
+inline constexpr uint32_t PORT_SERVER = 27910;
 
 //=========================================
 
-#define	UPDATE_BACKUP	16	// copies of entity_state_t to keep buffered
-							// must be power of two
-#define	UPDATE_MASK		(UPDATE_BACKUP-1)
+inline constexpr uint32_t UPDATE_BACKUP = 16;	// copies of entity_state_t to keep buffered
+												// must be power of two
+inline constexpr uint32_t UPDATE_MASK =	(UPDATE_BACKUP-1);
 
 
 
@@ -263,87 +263,106 @@ enum clc_ops_e
 
 // plyer_state_t communication
 
-#define	PS_M_TYPE			(1<<0)
-#define	PS_M_ORIGIN			(1<<1)
-#define	PS_M_VELOCITY		(1<<2)
-#define	PS_M_TIME			(1<<3)
-#define	PS_M_FLAGS			(1<<4)
-#define	PS_M_GRAVITY		(1<<5)
-#define	PS_M_DELTA_ANGLES	(1<<6)
-
-#define	PS_VIEWOFFSET		(1<<7)
-#define	PS_VIEWANGLES		(1<<8)
-#define	PS_KICKANGLES		(1<<9)
-#define	PS_BLEND			(1<<10)
-#define	PS_FOV				(1<<11)
-#define	PS_WEAPONINDEX		(1<<12)
-#define	PS_WEAPONFRAME		(1<<13)
-#define	PS_RDFLAGS			(1<<14)
+enum plyer_state_e
+{
+	PS_M_TYPE			= ( 1 << 0 ),
+	PS_M_ORIGIN			= ( 1 << 1 ),
+	PS_M_VELOCITY		= ( 1 << 2 ),
+	PS_M_TIME			= ( 1 << 3 ),
+	PS_M_FLAGS			= ( 1 << 4 ),
+	PS_M_GRAVITY		= ( 1 << 5 ),
+	PS_M_DELTA_ANGLES	= ( 1 << 6 ),
+	PS_VIEWOFFSET		=	( 1 << 7 ),
+	PS_VIEWANGLES		=	( 1 << 8 ),
+	PS_KICKANGLES		=	( 1 << 9 ),
+	PS_BLEND			=	( 1 << 10 ),
+	PS_FOV				=	( 1 << 11 ),
+	PS_WEAPONINDEX		=	( 1 << 12 ),
+	PS_WEAPONFRAME		=	( 1 << 13 ),
+	PS_RDFLAGS			=	( 1 << 14 )
+};
 
 //==============================================
 
 // user_cmd_t communication
 
 // ms and light always sent, the others are optional
-#define	CM_ANGLE1 	(1<<0)
-#define	CM_ANGLE2 	(1<<1)
-#define	CM_ANGLE3 	(1<<2)
-#define	CM_FORWARD	(1<<3)
-#define	CM_SIDE		(1<<4)
-#define	CM_UP		(1<<5)
-#define	CM_BUTTONS	(1<<6)
-#define	CM_IMPULSE	(1<<7)
-
+enum user_cmd_e
+{
+	CM_ANGLE1 	= ( 1 << 0 ),
+	CM_ANGLE2 	= ( 1 << 1 ),
+	CM_ANGLE3 	= ( 1 << 2 ),
+	CM_FORWARD	= ( 1 << 3 ),
+	CM_SIDE		= ( 1 << 4 ),
+	CM_UP		= ( 1 << 5 ),
+	CM_BUTTONS	= ( 1 << 6 ),
+	CM_IMPULSE	= ( 1 << 7 )
+};
 //==============================================
 
 // a sound without an ent or pos will be a local only sound
-#define	SND_VOLUME		(1<<0)		// a byte
-#define	SND_ATTENUATION	(1<<1)		// a byte
-#define	SND_POS			(1<<2)		// three coordinates
-#define	SND_ENT			(1<<3)		// a short 0-2: channel, 3-12: entity
-#define	SND_OFFSET		(1<<4)		// a byte, msec offset from frame start
+enum sound_e
+{
+	SND_VOLUME		= ( 1 << 0 ),		// a byte
+	SND_ATTENUATION	= ( 1 << 1 ),		// a byte
+	SND_POS			= ( 1 << 2 ),		// three coordinates
+	SND_ENT			= ( 1 << 3 ),		// a short 0-2: channel, 3-12: entity
+	SND_OFFSET		= ( 1 << 4 )		// a byte, msec offset from frame start
+};
 
-#define DEFAULT_SOUND_PACKET_VOLUME	1.0
-#define DEFAULT_SOUND_PACKET_ATTENUATION 1.0
+inline constexpr float DEFAULT_SOUND_PACKET_VOLUME = 1.0f;
+inline constexpr float DEFAULT_SOUND_PACKET_ATTENUATION = 1.0f;
 
 //==============================================
 
 // entity_state_t communication
 
 // try to pack the common update flags into the first byte
-#define	U_ORIGIN1	(1<<0)
-#define	U_ORIGIN2	(1<<1)
-#define	U_ANGLE2	(1<<2)
-#define	U_ANGLE3	(1<<3)
-#define	U_FRAME8	(1<<4)		// frame is a byte
-#define	U_EVENT		(1<<5)
-#define	U_REMOVE	(1<<6)		// REMOVE this entity, don't add it
-#define	U_MOREBITS1	(1<<7)		// read one additional byte
+enum entity_state_e
+{
+	U_ORIGIN1	= ( 1 << 0 ),
+	U_ORIGIN2	= ( 1 << 1 ),
+	U_ANGLE2	= ( 1 << 2 ),
+	U_ANGLE3	= ( 1 << 3 ),
+	U_FRAME8	= ( 1 << 4 ),		// frame is a byte
+	U_EVENT		= ( 1 << 5 ),
+	U_REMOVE	= ( 1 << 6 ),		// REMOVE this entity, don't add it
+	U_MOREBITS1	= ( 1 << 7 )		// read one additional byte
+};
 
 // second byte
-#define	U_NUMBER16	(1<<8)		// NUMBER8 is implicit if not set
-#define	U_ORIGIN3	(1<<9)
-#define	U_ANGLE1	(1<<10)
-#define	U_MODEL		(1<<11)
-#define U_RENDERFX8	(1<<12)		// fullbright, etc
-#define	U_EFFECTS8	(1<<14)		// autorotate, trails, etc
-#define	U_MOREBITS2	(1<<15)		// read one additional byte
+enum 
+{
+	U_NUMBER16	= ( 1 << 8 ),		// NUMBER8 is implicit if not set
+	U_ORIGIN3	= ( 1 << 9 ),
+	U_ANGLE1	= ( 1 << 10 ),
+	U_MODEL		= ( 1 << 11 ),
+	U_RENDERFX8	= ( 1 << 12 ),		// fullbright, etc
+	U_EFFECTS8	= ( 1 << 14 ),		// autorotate, trails, etc
+	U_MOREBITS2	= ( 1 << 15 )		// read one additional byte
+};
 
 // third byte
-#define	U_SKIN8		(1<<16)
-#define	U_FRAME16	(1<<17)		// frame is a short
-#define	U_RENDERFX16 (1<<18)	// 8 + 16 = 32
-#define	U_EFFECTS16	(1<<19)		// 8 + 16 = 32
-#define	U_MODEL2	(1<<20)		// weapons, flags, etc
-#define	U_MODEL3	(1<<21)
-#define	U_MODEL4	(1<<22)
-#define	U_MOREBITS3	(1<<23)		// read one additional byte
+enum 
+{
+	U_SKIN8			= ( 1 << 16 ),
+	U_FRAME16		= ( 1 << 17 ),		// frame is a short
+	U_RENDERFX16	= ( 1 << 18 ),	// 8 + 16 = 32
+	U_EFFECTS16		= ( 1 << 19 ),		// 8 + 16 = 32
+	U_MODEL2		= ( 1 << 20 ),		// weapons, flags, etc
+	U_MODEL3		= ( 1 << 21 ),
+	U_MODEL4		= ( 1 << 22 ),
+	U_MOREBITS3		= ( 1 << 23 )		// read one additional byte
+};
 
 // fourth byte
-#define	U_OLDORIGIN	(1<<24)		// FIXME: get rid of this
-#define	U_SKIN16	(1<<25)
-#define	U_SOUND		(1<<26)
-#define	U_SOLID		(1<<27)
+enum 
+{
+	U_OLDORIGIN	= ( 1 << 24 ),		// FIXME: get rid of this
+	U_SKIN16	= ( 1 << 25 ),
+	U_SOUND		= ( 1 << 26 ),
+	U_SOLID		= ( 1 << 27 )
+};
 
 #include "cmd.hpp"
 #include "cvar.hpp"
@@ -357,7 +376,7 @@ NET
 
 // net.h -- quake's interface to the networking layer
 
-inline constexpr int32_t PORT_ANY = -1;
+inline constexpr int32_t	PORT_ANY = -1;
 
 inline constexpr uint32_t	MAX_MSGLEN = 1400;		// max length of a message
 inline constexpr uint32_t	PACKET_HEADER =	10;			// two ints and a short
@@ -407,8 +426,8 @@ void		NET_Sleep(int msec);
 /// @brief Platform specific net interface
 class crNet
 {
-private:
-	static crNet	Get( void );
+public:
+	static crNet*		Get( void );
 
 	virtual void		Init ( void ) = 0;
 	virtual void		Shutdown (void) = 0;
@@ -429,60 +448,7 @@ private:
 
 //============================================================================
 
-#define	OLD_AVG		0.99		// total = oldtotal*OLD_AVG + new*(1-OLD_AVG)
-
-#define	MAX_LATENT	32
-
-typedef struct
-{
-	bool	fatal_error;
-
-	netsrc_t	sock;
-
-	int			dropped;			// between last packet and previous
-
-	int			last_received;		// for timeouts
-	int			last_sent;			// for retransmits
-
-	netadr_t	remote_address;
-	int			qport;				// qport value to write when transmitting
-
-// sequencing variables
-	int			incoming_sequence;
-	int			incoming_acknowledged;
-	int			incoming_reliable_acknowledged;	// single bit
-
-	int			incoming_reliable_sequence;		// single bit, maintained local
-
-	int			outgoing_sequence;
-	int			reliable_sequence;			// single bit
-	int			last_reliable_sequence;		// sequence number of last send
-
-// reliable staging and holding areas
-	sizebuf_t	message;		// writing buffer to send to server
-	byte		message_buf[MAX_MSGLEN-16];		// leave space for header
-
-// message is copied to this buffer when it is first transfered
-	int			reliable_length;
-	byte		reliable_buf[MAX_MSGLEN-16];	// unacked reliable message
-} netchan_t;
-
-extern	netadr_t	net_from;
-extern	sizebuf_t	net_message;
-extern	byte		net_message_buffer[MAX_MSGLEN];
-
-
-void Netchan_Init (void);
-void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int qport);
-
-bool Netchan_NeedReliable ( netchan_t *chan);
-void Netchan_Transmit ( netchan_t *chan, int length, byte *data);
-void Netchan_OutOfBand ( const uint32_t net_socket, netadr_t adr, int length, byte *data);
-void Netchan_OutOfBandPrint ( const uint32_t net_socket, netadr_t adr, char *format, ...);
-bool Netchan_Process (netchan_t *chan, sizebuf_t *msg);
-
-bool Netchan_CanReliable (netchan_t *chan);
-
+#include "net_chan.hpp"
 
 /*
 ==============================================================
@@ -678,7 +644,7 @@ void Con_Print ( const char *text );
 void SCR_BeginLoadingPlaque (void);
 
 void SV_Init (void);
-void SV_Shutdown ( char *finalmsg, bool reconnect);
+void SV_Shutdown ( const char *finalmsg, const bool reconnect);
 void SV_Frame (int msec);
 
 #endif //!__QCOMMON_H__

@@ -29,7 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	MAX_MASTERS	8				// max recipients for heartbeat packets
 
-typedef enum {
+typedef enum 
+{
 	ss_dead,			// no map loaded
 	ss_loading,			// spawning level edicts
 	ss_game,			// actively running
@@ -44,26 +45,26 @@ typedef struct
 {
 	server_state_t	state;			// precache commands are only valid during load
 
-	bool			attractloop;		// running cinematics and demos for the local system only
-	bool			loadgame;			// client begins should reuse existing entity
+	bool				attractloop;		// running cinematics and demos for the local system only
+	bool				loadgame;			// client begins should reuse existing entity
 
-	unsigned	time;				// always sv.framenum * 100 msec
-	int			framenum;
+	uint32_t			time;				// always sv.framenum * 100 msec
+	int					framenum;
 
-	char		name[MAX_QPATH];			// map name, or cinematic name
-	struct cmodel_s		*models[MAX_MODELS];
+	char				name[MAX_QPATH];			// map name, or cinematic name
+	struct cmodel_s*	models[MAX_MODELS];
 
-	char		configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
-	entity_state_t	baselines[MAX_EDICTS];
+	char				configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
+	entity_state_t		baselines[MAX_EDICTS];
 
 	// the multicast buffer is used to send a message to a set of clients
 	// it is only used to marshall data until SV_Multicast is called
-	sizebuf_t	multicast;
-	byte		multicast_buf[MAX_MSGLEN];
+	sizebuf_t			multicast;
+	byte				multicast_buf[MAX_MSGLEN];
 
 	// demo server information
-	FILE		*demofile;
-	bool		timedemo;		// don't time sync
+	FILE*				demofile;
+	bool				timedemo;		// don't time sync
 } server_t;
 
 #define EDICT_NUM(n) ((edict_t *)((byte *)ge->edicts + ge->edict_size*(n)))
@@ -89,8 +90,8 @@ typedef struct
 	int					senttime;			// for ping calculations
 } client_frame_t;
 
-#define	LATENCY_COUNTS	16
-#define	RATE_MESSAGES	10
+inline constexpr uint32_t LATENCY_COUNTS = 16;
+inline constexpr uint32_t RATE_MESSAGES = 10;
 
 typedef struct client_s
 {

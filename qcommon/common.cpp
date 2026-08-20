@@ -194,7 +194,7 @@ void Com_Error ( int code, const char *fmt, ...)
 	else if (code == ERR_DROP)
 	{
 		Com_Printf ("********************\nERROR: %s\n********************\n", msg);
-		SV_Shutdown (va("Server crashed: %s\n", msg), false);
+		SV_Shutdown ( va("Server crashed: %s\n", msg), false );
 		CL_Drop ();
 		recursive = false;
 		longjmp (abortframe, -1);
@@ -1396,7 +1396,7 @@ Qcommon_Init
 */
 void Qcommon_Init (int argc, char **argv)
 {
-	char	*s;
+	const char	*s = nullptr;
 
 	if (setjmp (abortframe) )
 		Sys_Error ("Error during initialization");
@@ -1455,7 +1455,7 @@ void Qcommon_Init (int argc, char **argv)
 	dedicated = gCvar->Get ("dedicated", "0", CVAR_NOSET);
 #endif
 
-	s = va("%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING);
+	s = va( "%4.2f %s %s %s", VERSION, CPUSTRING, __DATE__, BUILDSTRING );
 	gCvar->Get ("version", s, CVAR_SERVERINFO|CVAR_NOSET);
 
 
@@ -1464,8 +1464,8 @@ void Qcommon_Init (int argc, char **argv)
 
 	Sys_Init ();
 
-	NET_Init ();
-	Netchan_Init ();
+	crNet::Get()->Init ();
+	gNetChan->Init ();
 
 	SV_Init ();
 	CL_Init ();

@@ -1032,7 +1032,7 @@ Called when each game quits,
 before Sys_Quit or Sys_Error
 ================
 */
-void SV_Shutdown (char *finalmsg, bool reconnect)
+void SV_Shutdown ( const char *finalmsg, const bool reconnect )
 {
 	if (svs.clients)
 		SV_FinalMessage (finalmsg, reconnect);

@@ -495,7 +495,7 @@ void insane_pain (edict_t *self, edict_t *other, float kick, int damage)
 		l = 75;
 	else
 		l = 100;
-	gi.sound (self, CHAN_VOICE, gi.soundindex (va("player/male/pain%i_%i.wav", l, r)), 1, ATTN_IDLE, 0);
+	gi.sound (self, CHAN_VOICE, gi.soundindex ( va("player/male/pain%i_%i.wav", l, r)), 1, ATTN_IDLE, 0);
 
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare

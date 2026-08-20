@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "qcommon.hpp"
+#include "net_chan.hpp"
 
 /*
 
@@ -78,17 +79,21 @@ cvar_t		*showpackets;
 cvar_t		*showdrop;
 cvar_t		*qport;
 
-netadr_t	net_from;
-sizebuf_t	net_message;
-byte		net_message_buffer[MAX_MSGLEN];
+crNetChan::crNetChan( void )
+{
+}
+
+crNetChan::~crNetChan( void )
+{
+}
 
 /*
 ===============
-Netchan_Init
+crNetChan::Init
 
 ===============
 */
-void Netchan_Init (void)
+void crNetChan::Init (void)
 {
 	int		port;
 
@@ -102,12 +107,12 @@ void Netchan_Init (void)
 
 /*
 ===============
-Netchan_OutOfBand
+crNetChan::OutOfBand
 
 Sends an out-of-band datagram
 ================
 */
-void Netchan_OutOfBand ( const uint32_t net_socket, netadr_t adr, int length, byte *data)
+void crNetChan::OutOfBand ( const uint32_t net_socket, netadr_t adr, const size_t length, byte *data)
 {
 	sizebuf_t	send;
 	byte		send_buf[MAX_MSGLEN];
@@ -119,17 +124,18 @@ void Netchan_OutOfBand ( const uint32_t net_socket, netadr_t adr, int length, by
 	SZ_Write (&send, data, length);
 
 // send the datagram
-	NET_SendPacket ( static_cast<netsrc_t>( net_socket ), send.cursize, send.data, adr);
-}
+	//NET_SendPacket ( static_cast<netsrc_t>( net_socket ), send.cursize, send.data, adr);
+	crNet::Get()->SendPacket( static_cast<netsrc_t>( net_socket ), send.cursize, send.data, adr);
+}	
 
 /*
 ===============
-Netchan_OutOfBandPrint
+crNetChan::OutOfBandPrint
 
 Sends a text message in an out-of-band datagram
 ================
 */
-void Netchan_OutOfBandPrint ( const int net_socket, netadr_t adr, char *format, ...)
+void crNetChan::OutOfBandPrint ( const uint32_t net_socket, netadr_t adr, const char *format, ...)
 {
 	va_list		argptr;
 	static char		string[MAX_MSGLEN - 4];
@@ -138,21 +144,20 @@ void Netchan_OutOfBandPrint ( const int net_socket, netadr_t adr, char *format, 
 	vsprintf (string, format,argptr);
 	va_end (argptr);
 
-	Netchan_OutOfBand (net_socket, adr, strlen(string), (byte *)string);
+	OutOfBand (net_socket, adr, strlen(string), (byte *)string);
 }
 
 
 /*
 ==============
-Netchan_Setup
+crNetChan::Setup
 
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int qport)
+void crNetChan::Setup ( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport)
 {
-	memset (chan, 0, sizeof(*chan));
-	
+	std::memset ( chan, 0, sizeof(netchan_t) );
 	chan->sock = sock;
 	chan->remote_address = adr;
 	chan->qport = qport;
@@ -167,20 +172,19 @@ void Netchan_Setup (netsrc_t sock, netchan_t *chan, netadr_t adr, int qport)
 
 /*
 ===============
-Netchan_CanReliable
+crNetChan::CanReliable
 
 Returns true if the last reliable message has acked
 ================
 */
-bool Netchan_CanReliable (netchan_t *chan)
+bool crNetChan::CanReliable (netchan_t *chan) const
 {
 	if (chan->reliable_length)
 		return false;			// waiting for ack
 	return true;
 }
 
-
-bool Netchan_NeedReliable (netchan_t *chan)
+bool crNetChan::NeedReliable ( netchan_t *chan )
 {
 	bool	send_reliable;
 
@@ -193,16 +197,14 @@ bool Netchan_NeedReliable (netchan_t *chan)
 
 // if the reliable transmit buffer is empty, copy the current message out
 	if (!chan->reliable_length && chan->message.cursize)
-	{
 		send_reliable = true;
-	}
 
 	return send_reliable;
 }
 
 /*
 ===============
-Netchan_Transmit
+crNetChan::Transmit
 
 tries to send an unreliable message to a connection, and handles the
 transmition / retransmition of the reliable messages.
@@ -210,11 +212,11 @@ transmition / retransmition of the reliable messages.
 A 0 length will still generate a packet and deal with the reliable messages.
 ================
 */
-void Netchan_Transmit (netchan_t *chan, int length, byte *data)
+void crNetChan::Transmit (netchan_t *chan, int length, byte *data)
 {
 	sizebuf_t	send;
 	byte		send_buf[MAX_MSGLEN];
-	bool	send_reliable;
+	bool		send_reliable;
 	unsigned	w1, w2;
 
 // check for message overflow
@@ -226,11 +228,11 @@ void Netchan_Transmit (netchan_t *chan, int length, byte *data)
 		return;
 	}
 
-	send_reliable = Netchan_NeedReliable (chan);
+	send_reliable = NeedReliable (chan);
 
 	if (!chan->reliable_length && chan->message.cursize)
 	{
-		memcpy (chan->reliable_buf, chan->message_buf, chan->message.cursize);
+		std::memcpy (chan->reliable_buf, chan->message_buf, chan->message.cursize);
 		chan->reliable_length = chan->message.cursize;
 		chan->message.cursize = 0;
 		chan->reliable_sequence ^= 1;
@@ -267,7 +269,7 @@ void Netchan_Transmit (netchan_t *chan, int length, byte *data)
 		Com_Printf ("Netchan_Transmit: dumped unreliable\n");
 
 // send the datagram
-	NET_SendPacket (chan->sock, send.cursize, send.data, chan->remote_address);
+	crNet::Get()->SendPacket (chan->sock, send.cursize, send.data, chan->remote_address);
 
 	if (showpackets->value)
 	{
@@ -295,7 +297,7 @@ called when the current net_message is from remote_address
 modifies net_message so that it points to the packet payload
 =================
 */
-bool Netchan_Process (netchan_t *chan, sizebuf_t *msg)
+bool crNetChan::Process (netchan_t *chan, sizebuf_t *msg)
 {
 	unsigned	sequence, sequence_ack;
 	unsigned	reliable_ack, reliable_message;
@@ -373,9 +375,7 @@ bool Netchan_Process (netchan_t *chan, sizebuf_t *msg)
 	chan->incoming_acknowledged = sequence_ack;
 	chan->incoming_reliable_acknowledged = reliable_ack;
 	if (reliable_message)
-	{
 		chan->incoming_reliable_sequence ^= 1;
-	}
 
 //
 // the message can now be read from the current message pointer
