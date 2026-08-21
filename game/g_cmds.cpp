@@ -151,7 +151,7 @@ Give items to a client
 */
 void Cmd_Give_f (edict_t *ent)
 {
-	char		*name;
+	const char	*name = nullptr;
 	gitem_t		*it;
 	int			index;
 	int			i;
@@ -164,17 +164,17 @@ void Cmd_Give_f (edict_t *ent)
 		return;
 	}
 
-	name = gi.args();
+	name = gi.Cmd->Args();
 
 	if (Q_stricmp(name, "all") == 0)
 		give_all = true;
 	else
 		give_all = false;
 
-	if (give_all || Q_stricmp(gi.argv(1), "health") == 0)
+	if (give_all || Q_stricmp( gi.Cmd->Argv(1), "health") == 0)
 	{
-		if (gi.argc() == 3)
-			ent->health = atoi(gi.argv(2));
+		if (gi.Cmd->Argc() == 3)
+			ent->health = std::atoi(gi.Cmd->Argv(2));
 		else
 			ent->health = ent->max_health;
 		if (!give_all)
@@ -260,7 +260,7 @@ void Cmd_Give_f (edict_t *ent)
 	it = FindItem (name);
 	if (!it)
 	{
-		name = gi.argv(1);
+		name = gi.Cmd->Argv(1);
 		it = FindItem (name);
 		if (!it)
 		{
@@ -279,8 +279,8 @@ void Cmd_Give_f (edict_t *ent)
 
 	if (it->flags & IT_AMMO)
 	{
-		if (gi.argc() == 3)
-			ent->client->pers.inventory[index] = atoi(gi.argv(2));
+		if (gi.Cmd->Argc() == 3)
+			ent->client->pers.inventory[index] = std::atoi( gi.Cmd->Argv(2));
 		else
 			ent->client->pers.inventory[index] += it->quantity;
 	}
@@ -397,9 +397,9 @@ void Cmd_Use_f (edict_t *ent)
 {
 	int			index;
 	gitem_t		*it;
-	char		*s;
+	const char	*s = nullptr;
 
-	s = gi.args();
+	s = gi.Cmd->Args();
 	it = FindItem (s);
 	if (!it)
 	{
@@ -433,9 +433,9 @@ void Cmd_Drop_f (edict_t *ent)
 {
 	int			index;
 	gitem_t		*it;
-	char		*s;
+	const char	*s = nullptr;
 
-	s = gi.args();
+	s = gi.Cmd->Args();
 	it = FindItem (s);
 	if (!it)
 	{
@@ -737,7 +737,7 @@ void Cmd_Wave_f (edict_t *ent)
 {
 	int		i;
 
-	i = atoi (gi.argv(1));
+	i = atoi (gi.Cmd->Argv(1));
 
 	// can't wave when ducked
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
@@ -792,7 +792,7 @@ void Cmd_Say_f (edict_t *ent, bool team, bool arg0)
 	char	text[2048];
 	gclient_t *cl;
 
-	if (gi.argc () < 2 && !arg0)
+	if (gi.Cmd->Argc() < 2 && !arg0)
 		return;
 
 	if (!((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
@@ -805,27 +805,27 @@ void Cmd_Say_f (edict_t *ent, bool team, bool arg0)
 
 	if (arg0)
 	{
-		strcat (text, gi.argv(0));
-		strcat (text, " ");
-		strcat (text, gi.args());
+		std::strcat (text, gi.Cmd->Argv(0));
+		std::strcat (text, " ");
+		std::strcat (text, gi.Cmd->Args());
 	}
 	else
 	{
-		p = gi.args();
+		p = const_cast<char*>( gi.Cmd->Args() );
 
 		if (*p == '"')
 		{
 			p++;
-			p[strlen(p)-1] = 0;
+			p[std::strlen(p)-1] = 0;
 		}
-		strcat(text, p);
+		std::strcat(text, p);
 	}
 
 	// don't let text be too long for malicious reasons
-	if (strlen(text) > 150)
+	if (std::strlen(text) > 150)
 		text[150] = 0;
 
-	strcat(text, "\n");
+	std::strcat(text, "\n");
 
 	if (flood_msgs->value) {
 		cl = ent->client;
@@ -889,8 +889,8 @@ void Cmd_PlayerList_f(edict_t *ent)
 			e2->client->resp.score,
 			e2->client->pers.netname,
 			e2->client->resp.spectator ? " (spectator)" : "");
-		if (strlen(text) + strlen(st) > sizeof(text) - 50) {
-			sprintf(text+strlen(text), "And more...\n");
+		if (std::strlen(text) + std::strlen(st) > sizeof(text) - 50) {
+			std::sprintf( text + std::strlen(text), "And more...\n");
 			gi.cprintf(ent, PRINT_HIGH, "%s", text);
 			return;
 		}
@@ -907,12 +907,12 @@ ClientCommand
 */
 void ClientCommand (edict_t *ent)
 {
-	char	*cmd;
+	const char	*cmd = nullptr;
 
 	if (!ent->client)
 		return;		// not fully in game yet
 
-	cmd = gi.argv(0);
+	cmd = gi.Cmd->Argv(0);
 
 	if (Q_stricmp (cmd, "players") == 0)
 	{

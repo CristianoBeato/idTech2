@@ -28,18 +28,18 @@ static const char*	cmd_null_string = "";
 static bool	cmd_wait = false;
 constexpr	uint32_t ALIAS_LOOP_COUNT = 16;
 
-static crCMD lCmd = crCMD();
-crCMD* gCmd;
+static crCMDLocal lCmd = crCMDLocal();
+crCMD* gCmd = &lCmd;
 
 
 //=============================================================================
 
 
-crCMD::crCMD( void )
+crCMDLocal::crCMDLocal( void )
 {
 }
 
-crCMD::~crCMD( void )
+crCMDLocal::~crCMDLocal( void )
 {
 }
 
@@ -52,7 +52,7 @@ next frame.  This allows commands like:
 bind g "impulse 5 ; +attack ; wait ; -attack ; impulse 2"
 ============
 */
-void crCMD::Wait_f (void)
+void crCMDLocal::Wait_f (void)
 {
 	cmd_wait = true;
 }
@@ -67,12 +67,12 @@ void crCMD::Wait_f (void)
 
 /*
 ============
-crCMD::AddText
+crCMDLocal::AddText
 
 Adds command text at the end of the buffer
 ============
 */
-void crCMD::AddText ( const char *text)
+void crCMDLocal::AddText ( const char *text)
 {	
 	size_t l = std::strlen ( text );
 
@@ -94,7 +94,7 @@ Adds a \n to the text
 FIXME: actually change the command buffer to do less copying
 ============
 */
-void crCMD::InsertText ( const char *text)
+void crCMDLocal::InsertText ( const char *text)
 {
 	int		templen = 0;
 	char	*temp = nullptr;
@@ -124,10 +124,10 @@ void crCMD::InsertText ( const char *text)
 
 /*
 ============
-crCMD::CopyToDefer
+crCMDLocal::CopyToDefer
 ============
 */
-void crCMD::CopyToDefer (void)
+void crCMDLocal::CopyToDefer (void)
 {
 	std::memcpy( m_deferTextBuf, m_textBuf, m_text.cursize );
 	m_deferTextBuf[m_text.cursize] = 0;
@@ -136,10 +136,10 @@ void crCMD::CopyToDefer (void)
 
 /*
 ============
-crCMD::InsertFromDefer
+crCMDLocal::InsertFromDefer
 ============
 */
-void crCMD::InsertFromDefer (void)
+void crCMDLocal::InsertFromDefer (void)
 {
 	InsertText ( (const char*)m_deferTextBuf );
 	m_deferTextBuf[0] = 0;
@@ -148,10 +148,10 @@ void crCMD::InsertFromDefer (void)
 
 /*
 ============
-crCMD::ExecuteText
+crCMDLocal::ExecuteText
 ============
 */
-void crCMD::ExecuteText ( const uint32_t exec_when, const char *text )
+void crCMDLocal::ExecuteText ( const uint32_t exec_when, const char *text )
 {
 	switch (exec_when)
 	{
@@ -174,7 +174,7 @@ void crCMD::ExecuteText ( const uint32_t exec_when, const char *text )
 Cbuf_Execute
 ============
 */
-void crCMD::Execute (void)
+void crCMDLocal::Execute (void)
 {
 	int		i = 0;
 	int		quotes = 0;
@@ -232,7 +232,7 @@ void crCMD::Execute (void)
 
 /*
 ===============
-crCMD::AddEarlyCommands
+crCMDLocal::AddEarlyCommands
 
 Adds command line parameters as script statements
 Commands lead with a +, and continue until another +
@@ -243,7 +243,7 @@ the client and server initialize for the first time.
 Other commands are added late, after all initialization is complete.
 ===============
 */
-void crCMD::AddEarlyCommands ( const bool clear )
+void crCMDLocal::AddEarlyCommands ( const bool clear )
 {
 	int		i = 0;
 	const char	*s = nullptr;
@@ -266,7 +266,7 @@ void crCMD::AddEarlyCommands ( const bool clear )
 
 /*
 =================
-crCMD::AddLateCommands
+crCMDLocal::AddLateCommands
 
 Adds command line parameters as script statements
 Commands lead with a + and continue until another + or -
@@ -276,7 +276,7 @@ Returns true if any late commands were added, which
 will keep the demoloop from immediately starting
 =================
 */
-bool crCMD::AddLateCommands (void)
+bool crCMDLocal::AddLateCommands (void)
 {
 	bool	ret = false;
 	int		i = 0, j = 0;
@@ -352,7 +352,7 @@ bool crCMD::AddLateCommands (void)
 crCVAR::Exec_f
 ===============
 */
-void crCMD::Exec_f (void)
+void crCMDLocal::Exec_f (void)
 {
 	char	*f, *f2;
 	int		len;
@@ -390,7 +390,7 @@ Cmd_Echo_f
 Just prints the rest of the line to the console
 ===============
 */
-void crCMD::Echo_f (void)
+void crCMDLocal::Echo_f (void)
 {
 	int		i;
 	
@@ -406,7 +406,7 @@ Cmd_Alias_f
 Creates a new command that executes a command string (possibly ; seperated)
 ===============
 */
-void crCMD::Alias_f ( void )
+void crCMDLocal::Alias_f ( void )
 {
 	int			i = 0, c = 0;
 	const char*	s = nullptr;
@@ -472,20 +472,20 @@ void crCMD::Alias_f ( void )
 
 /*
 ============
-crCMD::Argc
+crCMDLocal::Argc
 ============
 */
-int crCMD::Argc( void ) const
+int crCMDLocal::Argc( void ) const
 {
 	return m_argc;
 }
 
 /*
 ============
-crCMD::Argv
+crCMDLocal::Argv
 ============
 */
-const char*	crCMD::Argv( const int arg ) const
+const char*	crCMDLocal::Argv( const int arg ) const
 {
 	if ( (unsigned)arg >= m_argc )
 		return cmd_null_string;
@@ -495,22 +495,22 @@ const char*	crCMD::Argv( const int arg ) const
 
 /*
 ============
-crCMD::Args
+crCMDLocal::Args
 
 Returns a single string containing argv(1) to argv(argc()-1)
 ============
 */
-const char* crCMD::Args ( void ) const
+const char* crCMDLocal::Args ( void ) const
 {
 	return m_args;
 }
 
 /*
 ======================
-crCMD::MacroExpandString
+crCMDLocal::MacroExpandString
 ======================
 */
-const char *crCMD::MacroExpandString( const char *text )
+const char *crCMDLocal::MacroExpandString( const char *text )
 {
 	bool	inquote = false;
 	int		i = 0, j = 0, count = 0, len = 0;
@@ -584,13 +584,13 @@ const char *crCMD::MacroExpandString( const char *text )
 
 /*
 ============
-crCMD::TokenizeString
+crCMDLocal::TokenizeString
 
 Parses the given string into command line tokens.
 $Cvars will be expanded unless they are in a quoted token
 ============
 */
-void crCMD::TokenizeString ( const char *text, const bool macroExpand )
+void crCMDLocal::TokenizeString ( const char *text, const bool macroExpand )
 {
 	int i = 0;
 	const char	*com_token = nullptr;
@@ -657,10 +657,10 @@ void crCMD::TokenizeString ( const char *text, const bool macroExpand )
 
 /*
 ============
-crCMD::AddCommand
+crCMDLocal::AddCommand
 ============
 */
-void crCMD::AddCommand ( const char *cmd_name, xcommand_t function )
+void crCMDLocal::AddCommand ( const char *cmd_name, xcommand_t function )
 {
 	cmd_function_t	*cmd = nullptr;
 	
@@ -690,10 +690,10 @@ void crCMD::AddCommand ( const char *cmd_name, xcommand_t function )
 
 /*
 ============
-crCMD::RemoveCommand
+crCMDLocal::RemoveCommand
 ============
 */
-void crCMD::RemoveCommand ( const char *cmd_name )
+void crCMDLocal::RemoveCommand ( const char *cmd_name )
 {
 	cmd_function_t* cmd = nullptr, **back = nullptr;
 
@@ -719,10 +719,10 @@ void crCMD::RemoveCommand ( const char *cmd_name )
 
 /*
 ============
-crCMD::Exists
+crCMDLocal::Exists
 ============
 */
-bool crCMD::Exists (const char *cmd_name) const
+bool crCMDLocal::Exists (const char *cmd_name) const
 {
 	cmd_function_t	*cmd = nullptr;
 
@@ -740,7 +740,7 @@ bool crCMD::Exists (const char *cmd_name) const
 Cmd_CompleteCommand
 ============
 */
-const char* crCMD::CompleteCommand ( const char *partial)
+const char* crCMDLocal::CompleteCommand ( const char *partial)
 {
 	size_t			len = 0;
 	cmd_function_t	*cmd = nullptr;
@@ -783,13 +783,13 @@ const char* crCMD::CompleteCommand ( const char *partial)
 
 /*
 ============
-crCMD::ExecuteString
+crCMDLocal::ExecuteString
 
 A complete command line has been parsed, so try to execute it
 FIXME: lookupnoadd the token to speed search?
 ============
 */
-void crCMD::ExecuteString ( const char *text )
+void crCMDLocal::ExecuteString ( const char *text )
 {	
 	cmd_function_t	*cmd = nullptr;
 	cmdalias_t		*a = nullptr;
@@ -841,10 +841,10 @@ void crCMD::ExecuteString ( const char *text )
 
 /*
 ============
-crCMD::List_f
+crCMDLocal::List_f
 ============
 */
-void crCMD::List_f (void)
+void crCMDLocal::List_f (void)
 {
 	int i = 0;
 	cmd_function_t	*cmd = nullptr;
@@ -860,7 +860,7 @@ void crCMD::List_f (void)
 Cmd_Init
 ============
 */
-void crCMD::Init( void )
+void crCMDLocal::Init( void )
 {
 	SZ_Init (& m_text, m_textBuf, sizeof( m_textBuf));
 

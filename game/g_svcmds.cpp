@@ -73,7 +73,7 @@ int			numipfilters;
 StringToFilter
 =================
 */
-static bool StringToFilter (char *s, ipfilter_t *f)
+static bool StringToFilter ( const char *s, ipfilter_t *f)
 {
 	char	num[128];
 	int		i, j;
@@ -159,7 +159,8 @@ void SVCmd_AddIP_f (void)
 {
 	int		i;
 	
-	if (gi.argc() < 3) {
+	if ( gi.Cmd->Argc() < 3 ) 
+	{
 		gi.cprintf(NULL, PRINT_HIGH, "Usage:  addip <ip-mask>\n");
 		return;
 	}
@@ -177,7 +178,7 @@ void SVCmd_AddIP_f (void)
 		numipfilters++;
 	}
 	
-	if (!StringToFilter (gi.argv(2), &ipfilters[i]))
+	if ( !StringToFilter ( gi.Cmd->Argv( 2 ), &ipfilters[i]))
 		ipfilters[i].compare = 0xffffffff;
 }
 
@@ -191,15 +192,17 @@ void SVCmd_RemoveIP_f (void)
 	ipfilter_t	f;
 	int			i, j;
 
-	if (gi.argc() < 3) {
+	if ( gi.Cmd->Argc() < 3) 
+	{
 		gi.cprintf(NULL, PRINT_HIGH, "Usage:  sv removeip <ip-mask>\n");
 		return;
 	}
 
-	if (!StringToFilter (gi.argv(2), &f))
+	if (!StringToFilter ( gi.Cmd->Argv(2), &f))
 		return;
 
 	for (i=0 ; i<numipfilters ; i++)
+	{
 		if (ipfilters[i].mask == f.mask
 		&& ipfilters[i].compare == f.compare)
 		{
@@ -209,7 +212,8 @@ void SVCmd_RemoveIP_f (void)
 			gi.cprintf (NULL, PRINT_HIGH, "Removed.\n");
 			return;
 		}
-	gi.cprintf (NULL, PRINT_HIGH, "Didn't find %s.\n", gi.argv(2));
+	}
+	gi.cprintf (NULL, PRINT_HIGH, "Didn't find %s.\n", gi.Cmd->Argv( 2 ));
 }
 
 /*
@@ -243,7 +247,7 @@ void SVCmd_WriteIP_f (void)
 	int		i;
 	cvar_t	*game;
 
-	game = gi.cvar("game", "", 0);
+	game = gi.Cvar->Get("game", "", 0);
 
 	if (!*game->string)
 		sprintf (name, "%s/listip.cfg", GAMEVERSION);
@@ -281,9 +285,9 @@ of the parameters
 */
 void	ServerCommand (void)
 {
-	char	*cmd;
+	const char	*cmd;
 
-	cmd = gi.argv(1);
+	cmd = gi.Cmd->Argv(1);
 	if (Q_stricmp (cmd, "test") == 0)
 		Svcmd_Test_f ();
 	else if (Q_stricmp (cmd, "addip") == 0)

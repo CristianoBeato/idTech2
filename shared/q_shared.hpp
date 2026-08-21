@@ -1194,4 +1194,76 @@ extern int vidref_val;
 // PGM
 // ==================
 
+/// Command execution takes a null terminated string, breaks it into tokens,
+/// then searches for a command or variable that matches the first token.
+typedef void (*xcommand_t) (void);
+
+class crCMD
+{
+public:
+	crCMD( void ) {};
+	~crCMD( void ) {};
+	/// @brief allocates an initial text buffer that will grow as needed
+    virtual void Init (void) = 0;
+	virtual void AddText ( const char *text ) = 0;
+
+	/// @brief adds all the +set commands from the command line
+    virtual void AddEarlyCommands ( const bool clear ) = 0;
+
+	/// @brief adds all the remaining + commands from the command line
+    /// Returns true if any late commands were added, which
+    /// will keep the demoloop from immediately starting
+    virtual bool AddLateCommands (void) = 0;
+
+	/// @brief called by the init functions of other parts of the program to
+    /// register commands and functions to call for them.
+    /// The cmd_name is referenced later, so it should not be in temp memory
+    /// if function is NULL, the command will be forwarded to the server
+    /// as a clc_stringcmd instead of executed locally
+    virtual void    AddCommand ( const char *cmd_name, xcommand_t function) = 0;
+
+	/// @brief Pulls off \\n terminated lines of text from the command buffer and sends
+    /// them through Cmd_ExecuteString.  Stops when the buffer is empty.
+    /// Normally called once per frame, but may be explicitly invoked.
+    /// Do not call inside a command function!
+    virtual void Execute (void) = 0;
+
+	virtual int			Argc ( void ) const = 0;
+	virtual const char*	Argv ( const int arg ) const = 0;
+	virtual const char*	Args ( void ) const = 0;
+};
+
+class crCVAR
+{
+public:
+	crCVAR( void ) {};
+	~crCVAR( void ) {};
+
+	virtual void	Init (void) = 0;
+
+	/// @brief creates the variable if it doesn't exist, or returns the existing one
+	/// if it exists, the value will not be changed, but flags will be ORed in
+	/// that allows variables to be unarchived without needing bitflags
+	virtual cvar_t*	Get ( const char *var_name, const char *value, const uint32_t flags ) = 0;
+
+	/// @brief will create the variable if it doesn't exist
+	virtual cvar_t*	Set ( const char *var_name, const char *value ) = 0;
+
+	/// @brief will set the variable even if NOSET or LATCH
+    virtual cvar_t *ForceSet ( const char *var_name, const char *value ) = 0;
+
+	virtual cvar_t 	*FullSet ( const char *var_name, const char *value, const uint32_t flags ) = 0;
+
+	/// @brief returns an empty string if not defined
+    virtual const char* VariableString ( const char *var_name ) const = 0;
+
+	/// @brief returns 0 if not defined or non numeric
+    virtual float   VariableValue ( const char *var_name ) const = 0;
+
+	/// @brief called by ExecuteString() when Argv(0) doesn't match a known
+    /// command.  Returns true if the command was a variable reference that
+    /// was handled. (print or change)
+    virtual bool Command (void) = 0;
+};
+
 #endif //!__Q_SHARED_H__

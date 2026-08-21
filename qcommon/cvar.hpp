@@ -42,26 +42,26 @@ set r_draworder 0	as above, but creates the cvar if not present
 Cvars are restricted from having the same names as commands to keep this
 interface from being ambiguous.
 */
-class crCVAR
+class crCVARLocal : public crCVAR
 {
 public:
-    crCVAR( void );
-    ~crCVAR( void );
+    crCVARLocal( void );
+    ~crCVARLocal( void );
 
-    void	Init (void);
+    virtual void	Init (void);
 
     /// @brief creates the variable if it doesn't exist, or returns the existing one
     /// if it exists, the value will not be changed, but flags will be ORed in
     /// that allows variables to be unarchived without needing bitflags
-    cvar_t *Get ( const char *var_name, const char *value, const uint32_t flags );
+    virtual cvar_t *Get ( const char *var_name, const char *value, const uint32_t flags );
     
     /// @brief will create the variable if it doesn't exist
-    cvar_t 	*Set ( const char *var_name, const char *value );
+    virtual cvar_t 	*Set ( const char *var_name, const char *value );
 
     /// @brief will set the variable even if NOSET or LATCH
-    cvar_t *ForceSet ( const char *var_name, const char *value );
+    virtual cvar_t *ForceSet ( const char *var_name, const char *value );
 
-    cvar_t 	*FullSet ( const char *var_name, const char *value, const uint32_t flags );
+    virtual cvar_t 	*FullSet ( const char *var_name, const char *value, const uint32_t flags );
 
     /// @brief expands value to a string and calls Cvar_Set
     void	SetValue ( const char *var_name, float value );
@@ -70,7 +70,7 @@ public:
     float   VariableValue ( const char *var_name ) const;
 
     /// @brief returns an empty string if not defined
-    const char* VariableString ( const char *var_name ) const;
+    virtual const char* VariableString ( const char *var_name ) const;
 
     /// @brief attempts to match a partial variable name for command line completion
     /// returns nullptr if nothing fits

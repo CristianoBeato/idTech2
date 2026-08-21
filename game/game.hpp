@@ -168,21 +168,14 @@ typedef struct
 	void	(*TagFree) (void *block);
 	void	(*FreeTags) (int tag);
 
-	// console variable interaction
-	cvar_t	*(*cvar) ( const char *var_name, const char *value, int flags);
-	cvar_t	*(*cvar_set) ( const char *var_name, const char *value);
-	cvar_t	*(*cvar_forceset) ( const char *var_name, const char *value );
-
-	// ClientCommand and ServerCommand parameter access
-	int		(*argc) (void);
-	char	*(*argv) (int n);
-	char	*(*args) (void);	// concatenation of all argv >= 1
-
 	// add commands to the server console as if they were typed in
 	// for map changing, etc
 	void	(*AddCommandString) (char *text);
 
 	void	(*DebugGraph) (float value, int color);
+
+	crCVAR*	Cvar;
+	crCMD*	Cmd;
 } game_import_t;
 
 //
@@ -240,6 +233,7 @@ typedef struct
 	int			edict_size;
 	int			num_edicts;		// current number, <= max_edicts
 	int			max_edicts;
+
 } game_export_t;
 
 game_export_t *GetGameApi (game_import_t *import);

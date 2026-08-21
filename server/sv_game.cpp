@@ -308,7 +308,7 @@ void SV_ShutdownGameProgs (void)
 		return;
 	ge->Shutdown ();
 	Sys_UnloadGame ();
-	ge = NULL;
+	ge = nullptr;
 }
 
 /*
@@ -370,14 +370,8 @@ void SV_InitGameProgs (void)
 	import.TagFree = Z_Free;
 	import.FreeTags = Z_FreeTags;
 
-	import.cvar = Cvar_Get;
-	import.cvar_set = Cvar_Set;
-	import.cvar_forceset = Cvar_ForceSet;
-
-	import.argc = Cmd_Argc;
-	import.argv = Cmd_Argv;
-	import.args = Cmd_Args;
-	import.AddCommandString = Cbuf_AddText;
+	import.Cvar = gCvar;
+	import.Cmd = gCmd;
 
 	import.DebugGraph = SCR_DebugGraph;
 	import.SetAreaPortalState = CM_SetAreaPortalState;

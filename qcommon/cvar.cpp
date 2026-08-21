@@ -23,14 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "cvar.hpp"
 
 /// @brief local cvar 
-static crCVAR lCvar = crCVAR();
+static crCVARLocal lCvar = crCVARLocal();
 crCVAR* gCvar = &lCvar;
 
-crCVAR::crCVAR( void )
+crCVARLocal::crCVARLocal( void )
 {
 }
 
-crCVAR::~crCVAR( void )
+crCVARLocal::~crCVARLocal( void )
 {
 }
 
@@ -56,7 +56,7 @@ static bool InfoValidate ( const char *s)
 Cvar_FindVar
 ============
 */
-cvar_t* crCVAR::FindVar ( const char *var_name ) const
+cvar_t* crCVARLocal::FindVar ( const char *var_name ) const
 {
 	cvar_t	*var = nullptr;
 	
@@ -74,7 +74,7 @@ cvar_t* crCVAR::FindVar ( const char *var_name ) const
  crCvar::VariableValue
 ============
 */
-float crCVAR::VariableValue ( const char *var_name ) const
+float crCVARLocal::VariableValue ( const char *var_name ) const
 {
 	cvar_t	*var = nullptr;
 	
@@ -90,7 +90,7 @@ float crCVAR::VariableValue ( const char *var_name ) const
 Cvar_VariableString
 ============
 */
-const char *crCVAR::VariableString ( const char *var_name ) const
+const char *crCVARLocal::VariableString ( const char *var_name ) const
 {
 	cvar_t *var = nullptr;
 	
@@ -107,7 +107,7 @@ const char *crCVAR::VariableString ( const char *var_name ) const
 CompleteVariable
 ============
 */
-const char *crCVAR::CompleteVariable ( const char *partial ) const
+const char *crCVARLocal::CompleteVariable ( const char *partial ) const
 {
 	size_t	len = 0;
 	cvar_t*	cvar = nullptr;
@@ -141,7 +141,7 @@ If the variable already exists, the value will not be set
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *crCVAR::Get ( const char *var_name, const char *var_value, const uint32_t flags )
+cvar_t *crCVARLocal::Get ( const char *var_name, const char *var_value, const uint32_t flags )
 {
 	cvar_t	*var = nullptr;
 	
@@ -190,10 +190,10 @@ cvar_t *crCVAR::Get ( const char *var_name, const char *var_value, const uint32_
 
 /*
 ============
-crCVAR::Set2
+crCVARLocal::Set2
 ============
 */
-cvar_t*	crCVAR::Set2( const char *var_name, const char *value, bool force)
+cvar_t*	crCVARLocal::Set2( const char *var_name, const char *value, bool force)
 {
 	cvar_t	*var = nullptr;
 
@@ -277,20 +277,20 @@ cvar_t*	crCVAR::Set2( const char *var_name, const char *value, bool force)
 
 /*
 ============
-crCVAR::ForceSet
+crCVARLocal::ForceSet
 ============
 */
-cvar_t *crCVAR::ForceSet ( const char *var_name, const char *value )
+cvar_t *crCVARLocal::ForceSet ( const char *var_name, const char *value )
 {
 	return Set2 (var_name, value, true);
 }
 
 /*
 ============
-crCVAR::Set
+crCVARLocal::Set
 ============
 */
-cvar_t *crCVAR::Set ( const char *var_name, const char *value )
+cvar_t *crCVARLocal::Set ( const char *var_name, const char *value )
 {
 	return Set2 (var_name, value, false);
 }
@@ -300,7 +300,7 @@ cvar_t *crCVAR::Set ( const char *var_name, const char *value )
 crCvar::FullSet
 ============
 */
-cvar_t *crCVAR::FullSet ( const char *var_name, const char *value, const uint32_t flags )
+cvar_t *crCVARLocal::FullSet ( const char *var_name, const char *value, const uint32_t flags )
 {
 	cvar_t	*var = nullptr;
 	
@@ -327,7 +327,7 @@ cvar_t *crCVAR::FullSet ( const char *var_name, const char *value, const uint32_
 crCvar::SetValue
 ============
 */
-void crCVAR::SetValue ( const char *var_name, float value )
+void crCVARLocal::SetValue ( const char *var_name, float value )
 {
 	char	val[32]{0};
 
@@ -347,7 +347,7 @@ Cvar_GetLatchedVars
 Any variables with latched values will now be updated
 ============
 */
-void crCVAR::GetLatchedVars (void)
+void crCVARLocal::GetLatchedVars (void)
 {
 	cvar_t	*var = nullptr;
 
@@ -375,7 +375,7 @@ Cvar_Command
 Handles variable inspection and changing from the console
 ============
 */
-bool crCVAR::Command (void)
+bool crCVARLocal::Command (void)
 {
 	cvar_t			*v = nullptr;
 
@@ -402,7 +402,7 @@ Cvar_Set_f
 Allows setting and defining of arbitrary cvars from console
 ============
 */
-void crCVAR::Set_f (void)
+void crCVARLocal::Set_f (void)
 {
 	int	c = 0;
 	int	flags = 0;
@@ -440,7 +440,7 @@ Appends lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 */
-void crCVAR::WriteVariables ( const char *path)
+void crCVARLocal::WriteVariables ( const char *path)
 {
 	cvar_t	*var = nullptr;
 	FILE	*f = nullptr;
@@ -464,7 +464,7 @@ Cvar_List_f
 
 ============
 */
-void crCVAR::List_f (void)
+void crCVARLocal::List_f (void)
 {
 	int		i = 0;
 	cvar_t	*var = nullptr;
@@ -494,7 +494,7 @@ void crCVAR::List_f (void)
 	Com_Printf ("%i cvars\n", i);
 }
 
-const char* crCVAR::BitInfo ( const uint32_t bit ) const
+const char* crCVARLocal::BitInfo ( const uint32_t bit ) const
 {
 	static char	info[MAX_INFO_STRING]{0};
 	cvar_t	*var = nullptr;
@@ -511,13 +511,13 @@ const char* crCVAR::BitInfo ( const uint32_t bit ) const
 }
 
 // returns an info string containing all the CVAR_USERINFO cvars
-const char* crCVAR::Userinfo( void ) const
+const char* crCVARLocal::Userinfo( void ) const
 {
 	return BitInfo (CVAR_USERINFO);
 }
 
 // returns an info string containing all the CVAR_SERVERINFO cvars
-const char* crCVAR::Serverinfo( void ) const
+const char* crCVARLocal::Serverinfo( void ) const
 {
 	return BitInfo (CVAR_SERVERINFO);
 }
@@ -529,7 +529,7 @@ Cvar_Init
 Reads in all archived cvars
 ============
 */
-void crCVAR::Init (void)
+void crCVARLocal::Init (void)
 {
 	gCmd->AddCommand ("set", Set_f);
 	gCmd->AddCommand ("cvarlist", List_f);

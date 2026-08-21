@@ -46,27 +46,23 @@ The game starts with a Cbuf_AddText ("exec quake.rc\n"); Cbuf_Execute ();
 
 */
 
-/// Command execution takes a null terminated string, breaks it into tokens,
-/// then searches for a command or variable that matches the first token.
-typedef void (*xcommand_t) (void);
-
 /// @brief adds the current command line as a clc_stringcmd to the client message.
 /// things like godmode, noclip, etc, are commands directed to the server,
 /// so when they are typed in at the console, they will need to be forwarded.
 void	Cmd_ForwardToServer (void);
 
-class crCMD
+class crCMDLocal : public crCMD
 {
 public:
-    crCMD( void );
-    ~crCMD( void );
+    crCMDLocal( void );
+    ~crCMDLocal( void );
 
     /// @brief allocates an initial text buffer that will grow as needed
-    void Init (void);
+    virtual void Init (void);
 
     /// @brief as new commands are generated from the console or keybindings,
     /// the text is added to the end of the command buffer.
-    void AddText ( const char *text);
+    virtual void AddText ( const char *text);
 
     /// @brief when a command wants to issue other commands immediately, the text is
     /// inserted at the beginning of the buffer, before any remaining unexecuted
@@ -81,7 +77,7 @@ public:
     /// The cmd_name is referenced later, so it should not be in temp memory
     /// if function is NULL, the command will be forwarded to the server
     /// as a clc_stringcmd instead of executed locally
-    void    AddCommand ( const char *cmd_name, xcommand_t function);
+    virtual void AddCommand ( const char *cmd_name, xcommand_t function);
 
     /// @brief adds all the +set commands from the command line
     void AddEarlyCommands ( const bool clear );
@@ -89,13 +85,13 @@ public:
     /// @brief adds all the remaining + commands from the command line
     /// Returns true if any late commands were added, which
     /// will keep the demoloop from immediately starting
-    bool AddLateCommands (void);
+    virtual bool AddLateCommands (void);
 
     /// @brief Pulls off \\n terminated lines of text from the command buffer and sends
     /// them through Cmd_ExecuteString.  Stops when the buffer is empty.
     /// Normally called once per frame, but may be explicitly invoked.
     /// Do not call inside a command function!
-    void Execute (void);
+    virtual void Execute (void);
 
     /// These two functions are used to defer any pending commands while a map
     /// is being loaded
@@ -105,9 +101,9 @@ public:
     /// @brief The functions that execute commands get their parameters with these
     /// functions. Cmd_Argv () will return an empty string, not a NULL
     /// if arg > argc, so string operations are always safe.
-    int		    Argc (void) const;
-    const char* Argv ( const int arg ) const;
-    const char* Args ( void ) const;
+    virtual int		    Argc (void) const;
+    virtual const char* Argv ( const int arg ) const;
+    virtual const char* Args ( void ) const;
 
 private:
     typedef struct cmd_function_s

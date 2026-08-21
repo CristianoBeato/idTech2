@@ -153,54 +153,54 @@ void InitGame (void)
 {
 	gi.dprintf ("==== InitGame ====\n");
 
-	gun_x = gi.cvar ("gun_x", "0", 0);
-	gun_y = gi.cvar ("gun_y", "0", 0);
-	gun_z = gi.cvar ("gun_z", "0", 0);
+	gun_x = gi.Cvar->Get("gun_x", "0", 0);
+	gun_y = gi.Cvar->Get("gun_y", "0", 0);
+	gun_z = gi.Cvar->Get("gun_z", "0", 0);
 
 	//FIXME: sv_ prefix is wrong for these
-	sv_rollspeed = gi.cvar ("sv_rollspeed", "200", 0);
-	sv_rollangle = gi.cvar ("sv_rollangle", "2", 0);
-	sv_maxvelocity = gi.cvar ("sv_maxvelocity", "2000", 0);
-	sv_gravity = gi.cvar ("sv_gravity", "800", 0);
+	sv_rollspeed = gi.Cvar->Get("sv_rollspeed", "200", 0);
+	sv_rollangle = gi.Cvar->Get("sv_rollangle", "2", 0);
+	sv_maxvelocity = gi.Cvar->Get("sv_maxvelocity", "2000", 0);
+	sv_gravity = gi.Cvar->Get("sv_gravity", "800", 0);
 
 	// noset vars
-	dedicated = gi.cvar ("dedicated", "0", CVAR_NOSET);
+	dedicated = gi.Cvar->Get("dedicated", "0", CVAR_NOSET);
 
 	// latched vars
-	sv_cheats = gi.cvar ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	gi.cvar ("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
-	gi.cvar ("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
+	sv_cheats = gi.Cvar->Get("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
+	gi.Cvar->Get("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
+	gi.Cvar->Get("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
 
-	maxclients = gi.cvar ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
-	maxspectators = gi.cvar ("maxspectators", "4", CVAR_SERVERINFO);
-	deathmatch = gi.cvar ("deathmatch", "0", CVAR_LATCH);
-	coop = gi.cvar ("coop", "0", CVAR_LATCH);
-	skill = gi.cvar ("skill", "1", CVAR_LATCH);
-	maxentities = gi.cvar ("maxentities", "1024", CVAR_LATCH);
+	maxclients = gi.Cvar->Get("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
+	maxspectators = gi.Cvar->Get("maxspectators", "4", CVAR_SERVERINFO);
+	deathmatch = gi.Cvar->Get("deathmatch", "0", CVAR_LATCH);
+	coop = gi.Cvar->Get("coop", "0", CVAR_LATCH);
+	skill = gi.Cvar->Get("skill", "1", CVAR_LATCH);
+	maxentities = gi.Cvar->Get("maxentities", "1024", CVAR_LATCH);
 
 	// change anytime vars
-	dmflags = gi.cvar ("dmflags", "0", CVAR_SERVERINFO);
-	fraglimit = gi.cvar ("fraglimit", "0", CVAR_SERVERINFO);
-	timelimit = gi.cvar ("timelimit", "0", CVAR_SERVERINFO);
-	password = gi.cvar ("password", "", CVAR_USERINFO);
-	spectator_password = gi.cvar ("spectator_password", "", CVAR_USERINFO);
-	filterban = gi.cvar ("filterban", "1", 0);
+	dmflags = gi.Cvar->Get ("dmflags", "0", CVAR_SERVERINFO);
+	fraglimit = gi.Cvar->Get ("fraglimit", "0", CVAR_SERVERINFO);
+	timelimit = gi.Cvar->Get ("timelimit", "0", CVAR_SERVERINFO);
+	password = gi.Cvar->Get ("password", "", CVAR_USERINFO);
+	spectator_password = gi.Cvar->Get ("spectator_password", "", CVAR_USERINFO);
+	filterban = gi.Cvar->Get ("filterban", "1", 0);
 
-	g_select_empty = gi.cvar ("g_select_empty", "0", CVAR_ARCHIVE);
+	g_select_empty = gi.Cvar->Get ("g_select_empty", "0", CVAR_ARCHIVE);
 
-	run_pitch = gi.cvar ("run_pitch", "0.002", 0);
-	run_roll = gi.cvar ("run_roll", "0.005", 0);
-	bob_up  = gi.cvar ("bob_up", "0.005", 0);
-	bob_pitch = gi.cvar ("bob_pitch", "0.002", 0);
-	bob_roll = gi.cvar ("bob_roll", "0.002", 0);
+	run_pitch = gi.Cvar->Get ("run_pitch", "0.002", 0);
+	run_roll = gi.Cvar->Get ("run_roll", "0.005", 0);
+	bob_up  = gi.Cvar->Get ("bob_up", "0.005", 0);
+	bob_pitch = gi.Cvar->Get ("bob_pitch", "0.002", 0);
+	bob_roll = gi.Cvar->Get ("bob_roll", "0.002", 0);
 
 	// flood control
-	flood_msgs = gi.cvar ("flood_msgs", "4", 0);
-	flood_persecond = gi.cvar ("flood_persecond", "4", 0);
-	flood_waitdelay = gi.cvar ("flood_waitdelay", "10", 0);
+	flood_msgs = gi.Cvar->Get ("flood_msgs", "4", 0);
+	flood_persecond = gi.Cvar->Get ("flood_persecond", "4", 0);
+	flood_waitdelay = gi.Cvar->Get ("flood_waitdelay", "10", 0);
 
 	// dm map list
-	sv_maplist = gi.cvar ("sv_maplist", "", 0);
+	sv_maplist = gi.Cvar->Get ("sv_maplist", "", 0);
 
 	// items
 	InitItems ();
