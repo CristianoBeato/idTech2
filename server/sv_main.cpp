@@ -115,8 +115,8 @@ char	*SV_StatusString (void)
 	int		statusLength;
 	int		playerLength;
 
-	strcpy (status, Cvar_Serverinfo());
-	strcat (status, "\n");
+	std::strcpy (status, gCvar->Serverinfo());
+	std::strcat (status, "\n");
 	statusLength = strlen(status);
 
 	for (i=0 ; i<maxclients->value ; i++)
@@ -129,7 +129,7 @@ char	*SV_StatusString (void)
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= sizeof(status) )
 				break;		// can't hold any more
-			strcpy (status + statusLength, player);
+			std::strcpy (status + statusLength, player);
 			statusLength += playerLength;
 		}
 	}
@@ -146,7 +146,7 @@ Responds with all the info that qplug or qspy can see
 */
 void SVC_Status (void)
 {
-	Netchan_OutOfBandPrint (NS_SERVER, net_from, "print\n%s", SV_StatusString());
+	gNetChan->OutOfBandPrint (NS_SERVER, net_from, "print\n%s", SV_StatusString());
 #if 0
 	Com_BeginRedirect (RD_PACKET, sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 	Com_Printf (SV_StatusString());
@@ -182,7 +182,7 @@ void SVC_Info (void)
 	if (maxclients->value == 1)
 		return;		// ignore in single player
 
-	version = atoi (Cmd_Argv(1));
+	version = std::atoi ( Cmd->Argv(1));
 
 	if (version != PROTOCOL_VERSION)
 		Com_sprintf (string, sizeof(string), "%s: wrong version\n", hostname->string, sizeof(string));
@@ -196,7 +196,7 @@ void SVC_Info (void)
 		Com_sprintf (string, sizeof(string), "%16s %8s %2i/%2i\n", hostname->string, sv.name, count, (int)maxclients->value);
 	}
 
-	Netchan_OutOfBandPrint (NS_SERVER, net_from, "info\n%s", string);
+	gNetChan->OutOfBandPrint (NS_SERVER, net_from, "info\n%s", string);
 }
 
 /*
@@ -208,7 +208,7 @@ Just responds with an acknowledgement
 */
 void SVC_Ping (void)
 {
-	Netchan_OutOfBandPrint (NS_SERVER, net_from, "ack");
+	gNetchan->OutOfBandPrint (NS_SERVER, net_from, "ack");
 }
 
 
@@ -254,7 +254,7 @@ void SVC_GetChallenge (void)
 	}
 
 	// send it back
-	Netchan_OutOfBandPrint (NS_SERVER, net_from, "challenge %i", svs.challenges[i].challenge);
+	gNetchan->OutOfBandPrint (NS_SERVER, net_from, "challenge %i", svs.challenges[i].challenge);
 }
 
 /*
@@ -281,10 +281,10 @@ void SVC_DirectConnect (void)
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
 
-	version = atoi(Cmd_Argv(1));
+	version = std::atoi( gCmd->Argv(1));
 	if (version != PROTOCOL_VERSION)
 	{
-		Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nServer is version %4.2f.\n", VERSION);
+		gNetchan->OutOfBandPrint (NS_SERVER, adr, "print\nServer is version %4.2f.\n", VERSION);
 		Com_DPrintf ("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -385,10 +385,10 @@ gotnewcl:
 	if (!(ge->ClientConnect (ent, userinfo)))
 	{
 		if (*Info_ValueForKey (userinfo, "rejmsg")) 
-			Netchan_OutOfBandPrint (NS_SERVER, adr, "print\n%s\nConnection refused.\n",  
+			gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\n%s\nConnection refused.\n",  
 				Info_ValueForKey (userinfo, "rejmsg"));
 		else
-			Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nConnection refused.\n" );
+			gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\nConnection refused.\n" );
 		Com_DPrintf ("Game rejected a connection.\n");
 		return;
 	}
@@ -398,9 +398,9 @@ gotnewcl:
 	SV_UserinfoChanged (newcl);
 
 	// send the connect packet to the client
-	Netchan_OutOfBandPrint (NS_SERVER, adr, "client_connect");
+	gNetChan->OutOfBandPrint (NS_SERVER, adr, "client_connect");
 
-	Netchan_Setup (NS_SERVER, &newcl->netchan , adr, qport);
+	gNetChan->Setup (NS_SERVER, &newcl->netchan , adr, qport);
 
 	newcl->state = cs_connected;
 	
@@ -412,10 +412,10 @@ gotnewcl:
 
 int Rcon_Validate (void)
 {
-	if (!strlen (rcon_password->string))
+	if (!std::strlen (rcon_password->string))
 		return 0;
 
-	if (strcmp (Cmd_Argv(1), rcon_password->string) )
+	if (std::strcmp ( gCmd->Argv(1), rcon_password->string) )
 		return 0;
 
 	return 1;
@@ -452,13 +452,13 @@ void SVC_RemoteCommand (void)
 	{
 		remaining[0] = 0;
 
-		for (i=2 ; i<Cmd_Argc() ; i++)
+		for (i=2 ; i < gCmd->Argc() ; i++)
 		{
-			strcat (remaining, Cmd_Argv(i) );
-			strcat (remaining, " ");
+			std::strcat (remaining, gCmd->Argv(i) );
+			std::strcat (remaining, " ");
 		}
 
-		Cmd_ExecuteString (remaining);
+		gCmd->ExecuteString (remaining);
 	}
 
 	Com_EndRedirect ();
@@ -484,9 +484,9 @@ void SV_ConnectionlessPacket (void)
 
 	s = MSG_ReadStringLine (&net_message);
 
-	Cmd_TokenizeString (s, false);
+	gCmd->TokenizeString (s, false);
 
-	c = Cmd_Argv(0);
+	c = gCmd->Argv(0);
 	Com_DPrintf ("Packet %s : %s\n", NET_AdrToString(net_from), c);
 
 	if (!strcmp(c, "ping"))
