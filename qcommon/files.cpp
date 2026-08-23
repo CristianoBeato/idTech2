@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qcommon.hpp"
 #include "File_system.hpp"
 
+#include <SDL3/SDL_filesystem.h>
+
 // define this to dissalow any data but the demo pak file
 //#define	NO_ADDONS
 
@@ -130,16 +132,19 @@ FS_CreatePath
 Creates any directories needed to store the given filename
 ============
 */
-void	FS_CreatePath (char *path)
+void	FS_CreatePath ( const char *path )
 {
-	char	*ofs;
-	
-	for (ofs = path+1 ; *ofs ; ofs++)
+	for ( char* ofs = const_cast<char*>(path +1); *ofs ; ofs++ )
 	{
 		if (*ofs == '/')
 		{	// create the directory
 			*ofs = 0;
-			Sys_Mkdir (path);
+#if 0
+			//Sys_Mkdir (path);
+#else
+			if( !SDL_CreateDirectory( path ) )
+				Com_Error( 0, "FS_CreatePath %s", SDL_GetError() );
+#endif
 			*ofs = '/';
 		}
 	}
@@ -179,10 +184,10 @@ int	Developer_searchpath (int who)
 
 	for (search = fs_searchpaths ; search ; search = search->next)
 	{
-		if (strstr (search->filename, "xatrix"))
+		if (std::strstr (search->filename, "xatrix"))
 			return 1;
 
-		if (strstr (search->filename, "rogue"))
+		if (std::strstr (search->filename, "rogue"))
 			return 2;
 /*
 		start = strchr (search->filename, ch);
@@ -595,8 +600,8 @@ void FS_SetGamedir (char *dir)
 {
 	searchpath_t	*next;
 
-	if (strstr(dir, "..") || strstr(dir, "/")
-		|| strstr(dir, "\\") || strstr(dir, ":") )
+	if (std::strstr(dir, "..") || std::strstr(dir, "/")
+		|| std::strstr(dir, "\\") || std::strstr(dir, ":") )
 	{
 		Com_Printf ("Gamedir should be a single filename, not a path\n");
 		return;

@@ -75,7 +75,8 @@ public:
     void OutOfBandPrint ( const uint32_t net_socket, netadr_t adr, const char *format, ...);
     bool Process (netchan_t *chan, sizebuf_t *msg);
 
-    bool CanReliable (netchan_t *chan) const;
+    bool 	CanReliable (netchan_t *chan) const;
+	byte*	GetMessageBuffer( void ) const { return const_cast<byte*>( &net_message_buffer[0] ); }
 
 private:
     netadr_t	net_from;

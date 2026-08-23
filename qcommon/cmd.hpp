@@ -96,7 +96,8 @@ public:
     /// These two functions are used to defer any pending commands while a map
     /// is being loaded
     void CopyToDefer (void);
-    void InsertFromDefer (void);
+    
+    virtual void InsertFromDefer (void);
 
     /// @brief The functions that execute commands get their parameters with these
     /// functions. Cmd_Argv () will return an empty string, not a NULL
@@ -141,9 +142,7 @@ private:
 
     /// @brief Takes a null terminated string.  Does not need to be /n terminated.
     /// breaks the string up into arg tokens.
-    void    TokenizeString ( const char *text, const bool macroExpand );
-
-    
+    virtual void    TokenizeString ( const char *text, const bool macroExpand );    
 
     void	RemoveCommand ( const char *cmd_name);
 
@@ -156,7 +155,7 @@ private:
 
     /// @brief Parses a single line of text into arguments and tries to execute it
     /// as if it was typed at the console
-    void    ExecuteString ( const char *text );
+    virtual void    ExecuteString ( const char *text );
 
     /// @brief adds the current command line as a clc_stringcmd to the client message.
     /// things like godmode, noclip, etc, are commands directed to the server,
