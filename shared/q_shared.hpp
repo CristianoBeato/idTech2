@@ -1226,7 +1226,17 @@ public:
     /// them through Cmd_ExecuteString.  Stops when the buffer is empty.
     /// Normally called once per frame, but may be explicitly invoked.
     /// Do not call inside a command function!
-    virtual void Execute (void) = 0;
+    virtual void 	Execute (void) = 0;
+
+	/// @brief Parses a single line of text into arguments and tries to execute it
+    /// as if it was typed at the console
+	virtual void    ExecuteString ( const char *text ) = 0;
+
+	/// @brief Takes a null terminated string.  Does not need to be /n terminated.
+    /// breaks the string up into arg tokens.
+    virtual void    TokenizeString ( const char *text, const bool macroExpand );
+
+	virtual void InsertFromDefer (void) = 0;
 
 	virtual int			Argc ( void ) const = 0;
 	virtual const char*	Argv ( const int arg ) const = 0;
@@ -1259,6 +1269,12 @@ public:
 
 	/// @brief returns 0 if not defined or non numeric
     virtual float   VariableValue ( const char *var_name ) const = 0;
+
+	/// @brief any CVAR_LATCHED variables that have been set will now take effect
+    virtual void	GetLatchedVars (void) = 0;
+
+	/// @brief returns an info string containing all the CVAR_SERVERINFO cvars
+    virtual const char	*Serverinfo ( void ) const = 0;
 
 	/// @brief called by ExecuteString() when Argv(0) doesn't match a known
     /// command.  Returns true if the command was a variable reference that

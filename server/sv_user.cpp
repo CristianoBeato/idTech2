@@ -57,9 +57,9 @@ This will be sent on the initial connection and upon each server load.
 */
 void SV_New_f (void)
 {
-	char		*gamedir;
-	int			playernum;
-	edict_t		*ent;
+	int			playernum = 0;
+	const char*	gamedir = nullptr;
+	edict_t*	ent = nullptr;
 
 	Com_DPrintf ("New() from %s\n", sv_client->name);
 
@@ -80,7 +80,7 @@ void SV_New_f (void)
 	// serverdata needs to go over for all types of servers
 	// to make sure the protocol is right, and to set the gamedir
 	//
-	gamedir = Cvar_VariableString ("gamedir");
+	gamedir = gCvar->VariableString ("gamedir");
 
 	// send the serverdata
 	MSG_WriteByte (&sv_client->netchan.message, svc_serverdata);
@@ -134,14 +134,14 @@ void SV_Configstrings_f (void)
 	}
 
 	// handle the case of a level changing while a client was connecting
-	if ( atoi(Cmd_Argv(1)) != svs.spawncount )
+	if ( atoi(gCmd->Argv(1)) != svs.spawncount )
 	{
 		Com_Printf ("SV_Configstrings_f from different level\n");
 		SV_New_f ();
 		return;
 	}
 	
-	start = atoi(Cmd_Argv(2));
+	start = atoi(gCmd->Argv(2));
 
 	// write a packet full of data
 
@@ -191,14 +191,14 @@ void SV_Baselines_f (void)
 	}
 	
 	// handle the case of a level changing while a client was connecting
-	if ( atoi(Cmd_Argv(1)) != svs.spawncount )
+	if ( atoi(gCmd->Argv(1)) != svs.spawncount )
 	{
 		Com_Printf ("SV_Baselines_f from different level\n");
 		SV_New_f ();
 		return;
 	}
 	
-	start = atoi(Cmd_Argv(2));
+	start = atoi(gCmd->Argv(2));
 
 	memset (&nullstate, 0, sizeof(nullstate));
 
@@ -240,7 +240,7 @@ void SV_Begin_f (void)
 	Com_DPrintf ("Begin() from %s\n", sv_client->name);
 
 	// handle the case of a level changing while a client was connecting
-	if ( atoi(Cmd_Argv(1)) != svs.spawncount )
+	if ( atoi(gCmd->Argv(1)) != svs.spawncount )
 	{
 		Com_Printf ("SV_Begin_f from different level\n");
 		SV_New_f ();
@@ -252,7 +252,7 @@ void SV_Begin_f (void)
 	// call the game begin function
 	ge->ClientBegin (sv_player);
 
-	Cbuf_InsertFromDefer ();
+	gCmd->InsertFromDefer();
 }
 
 //=============================================================================
@@ -301,7 +301,7 @@ SV_BeginDownload_f
 */
 void SV_BeginDownload_f(void)
 {
-	char	*name;
+	const char	*name;
 	extern	cvar_t *allow_download;
 	extern	cvar_t *allow_download_players;
 	extern	cvar_t *allow_download_models;
@@ -310,10 +310,10 @@ void SV_BeginDownload_f(void)
 	extern	int		file_from_pak; // ZOID did file come from pak?
 	int offset = 0;
 
-	name = Cmd_Argv(1);
+	name = gCmd->Argv(1);
 
-	if (Cmd_Argc() > 2)
-		offset = atoi(Cmd_Argv(2)); // downloaded offset
+	if (gCmd->Argc() > 2)
+		offset = atoi(gCmd->Argv(2)); // downloaded offset
 
 	// hacked by zoid to allow more conrol over download
 	// first off, no .. or global allow check
@@ -404,7 +404,7 @@ void SV_ShowServerinfo_f (void)
 
 void SV_Nextserver (void)
 {
-	char	*v;
+	const char	*v;
 
 	//ZOID, ss_pic can be nextserver'd in coop mode
 	if (sv.state == ss_game || (sv.state == ss_pic && ! gCvar->VariableValue("coop")))
@@ -413,11 +413,11 @@ void SV_Nextserver (void)
 	svs.spawncount++;	// make sure another doesn't sneak in
 	v = gCvar->VariableString ("nextserver");
 	if (!v[0])
-		gCvar->AddText ("killserver\n");
+		gCmd->AddText ("killserver\n");
 	else
 	{
-		gCvar->AddText (v);
-		gCvar->AddText ("\n");
+		gCmd->AddText (v);
+		gCmd->AddText ("\n");
 	}
 
 	gCvar->Set ("nextserver","");
@@ -480,13 +480,13 @@ void SV_ExecuteUserCommand (char *s)
 {
 	ucmd_t	*u;
 	
-	Cmd_TokenizeString (s, true);
+	gCmd->TokenizeString (s, true);
 	sv_player = sv_client->edict;
 
 //	SV_BeginRedirect (RD_CLIENT);
 
 	for (u=ucmds ; u->name ; u++)
-		if (!std::strcmp ( Cmd_Argv(0), u->name ) )
+		if (!std::strcmp ( gCmd->Argv(0), u->name ) )
 		{
 			u->func ();
 			break;
