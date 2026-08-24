@@ -1036,7 +1036,7 @@ char *CopyString ( const char *in)
 
 
 
-void Info_Print (char *s)
+void Info_Print ( const char *s)
 {
 	char	key[512];
 	char	value[512];

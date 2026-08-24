@@ -182,7 +182,7 @@ void SVC_Info (void)
 	if (maxclients->value == 1)
 		return;		// ignore in single player
 
-	version = std::atoi ( Cmd->Argv(1));
+	version = std::atoi ( gCmd->Argv(1));
 
 	if (version != PROTOCOL_VERSION)
 		Com_sprintf (string, sizeof(string), "%s: wrong version\n", hostname->string, sizeof(string));
@@ -208,7 +208,7 @@ Just responds with an acknowledgement
 */
 void SVC_Ping (void)
 {
-	gNetchan->OutOfBandPrint (NS_SERVER, net_from, "ack");
+	gNetChan->OutOfBandPrint (NS_SERVER, net_from, "ack");
 }
 
 
@@ -254,7 +254,7 @@ void SVC_GetChallenge (void)
 	}
 
 	// send it back
-	gNetchan->OutOfBandPrint (NS_SERVER, net_from, "challenge %i", svs.challenges[i].challenge);
+	gNetChan->OutOfBandPrint (NS_SERVER, net_from, "challenge %i", svs.challenges[i].challenge);
 }
 
 /*
@@ -284,16 +284,16 @@ void SVC_DirectConnect (void)
 	version = std::atoi( gCmd->Argv(1));
 	if (version != PROTOCOL_VERSION)
 	{
-		gNetchan->OutOfBandPrint (NS_SERVER, adr, "print\nServer is version %4.2f.\n", VERSION);
+		gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\nServer is version %4.2f.\n", VERSION);
 		Com_DPrintf ("    rejected connect from version %i\n", version);
 		return;
 	}
 
-	qport = atoi(Cmd_Argv(2));
+	qport = std::atoi( gCmd->Argv(2) );
 
-	challenge = atoi(Cmd_Argv(3));
+	challenge = std::atoi( gCmd->Argv(3) );
 
-	strncpy (userinfo, Cmd_Argv(4), sizeof(userinfo)-1);
+	std::strncpy (userinfo, gCmd->Argv(4), sizeof(userinfo)-1);
 	userinfo[sizeof(userinfo) - 1] = 0;
 
 	// force the IP key/value pair so the game can filter based on ip
@@ -305,7 +305,7 @@ void SVC_DirectConnect (void)
 		if (!NET_IsLocalAddress (adr))
 		{
 			Com_Printf ("Remote connect in attract loop.  Ignored.\n");
-			Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nConnection refused.\n");
+			gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\nConnection refused.\n");
 			return;
 		}
 	}
@@ -319,19 +319,19 @@ void SVC_DirectConnect (void)
 			{
 				if (challenge == svs.challenges[i].challenge)
 					break;		// good
-				Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nBad challenge.\n");
+				gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\nBad challenge.\n");
 				return;
 			}
 		}
 		if (i == MAX_CHALLENGES)
 		{
-			Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nNo challenge for address.\n");
+			gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\nNo challenge for address.\n");
 			return;
 		}
 	}
 
 	newcl = &temp;
-	memset (newcl, 0, sizeof(client_t));
+	std::memset (newcl, 0, sizeof(client_t));
 
 	// if there is already a slot for this ip, reuse it
 	for (i=0,cl=svs.clients ; i<maxclients->value ; i++,cl++)
@@ -365,7 +365,7 @@ void SVC_DirectConnect (void)
 	}
 	if (!newcl)
 	{
-		Netchan_OutOfBandPrint (NS_SERVER, adr, "print\nServer is full.\n");
+		gNetChan->OutOfBandPrint (NS_SERVER, adr, "print\nServer is full.\n");
 		Com_DPrintf ("Rejected a connection.\n");
 		return;
 	}
@@ -477,7 +477,7 @@ connectionless packets.
 void SV_ConnectionlessPacket (void)
 {
 	char	*s;
-	char	*c;
+	const char	*c;
 
 	MSG_BeginReading (&net_message);
 	MSG_ReadLong (&net_message);		// skip the -1 marker
@@ -634,7 +634,7 @@ void SV_ReadPackets ( void )
 				cl->netchan.remote_address.port = net_from.port;
 			}
 
-			if ( Netchan_Process( &cl->netchan, &net_message ) )
+			if ( gNetChan->Process( &cl->netchan, &net_message ) )
 			{	// this is a valid, sequenced packet, so process it
 				if (cl->state != cs_zombie)
 				{
@@ -856,7 +856,7 @@ void Master_Heartbeat (void)
 		if (master_adr[i].port)
 		{
 			Com_Printf ("Sending heartbeat to %s\n", NET_AdrToString (master_adr[i]));
-			Netchan_OutOfBandPrint (NS_SERVER, master_adr[i], "heartbeat\n%s", string);
+			gNetChan->OutOfBandPrint (NS_SERVER, master_adr[i], "heartbeat\n%s", string);
 		}
 }
 
@@ -883,7 +883,7 @@ void Master_Shutdown (void)
 		{
 			if (i > 0)
 				Com_Printf ("Sending heartbeat to %s\n", NET_AdrToString (master_adr[i]));
-			Netchan_OutOfBandPrint (NS_SERVER, master_adr[i], "shutdown");
+			gNetChan->OutOfBandPrint (NS_SERVER, master_adr[i], "shutdown");
 		}
 }
 
@@ -900,7 +900,7 @@ into a more C freindly form.
 */
 void SV_UserinfoChanged (client_t *cl)
 {
-	char	*val;
+	const char	*val;
 	int		i;
 
 	// call prog code to allow overrides
@@ -949,37 +949,38 @@ void SV_Init (void)
 {
 	SV_InitOperatorCommands	();
 
-	rcon_password = Cvar_Get ("rcon_password", "", 0);
-	Cvar_Get ("skill", "1", 0);
-	Cvar_Get ("deathmatch", "0", CVAR_LATCH);
-	Cvar_Get ("coop", "0", CVAR_LATCH);
-	Cvar_Get ("dmflags", va("%i", DF_INSTANT_ITEMS), CVAR_SERVERINFO);
-	Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO);
-	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
-	Cvar_Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO|CVAR_NOSET);;
-	maxclients = Cvar_Get ("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
-	hostname = Cvar_Get ("hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	timeout = Cvar_Get ("timeout", "125", 0);
-	zombietime = Cvar_Get ("zombietime", "2", 0);
-	sv_showclamp = Cvar_Get ("showclamp", "0", 0);
-	sv_paused = Cvar_Get ("paused", "0", 0);
-	sv_timedemo = Cvar_Get ("timedemo", "0", 0);
-	sv_enforcetime = Cvar_Get ("sv_enforcetime", "0", 0);
-	allow_download = Cvar_Get ("allow_download", "0", CVAR_ARCHIVE);
-	allow_download_players  = Cvar_Get ("allow_download_players", "0", CVAR_ARCHIVE);
-	allow_download_models = Cvar_Get ("allow_download_models", "1", CVAR_ARCHIVE);
-	allow_download_sounds = Cvar_Get ("allow_download_sounds", "1", CVAR_ARCHIVE);
-	allow_download_maps	  = Cvar_Get ("allow_download_maps", "1", CVAR_ARCHIVE);
+	rcon_password = gCvar->Get ("rcon_password", "", 0);
+	gCvar->Get ("skill", "1", 0);
+	gCvar->Get ("deathmatch", "0", CVAR_LATCH);
+	gCvar->Get ("coop", "0", CVAR_LATCH);
+	gCvar->Get ("dmflags", va("%i", DF_INSTANT_ITEMS), CVAR_SERVERINFO);
+	gCvar->Get ("fraglimit", "0", CVAR_SERVERINFO);
+	gCvar->Get ("timelimit", "0", CVAR_SERVERINFO);
+	gCvar->Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
+	gCvar->Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO|CVAR_NOSET);;
+	maxclients = gCvar->Get ("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
+	hostname = gCvar->Get ("hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE);
+	timeout = gCvar->Get ("timeout", "125", 0);
+	zombietime = gCvar->Get ("zombietime", "2", 0);
+	sv_showclamp = gCvar->Get ("showclamp", "0", 0);
+	sv_paused = gCvar->Get ("paused", "0", 0);
+	sv_timedemo = gCvar->Get ("timedemo", "0", 0);
+	sv_enforcetime = gCvar->Get ("sv_enforcetime", "0", 0);
+	allow_download = gCvar->Get ("allow_download", "0", CVAR_ARCHIVE);
+	allow_download_players  = gCvar->Get ("allow_download_players", "0", CVAR_ARCHIVE);
+	allow_download_models = gCvar->Get ("allow_download_models", "1", CVAR_ARCHIVE);
+	allow_download_sounds = gCvar->Get ("allow_download_sounds", "1", CVAR_ARCHIVE);
+	allow_download_maps	  = gCvar->Get ("allow_download_maps", "1", CVAR_ARCHIVE);
 
-	sv_noreload = Cvar_Get ("sv_noreload", "0", 0);
+	sv_noreload = gCvar->Get ("sv_noreload", "0", 0);
 
-	sv_airaccelerate = Cvar_Get("sv_airaccelerate", "0", CVAR_LATCH);
+	sv_airaccelerate = gCvar->Get("sv_airaccelerate", "0", CVAR_LATCH);
 
-	public_server = Cvar_Get ("public", "0", 0);
+	public_server = gCvar->Get ("public", "0", 0);
 
-	sv_reconnect_limit = Cvar_Get ("sv_reconnect_limit", "3", CVAR_ARCHIVE);
+	sv_reconnect_limit = gCvar->Get ("sv_reconnect_limit", "3", CVAR_ARCHIVE);
 
+	auto net_message_buffer = gNetChan->GetMessageBuffer();
 	SZ_Init (&net_message, net_message_buffer, sizeof(net_message_buffer));
 }
 
@@ -1013,12 +1014,12 @@ void SV_FinalMessage (char *message, bool reconnect)
 
 	for (i=0, cl = svs.clients ; i<maxclients->value ; i++, cl++)
 		if (cl->state >= cs_connected)
-			Netchan_Transmit (&cl->netchan, net_message.cursize
+			gNetChan->Transmit (&cl->netchan, net_message.cursize
 			, net_message.data);
 
 	for (i=0, cl = svs.clients ; i<maxclients->value ; i++, cl++)
 		if (cl->state >= cs_connected)
-			Netchan_Transmit (&cl->netchan, net_message.cursize
+			gNetChan->Transmit (&cl->netchan, net_message.cursize
 			, net_message.data);
 }
 
@@ -1043,7 +1044,7 @@ void SV_Shutdown ( const char *finalmsg, const bool reconnect )
 	// free current level
 	if (sv.demofile)
 		fclose (sv.demofile);
-	memset (&sv, 0, sizeof(sv));
+	std::memset (&sv, 0, sizeof(sv));
 	Com_SetServerState (sv.state);
 
 	// free server static data
@@ -1053,6 +1054,6 @@ void SV_Shutdown ( const char *finalmsg, const bool reconnect )
 		Z_Free (svs.client_entities);
 	if (svs.demofile)
 		fclose (svs.demofile);
-	memset (&svs, 0, sizeof(svs));
+	std::memset (&svs, 0, sizeof(svs));
 }
 

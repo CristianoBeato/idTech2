@@ -34,9 +34,8 @@ char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 void SV_FlushRedirect (int sv_redirected, char *outputbuf)
 {
 	if (sv_redirected == RD_PACKET)
-	{
-		Netchan_OutOfBandPrint (NS_SERVER, net_from, "print\n%s", outputbuf);
-	}
+		gNetChan->OutOfBandPrint (NS_SERVER, net_from, "print\n%s", outputbuf);
+	
 	else if (sv_redirected == RD_CLIENT)
 	{
 		MSG_WriteByte (&sv_client->netchan.message, svc_print);
@@ -62,7 +61,7 @@ SV_ClientPrintf
 Sends text across to be displayed if the level passes
 =================
 */
-void SV_ClientPrintf (client_t *cl, int level, char *fmt, ...)
+void SV_ClientPrintf (client_t *cl, int level, const char *fmt, ...)
 {
 	va_list		argptr;
 	char		string[1024];
@@ -423,7 +422,7 @@ bool SV_SendClientDatagram (client_t *client)
 	}
 
 	// send the datagram
-	Netchan_Transmit (&client->netchan, msg.cursize, msg.data);
+	gNetChan->Transmit (&client->netchan, msg.cursize, msg.data);
 
 	// record the size for rate estimation
 	client->message_size[sv.framenum % RATE_MESSAGES] = msg.cursize;
@@ -547,7 +546,7 @@ void SV_SendClientMessages (void)
 			|| sv.state == ss_demo 
 			|| sv.state == ss_pic
 			)
-			Netchan_Transmit (&c->netchan, msglen, msgbuf);
+			gNetChan->Transmit (&c->netchan, msglen, msgbuf);
 		else if (c->state == cs_spawned)
 		{
 			// don't overrun bandwidth
@@ -560,7 +559,7 @@ void SV_SendClientMessages (void)
 		{
 	// just update reliable	if needed
 			if (c->netchan.message.cursize	|| curtime - c->netchan.last_sent > 1000 )
-				Netchan_Transmit (&c->netchan, 0, NULL);
+				gNetChan->Transmit (&c->netchan, 0, NULL);
 		}
 	}
 }

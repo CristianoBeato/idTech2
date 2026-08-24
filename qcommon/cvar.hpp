@@ -80,7 +80,7 @@ public:
     const char* CompleteVariable ( const char *partial ) const;
 
     /// @brief any CVAR_LATCHED variables that have been set will now take effect
-    void	GetLatchedVars (void);
+    virtual void	GetLatchedVars (void);
 
     /// @brief appends lines containing "set variable value" for all variables
     /// with the archive flag set to true.
@@ -90,7 +90,7 @@ public:
     const char	*Userinfo ( void ) const;
 
     /// @brief returns an info string containing all the CVAR_SERVERINFO cvars
-    const char	*Serverinfo ( void ) const;
+    virtual const char	*Serverinfo ( void ) const;
 
     /// @brief called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
     /// command.  Returns true if the command was a variable reference that

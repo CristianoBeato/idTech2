@@ -123,7 +123,7 @@ void SV_CheckForSavegame (void)
 	if (sv_noreload->value)
 		return;
 
-	if (Cvar_VariableValue ("deathmatch"))
+	if (gCvar->VariableValue ("deathmatch"))
 		return;
 
 	Com_sprintf (name, sizeof(name), "%s/save/current/%s.sav", FS_Gamedir(), sv.name);
@@ -172,7 +172,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 	unsigned	checksum;
 
 	if (attractloop)
-		Cvar_Set ("paused", "0");
+		gCvar->Set ("paused", "0");
 
 	Com_Printf ("------- Server Initialization -------\n");
 
@@ -193,7 +193,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 
 	// save name for levels that don't set message
 	strcpy (sv.configstrings[CS_NAME], server);
-	if (Cvar_VariableValue ("deathmatch"))
+	if (gCvar->VariableValue ("deathmatch"))
 	{
 		sprintf(sv.configstrings[CS_AIRACCEL], "%g", sv_airaccelerate->value);
 		pm_airaccelerate = sv_airaccelerate->value;
@@ -274,7 +274,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 	SV_CheckForSavegame ();
 
 	// set serverinfo variable
-	Cvar_FullSet ("mapname", sv.name, CVAR_SERVERINFO | CVAR_NOSET);
+	gCvar->FullSet ("mapname", sv.name, CVAR_SERVERINFO | CVAR_NOSET);
 
 	Com_Printf ("-------------------------------------\n");
 }
@@ -305,36 +305,36 @@ void SV_InitGame (void)
 	}
 
 	// get any latched variable changes (maxclients, etc)
-	Cvar_GetLatchedVars ();
+	gCvar->GetLatchedVars ();
 
 	svs.initialized = true;
 
-	if (Cvar_VariableValue ("coop") && Cvar_VariableValue ("deathmatch"))
+	if (gCvar->VariableValue ("coop") && gCvar->VariableValue ("deathmatch"))
 	{
 		Com_Printf("Deathmatch and Coop both set, disabling Coop\n");
-		Cvar_FullSet ("coop", "0",  CVAR_SERVERINFO | CVAR_LATCH);
+		gCvar->FullSet ("coop", "0",  CVAR_SERVERINFO | CVAR_LATCH);
 	}
 
 	// dedicated servers are can't be single player and are usually DM
 	// so unless they explicity set coop, force it to deathmatch
 	if (dedicated->value)
 	{
-		if (!Cvar_VariableValue ("coop"))
-			Cvar_FullSet ("deathmatch", "1",  CVAR_SERVERINFO | CVAR_LATCH);
+		if (!gCvar->VariableValue ("coop"))
+			gCvar->FullSet ("deathmatch", "1",  CVAR_SERVERINFO | CVAR_LATCH);
 	}
 
 	// init clients
-	if (Cvar_VariableValue ("deathmatch"))
+	if (gCvar->VariableValue ("deathmatch"))
 	{
 		if (maxclients->value <= 1)
-			Cvar_FullSet ("maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
+			gCvar->FullSet ("maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
 		else if (maxclients->value > MAX_CLIENTS)
-			Cvar_FullSet ("maxclients", va("%i", MAX_CLIENTS), CVAR_SERVERINFO | CVAR_LATCH);
+			gCvar->FullSet ("maxclients", va("%i", MAX_CLIENTS), CVAR_SERVERINFO | CVAR_LATCH);
 	}
-	else if (Cvar_VariableValue ("coop"))
+	else if (gCvar->VariableValue ("coop"))
 	{
 		if (maxclients->value <= 1 || maxclients->value > 4)
-			Cvar_FullSet ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
+			gCvar->FullSet ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
 #ifdef COPYPROTECT
 		if (!sv.attractloop && !dedicated->value)
 			Sys_CopyProtect ();
@@ -342,7 +342,7 @@ void SV_InitGame (void)
 	}
 	else	// non-deathmatch, non-coop is one player
 	{
-		Cvar_FullSet ("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
+		gCvar->FullSet ("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
 #ifdef COPYPROTECT
 		if (!sv.attractloop)
 			Sys_CopyProtect ();
@@ -350,9 +350,9 @@ void SV_InitGame (void)
 	}
 
 	svs.spawncount = rand();
-	svs.clients = Z_Malloc (sizeof(client_t)*maxclients->value);
+	svs.clients = static_cast<client_t*>( Z_Malloc (sizeof(client_t)*maxclients->value) );
 	svs.num_client_entities = maxclients->value*UPDATE_BACKUP*64;
-	svs.client_entities = Z_Malloc (sizeof(entity_state_t)*svs.num_client_entities);
+	svs.client_entities = static_cast<entity_state_t*>( Z_Malloc (sizeof(entity_state_t)*svs.num_client_entities) );
 
 	// init network stuff
 	NET_Config ( (maxclients->value > 1) );
@@ -369,7 +369,7 @@ void SV_InitGame (void)
 		ent = EDICT_NUM(i+1);
 		ent->s.number = i+1;
 		svs.clients[i].edict = ent;
-		memset (&svs.clients[i].lastcmd, 0, sizeof(svs.clients[i].lastcmd));
+		std::memset (&svs.clients[i].lastcmd, 0, sizeof(svs.clients[i].lastcmd));
 	}
 }
 
@@ -390,7 +390,7 @@ another level:
 	map tram.cin+jail_e3
 ======================
 */
-void SV_Map (bool attractloop, char *levelstring, bool loadgame)
+void SV_Map ( const bool attractloop, const char *levelstring, const bool loadgame)
 {
 	char	level[MAX_QPATH];
 	char	*ch;
@@ -406,21 +406,21 @@ void SV_Map (bool attractloop, char *levelstring, bool loadgame)
 	strcpy (level, levelstring);
 
 	// if there is a + in the map, set nextserver to the remainder
-	ch = strstr(level, "+");
+	ch = std::strstr(level, "+");
 	if (ch)
 	{
 		*ch = 0;
-			Cvar_Set ("nextserver", va("gamemap \"%s\"", ch+1));
+			gCvar->Set ("nextserver", va("gamemap \"%s\"", ch+1));
 	}
 	else
-		Cvar_Set ("nextserver", "");
+		gCvar->Set ("nextserver", "");
 
 	//ZOID special hack for end game screen in coop mode
-	if (Cvar_VariableValue ("coop") && !Q_stricmp(level, "victory.pcx"))
-		Cvar_Set ("nextserver", "gamemap \"*base1\"");
+	if (gCvar->VariableValue ("coop") && !Q_stricmp(level, "victory.pcx"))
+		gCvar->Set ("nextserver", "gamemap \"*base1\"");
 
 	// if there is a $, use the remainder as a spawnpoint
-	ch = strstr(level, "$");
+	ch = std::strstr(level, "$");
 	if (ch)
 	{
 		*ch = 0;

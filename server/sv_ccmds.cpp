@@ -54,12 +54,20 @@ void SV_SetMaster_f (void)
 		memset (&master_adr[i], 0, sizeof(master_adr[i]));
 
 	slot = 1;		// slot 0 will always contain the id master
+<<<<<<< HEAD
 	for (i=1 ; i< gCmd->Argc() ; i++)
+=======
+	for (i=1 ; i<gCmd->Argc() ; i++)
+>>>>>>> be78ac418872fa5794dd7515039f186911acec83
 	{
 		if (slot == MAX_MASTERS)
 			break;
 
+<<<<<<< HEAD
 		if (!NET_StringToAdr ( gCmd->Argv(i), &master_adr[i]))
+=======
+		if (!NET_StringToAdr (gCmd->Argv(i), &master_adr[i]))
+>>>>>>> be78ac418872fa5794dd7515039f186911acec83
 		{
 			Com_Printf ("Bad address: %s\n", gCmd->Argv(i));
 			continue;
@@ -85,7 +93,7 @@ void SV_SetMaster_f (void)
 ==================
 SV_SetPlayer
 
-Sets sv_client and sv_player to the player with idnum Cmd_Argv(1)
+Sets sv_client and sv_player to the player with idnum gCmd->Argv(1)
 ==================
 */
 bool SV_SetPlayer (void)
@@ -93,9 +101,15 @@ bool SV_SetPlayer (void)
 	client_t	*cl;
 	int			i;
 	int			idnum;
+<<<<<<< HEAD
 	const char	*s = nullptr;
 
 	if ( gCmd->Argc() < 2)
+=======
+	const char		*s;
+
+	if (gCmd->Argc() < 2)
+>>>>>>> be78ac418872fa5794dd7515039f186911acec83
 		return false;
 
 	s = gCmd->Argv(1);
@@ -103,7 +117,11 @@ bool SV_SetPlayer (void)
 	// numeric values are just slot numbers
 	if (s[0] >= '0' && s[0] <= '9')
 	{
+<<<<<<< HEAD
 		idnum = std::atoi( gCmd->Argv(1));
+=======
+		idnum = atoi(gCmd->Argv(1));
+>>>>>>> be78ac418872fa5794dd7515039f186911acec83
 		if (idnum < 0 || idnum >= maxclients->value)
 		{
 			Com_Printf ("Bad client slot: %i\n", idnum);
@@ -332,7 +350,7 @@ SV_WriteServerFile
 
 ==============
 */
-void SV_WriteServerFile (bool autosave)
+void SV_WriteServerFile ( const bool autosave )
 {
 	qFile	*f = nullptr;
 	char	name[MAX_OSPATH], string[128];
@@ -371,7 +389,29 @@ void SV_WriteServerFile (bool autosave)
 	fwrite (svs.mapcmd, 1, sizeof(svs.mapcmd), f);
 
 	// write all CVAR_LATCH cvars
+<<<<<<< HEAD
 	gCvar->WriteSave( f, name, string );
+=======
+
+	// these will be things like coop, skill, deathmatch, etc
+	for (var = cvar_vars ; var ; var=var->next)
+	{
+		if (!(var->flags & CVAR_LATCH))
+			continue;
+		if (strlen(var->name) >= sizeof(name)-1
+			|| strlen(var->string) >= sizeof(string)-1)
+		{
+			Com_Printf ("Cvar too long: %s = %s\n", var->name, var->string);
+			continue;
+		}
+		memset (name, 0, sizeof(name));
+		memset (string, 0, sizeof(string));
+		strcpy (name, var->name);
+		strcpy (string, var->string);
+		fwrite (name, 1, sizeof(name), f);
+		fwrite (string, 1, sizeof(string), f);
+	}
+>>>>>>> be78ac418872fa5794dd7515039f186911acec83
 
 	fclose (f);
 
@@ -416,7 +456,7 @@ void SV_ReadServerFile (void)
 			break;
 		FS_Read (string, sizeof(string), f);
 		Com_DPrintf ("Set %s = %s\n", name, string);
-		Cvar_ForceSet (name, string);
+		gCvar->ForceSet (name, string);
 	}
 
 	fclose (f);
@@ -424,7 +464,7 @@ void SV_ReadServerFile (void)
 	// start a new game fresh with new cvars
 	SV_InitGame ();
 
-	strcpy (svs.mapcmd, mapcmd);
+	std::strcpy (svs.mapcmd, mapcmd);
 
 	// read game state
 	Com_sprintf (name, sizeof(name), "%s/save/current/game.ssv", FS_Gamedir());
@@ -446,7 +486,7 @@ Puts the server in demo mode on a specific map/cinematic
 */
 void SV_DemoMap_f (void)
 {
-	SV_Map (true, Cmd_Argv(1), false );
+	SV_Map (true, gCmd->Argv(1), false );
 }
 
 /*
@@ -469,23 +509,23 @@ goes to map jail.bsp.
 */
 void SV_GameMap_f (void)
 {
-	char		*map;
+	const char		*map = nullptr;
 	int			i;
 	client_t	*cl;
 	bool	*savedInuse;
 
-	if (Cmd_Argc() != 2)
+	if (gCmd->Argc() != 2)
 	{
 		Com_Printf ("USAGE: gamemap <map>\n");
 		return;
 	}
 
-	Com_DPrintf("SV_GameMap(%s)\n", Cmd_Argv(1));
+	Com_DPrintf("SV_GameMap(%s)\n", gCmd->Argv(1));
 
-	FS_CreatePath (va("%s/save/current/", FS_Gamedir()));
+	FS_CreatePath ( va("%s/save/current/", FS_Gamedir()) );
 
 	// check for clearing the current savegame
-	map = Cmd_Argv(1);
+	map = gCmd->Argv(1);
 	if (map[0] == '*')
 	{
 		// wipe all the *.sav files
@@ -498,7 +538,7 @@ void SV_GameMap_f (void)
 			// clear all the client inuse flags before saving so that
 			// when the level is re-entered, the clients will spawn
 			// at spawn points instead of occupying body shells
-			savedInuse = malloc(maxclients->value * sizeof(bool));
+			savedInuse = static_cast<bool*>( std::malloc(maxclients->value * sizeof( bool ) ) );
 			for (i=0,cl=svs.clients ; i<maxclients->value; i++,cl++)
 			{
 				savedInuse[i] = cl->edict->inuse;
@@ -515,10 +555,10 @@ void SV_GameMap_f (void)
 	}
 
 	// start up the next map
-	SV_Map (false, Cmd_Argv(1), false );
+	SV_Map (false, gCmd->Argv(1), false );
 
 	// archive server state
-	strncpy (svs.mapcmd, Cmd_Argv(1), sizeof(svs.mapcmd)-1);
+	strncpy (svs.mapcmd, gCmd->Argv(1), sizeof(svs.mapcmd)-1);
 
 	// copy off the level to the autosave slot
 	if (!dedicated->value)
@@ -538,11 +578,11 @@ For development work
 */
 void SV_Map_f (void)
 {
-	char	*map;
+	const char	*map;
 	char	expanded[MAX_QPATH];
 
 	// if not a pcx, demo, or cinematic, check to make sure the level exists
-	map = Cmd_Argv(1);
+	map = gCmd->Argv(1);
 	if (!strstr (map, "."))
 	{
 		Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
@@ -577,9 +617,9 @@ void SV_Loadgame_f (void)
 {
 	char	name[MAX_OSPATH];
 	FILE	*f;
-	char	*dir;
+	const char	*dir;
 
-	if (Cmd_Argc() != 2)
+	if (gCmd->Argc() != 2)
 	{
 		Com_Printf ("USAGE: loadgame <directory>\n");
 		return;
@@ -587,14 +627,14 @@ void SV_Loadgame_f (void)
 
 	Com_Printf ("Loading game...\n");
 
-	dir = Cmd_Argv(1);
+	dir = gCmd->Argv(1);
 	if (strstr (dir, "..") || strstr (dir, "/") || strstr (dir, "\\") )
 	{
 		Com_Printf ("Bad savedir.\n");
 	}
 
 	// make sure the server.ssv file exists
-	Com_sprintf (name, sizeof(name), "%s/save/%s/server.ssv", FS_Gamedir(), Cmd_Argv(1));
+	Com_sprintf (name, sizeof(name), "%s/save/%s/server.ssv", FS_Gamedir(), gCmd->Argv(1));
 	f = fopen (name, "rb");
 	if (!f)
 	{
@@ -603,7 +643,7 @@ void SV_Loadgame_f (void)
 	}
 	fclose (f);
 
-	SV_CopySaveGame (Cmd_Argv(1), "current");
+	SV_CopySaveGame (gCmd->Argv(1), "current");
 
 	SV_ReadServerFile ();
 
@@ -622,7 +662,7 @@ SV_Savegame_f
 */
 void SV_Savegame_f (void)
 {
-	char	*dir;
+	const char	*dir = nullptr;
 
 	if (sv.state != ss_game)
 	{
@@ -630,19 +670,19 @@ void SV_Savegame_f (void)
 		return;
 	}
 
-	if (Cmd_Argc() != 2)
+	if (gCmd->Argc() != 2)
 	{
 		Com_Printf ("USAGE: savegame <directory>\n");
 		return;
 	}
 
-	if (Cvar_VariableValue("deathmatch"))
+	if (gCvar->VariableValue("deathmatch"))
 	{
 		Com_Printf ("Can't savegame in a deathmatch\n");
 		return;
 	}
 
-	if (!strcmp (Cmd_Argv(1), "current"))
+	if (!strcmp (gCmd->Argv(1), "current"))
 	{
 		Com_Printf ("Can't save to 'current'\n");
 		return;
@@ -654,7 +694,7 @@ void SV_Savegame_f (void)
 		return;
 	}
 
-	dir = Cmd_Argv(1);
+	dir = gCmd->Argv(1);
 	if (strstr (dir, "..") || strstr (dir, "/") || strstr (dir, "\\") )
 	{
 		Com_Printf ("Bad savedir.\n");
@@ -693,7 +733,7 @@ void SV_Kick_f (void)
 		return;
 	}
 
-	if (Cmd_Argc() != 2)
+	if (gCmd->Argc() != 2)
 	{
 		Com_Printf ("Usage: kick <userid>\n");
 		return;
@@ -720,7 +760,7 @@ void SV_Status_f (void)
 {
 	int			i, j, l;
 	client_t	*cl;
-	char		*s;
+	const char	*s;
 	int			ping;
 	if (!svs.clients)
 	{
@@ -749,7 +789,7 @@ void SV_Status_f (void)
 		}
 
 		Com_Printf ("%s", cl->name);
-		l = 16 - strlen(cl->name);
+		l = 16 - std::strlen(cl->name);
 		for (j=0 ; j<l ; j++)
 			Com_Printf (" ");
 
@@ -757,7 +797,7 @@ void SV_Status_f (void)
 
 		s = NET_AdrToString ( cl->netchan.remote_address);
 		Com_Printf ("%s", s);
-		l = 22 - strlen(s);
+		l = 22 - std::strlen(s);
 		for (j=0 ; j<l ; j++)
 			Com_Printf (" ");
 		
@@ -775,24 +815,24 @@ SV_ConSay_f
 */
 void SV_ConSay_f(void)
 {
-	client_t *client;
-	int		j;
-	char	*p;
-	char	text[1024];
+	int			j = 0;
+	client_t*	client = nullptr;
+	const char	*p = nullptr;
+	char	text[1024]{ 0 };
 
-	if (Cmd_Argc () < 2)
+	if (gCmd->Argc () < 2)
 		return;
 
-	strcpy (text, "console: ");
-	p = Cmd_Args();
+	std::strcpy (text, "console: ");
+	p = gCmd->Args();
 
 	if (*p == '"')
 	{
 		p++;
-		p[strlen(p)-1] = 0;
+		const_cast<char*>( p )[std::strlen(p)-1] = 0;
 	}
 
-	strcat(text, p);
+	std::strcat(text, p);
 
 	for (j = 0, client = svs.clients; j < maxclients->value; j++, client++)
 	{
@@ -824,7 +864,7 @@ SV_Serverinfo_f
 void SV_Serverinfo_f (void)
 {
 	Com_Printf ("Server info settings:\n");
-	Info_Print (Cvar_Serverinfo());
+	Info_Print (gCvar->Serverinfo());
 }
 
 
@@ -837,7 +877,7 @@ Examine all a users info strings
 */
 void SV_DumpUser_f (void)
 {
-	if (Cmd_Argc() != 2)
+	if (gCmd->Argc() != 2)
 	{
 		Com_Printf ("Usage: info <userid>\n");
 		return;
@@ -869,7 +909,7 @@ void SV_ServerRecord_f (void)
 	int		len;
 	int		i;
 
-	if (Cmd_Argc() != 2)
+	if (gCmd->Argc() != 2)
 	{
 		Com_Printf ("serverrecord <demoname>\n");
 		return;
@@ -890,7 +930,7 @@ void SV_ServerRecord_f (void)
 	//
 	// open the demo file
 	//
-	Com_sprintf (name, sizeof(name), "%s/demos/%s.dm2", FS_Gamedir(), Cmd_Argv(1));
+	Com_sprintf (name, sizeof(name), "%s/demos/%s.dm2", FS_Gamedir(), gCmd->Argv(1));
 
 	Com_Printf ("recording to %s.\n", name);
 	FS_CreatePath (name);
@@ -907,7 +947,7 @@ void SV_ServerRecord_f (void)
 	//
 	// write a single giant fake message with all the startup info
 	//
-	SZ_Init (&buf, buf_data, sizeof(buf_data));
+	SZ_Init (&buf, (byte*)buf_data, sizeof(buf_data));
 
 	//
 	// serverdata needs to go over for all types of servers
@@ -919,7 +959,7 @@ void SV_ServerRecord_f (void)
 	MSG_WriteLong (&buf, svs.spawncount);
 	// 2 means server demo
 	MSG_WriteByte (&buf, 2);	// demos are always attract loops
-	MSG_WriteString (&buf, Cvar_VariableString ("gamedir"));
+	MSG_WriteString (&buf, gCvar->VariableString ("gamedir"));
 	MSG_WriteShort (&buf, -1);
 	// send full levelname
 	MSG_WriteString (&buf, sv.configstrings[CS_NAME]);
@@ -1005,28 +1045,28 @@ SV_InitOperatorCommands
 */
 void SV_InitOperatorCommands (void)
 {
-	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
-	Cmd_AddCommand ("kick", SV_Kick_f);
-	Cmd_AddCommand ("status", SV_Status_f);
-	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
-	Cmd_AddCommand ("dumpuser", SV_DumpUser_f);
+	gCmd->AddCommand ("heartbeat", SV_Heartbeat_f);
+	gCmd->AddCommand ("kick", SV_Kick_f);
+	gCmd->AddCommand ("status", SV_Status_f);
+	gCmd->AddCommand ("serverinfo", SV_Serverinfo_f);
+	gCmd->AddCommand ("dumpuser", SV_DumpUser_f);
 
-	Cmd_AddCommand ("map", SV_Map_f);
-	Cmd_AddCommand ("demomap", SV_DemoMap_f);
-	Cmd_AddCommand ("gamemap", SV_GameMap_f);
-	Cmd_AddCommand ("setmaster", SV_SetMaster_f);
+	gCmd->AddCommand ("map", SV_Map_f);
+	gCmd->AddCommand ("demomap", SV_DemoMap_f);
+	gCmd->AddCommand ("gamemap", SV_GameMap_f);
+	gCmd->AddCommand ("setmaster", SV_SetMaster_f);
 
 	if ( dedicated->value )
-		Cmd_AddCommand ("say", SV_ConSay_f);
+		gCmd->AddCommand ("say", SV_ConSay_f);
 
-	Cmd_AddCommand ("serverrecord", SV_ServerRecord_f);
-	Cmd_AddCommand ("serverstop", SV_ServerStop_f);
+	gCmd->AddCommand ("serverrecord", SV_ServerRecord_f);
+	gCmd->AddCommand ("serverstop", SV_ServerStop_f);
 
-	Cmd_AddCommand ("save", SV_Savegame_f);
-	Cmd_AddCommand ("load", SV_Loadgame_f);
+	gCmd->AddCommand ("save", SV_Savegame_f);
+	gCmd->AddCommand ("load", SV_Loadgame_f);
 
-	Cmd_AddCommand ("killserver", SV_KillServer_f);
+	gCmd->AddCommand ("killserver", SV_KillServer_f);
 
-	Cmd_AddCommand ("sv", SV_ServerCommand_f);
+	gCmd->AddCommand ("sv", SV_ServerCommand_f);
 }
 
