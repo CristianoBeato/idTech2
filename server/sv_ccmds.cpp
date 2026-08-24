@@ -48,20 +48,20 @@ void SV_SetMaster_f (void)
 	}
 
 	// make sure the server is listed public
-	Cvar_Set ("public", "1");
+	gCvar->Set ("public", "1");
 
 	for (i=1 ; i<MAX_MASTERS ; i++)
 		memset (&master_adr[i], 0, sizeof(master_adr[i]));
 
 	slot = 1;		// slot 0 will always contain the id master
-	for (i=1 ; i<Cmd_Argc() ; i++)
+	for (i=1 ; i< gCmd->Argc() ; i++)
 	{
 		if (slot == MAX_MASTERS)
 			break;
 
-		if (!NET_StringToAdr (Cmd_Argv(i), &master_adr[i]))
+		if (!NET_StringToAdr ( gCmd->Argv(i), &master_adr[i]))
 		{
-			Com_Printf ("Bad address: %s\n", Cmd_Argv(i));
+			Com_Printf ("Bad address: %s\n", gCmd->Argv(i));
 			continue;
 		}
 		if (master_adr[slot].port == 0)
@@ -71,7 +71,7 @@ void SV_SetMaster_f (void)
 
 		Com_Printf ("Sending a ping.\n");
 
-		Netchan_OutOfBandPrint (NS_SERVER, master_adr[slot], "ping");
+		gNetChan->OutOfBandPrint (NS_SERVER, master_adr[slot], "ping");
 
 		slot++;
 	}
@@ -93,17 +93,17 @@ bool SV_SetPlayer (void)
 	client_t	*cl;
 	int			i;
 	int			idnum;
-	char		*s;
+	const char	*s = nullptr;
 
-	if (Cmd_Argc() < 2)
+	if ( gCmd->Argc() < 2)
 		return false;
 
-	s = Cmd_Argv(1);
+	s = gCmd->Argv(1);
 
 	// numeric values are just slot numbers
 	if (s[0] >= '0' && s[0] <= '9')
 	{
-		idnum = atoi(Cmd_Argv(1));
+		idnum = std::atoi( gCmd->Argv(1));
 		if (idnum < 0 || idnum >= maxclients->value)
 		{
 			Com_Printf ("Bad client slot: %i\n", idnum);
@@ -125,7 +125,8 @@ bool SV_SetPlayer (void)
 	{
 		if (!cl->state)
 			continue;
-		if (!strcmp(cl->name, s))
+
+		if ( !std::strcmp(cl->name, s))
 		{
 			sv_client = cl;
 			sv_player = sv_client->edict;
@@ -161,15 +162,15 @@ void SV_WipeSavegame (char *savename)
 	Com_DPrintf("SV_WipeSaveGame(%s)\n", savename);
 
 	Com_sprintf (name, sizeof(name), "%s/save/%s/server.ssv", FS_Gamedir (), savename);
-	remove (name);
+	std::remove (name);
 	Com_sprintf (name, sizeof(name), "%s/save/%s/game.ssv", FS_Gamedir (), savename);
-	remove (name);
+	std::remove (name);
 
 	Com_sprintf (name, sizeof(name), "%s/save/%s/*.sav", FS_Gamedir (), savename);
 	s = Sys_FindFirst( name, 0, 0 );
 	while (s)
 	{
-		remove (s);
+		std::remove (s);
 		s = Sys_FindNext( 0, 0 );
 	}
 	Sys_FindClose ();
@@ -177,7 +178,7 @@ void SV_WipeSavegame (char *savename)
 	s = Sys_FindFirst(name, 0, 0 );
 	while (s)
 	{
-		remove (s);
+		std::remove (s);
 		s = Sys_FindNext( 0, 0 );
 	}
 	Sys_FindClose ();
@@ -251,14 +252,14 @@ void SV_CopySaveGame (char *src, char *dst)
 	found = Sys_FindFirst(name, 0, 0 );
 	while (found)
 	{
-		strcpy (name+len, found+len);
+		std::strcpy (name+len, found+len);
 
 		Com_sprintf (name2, sizeof(name2), "%s/save/%s/%s", FS_Gamedir(), dst, found+len);
 		CopyFile (name, name2);
 
 		// change sav to sv2
-		l = strlen(name);
-		strcpy (name+l-3, "sv2");
+		l = std::strlen(name);
+		std::strcpy (name+l-3, "sv2");
 		l = strlen(name2);
 		strcpy (name2+l-3, "sv2");
 		CopyFile (name, name2);
@@ -333,8 +334,7 @@ SV_WriteServerFile
 */
 void SV_WriteServerFile (bool autosave)
 {
-	FILE	*f;
-	cvar_t	*var;
+	qFile	*f = nullptr;
 	char	name[MAX_OSPATH], string[128];
 	char	comment[32];
 	time_t	aclock;
@@ -343,53 +343,35 @@ void SV_WriteServerFile (bool autosave)
 	Com_DPrintf("SV_WriteServerFile(%s)\n", autosave ? "true" : "false");
 
 	Com_sprintf (name, sizeof(name), "%s/save/current/server.ssv", FS_Gamedir());
-	f = fopen (name, "wb");
+	f = Sys_Open (name, "wb");
 	if (!f)
 	{
 		Com_Printf ("Couldn't write %s\n", name);
 		return;
 	}
 	// write the comment field
-	memset (comment, 0, sizeof(comment));
+	std::memset (comment, 0, sizeof(comment));
 
-	if (!autosave)
+	if ( !autosave )
 	{
 		time (&aclock);
 		newtime = localtime (&aclock);
-		Com_sprintf (comment,sizeof(comment), "%2i:%i%i %2i/%2i  ", newtime->tm_hour
-			, newtime->tm_min/10, newtime->tm_min%10,
+		Com_sprintf (comment,sizeof(comment), "%2i:%i%i %2i/%2i  ", newtime->tm_hour, newtime->tm_min/10, newtime->tm_min%10,
 			newtime->tm_mon+1, newtime->tm_mday);
-		strncat (comment, sv.configstrings[CS_NAME], sizeof(comment)-1-strlen(comment) );
+		std::strncat (comment, sv.configstrings[CS_NAME], sizeof(comment)-1-strlen(comment) );
 	}
 	else
 	{	// autosaved
 		Com_sprintf (comment, sizeof(comment), "ENTERING %s", sv.configstrings[CS_NAME]);
 	}
 
-	fwrite (comment, 1, sizeof(comment), f);
+	// fwrite (comment, 1, sizeof(comment), f);
 
 	// write the mapcmd
 	fwrite (svs.mapcmd, 1, sizeof(svs.mapcmd), f);
 
 	// write all CVAR_LATCH cvars
-	// these will be things like coop, skill, deathmatch, etc
-	for (var = cvar_vars ; var ; var=var->next)
-	{
-		if (!(var->flags & CVAR_LATCH))
-			continue;
-		if (strlen(var->name) >= sizeof(name)-1
-			|| strlen(var->string) >= sizeof(string)-1)
-		{
-			Com_Printf ("Cvar too long: %s = %s\n", var->name, var->string);
-			continue;
-		}
-		memset (name, 0, sizeof(name));
-		memset (string, 0, sizeof(string));
-		strcpy (name, var->name);
-		strcpy (string, var->string);
-		fwrite (name, 1, sizeof(name), f);
-		fwrite (string, 1, sizeof(string), f);
-	}
+	gCvar->WriteSave( f, name, string );
 
 	fclose (f);
 
