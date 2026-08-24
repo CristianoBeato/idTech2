@@ -87,7 +87,43 @@ float crCVARLocal::VariableValue ( const char *var_name ) const
 
 /*
 ============
-Cvar_VariableString
+crCVARLocal::WriteSave
+============
+*/
+void crCVARLocal::WriteSave( qFile* save_file ) const
+{
+	count count = Count();
+
+	save_file->Write( &count, 1 );
+
+	// these will be things like coop, skill, deathmatch, etc
+	for ( auto var = m_vars ; var ; var=var->next )
+	{
+		if (! ( var->flags & CVAR_LATCH ) )
+			continue;
+		
+		// Write Cvars
+
+		//std::memset ( string, 0, sizeof( string ) );
+		//std::strcpy ( name, var->name);
+		//std::strcpy ( string, var->string );
+		//fwrite ( name, 1, sizeof( name ), save_file);
+		//fwrite ( string, 1, sizeof( string ), save_file);
+
+		var->name.Write( save_file );
+		var->string.Write( save_file );
+	}
+}
+
+void crCVARLocal::ReadSave(qFile *save_file)
+{
+	uint32_t count = 0;
+	save_file->Read( &count, 1 );
+}
+
+/*
+============
+crCVARLocal::VariableString
 ============
 */
 const char *crCVARLocal::VariableString ( const char *var_name ) const
@@ -494,7 +530,17 @@ void crCVARLocal::List_f (void)
 	Com_Printf ("%i cvars\n", i);
 }
 
-const char* crCVARLocal::BitInfo ( const uint32_t bit ) const
+const uint32_t crCVARLocal::Count(void) const
+{
+	uint32_t count = 0;
+	for ( auto var = m_vars ; var; var = var->next)
+	{
+		count++;
+	}
+    return count;
+}
+
+const char *crCVARLocal::BitInfo(const uint32_t bit) const
 {
 	static char	info[MAX_INFO_STRING]{0};
 	cvar_t	*var = nullptr;

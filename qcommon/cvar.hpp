@@ -69,6 +69,9 @@ public:
     /// @brief returns 0 if not defined or non numeric
     float   VariableValue ( const char *var_name ) const;
 
+    virtual void WriteSave( qFile* save_file ) const;
+    virtual void ReadSave( qFile* save_file );
+
     /// @brief returns an empty string if not defined
     virtual const char* VariableString ( const char *var_name ) const;
 
@@ -98,12 +101,13 @@ private:
     // this is set each time a CVAR_USERINFO variable is changed
     // so that the client knows to send it to the server
     bool	m_userInfoModified;
-
+    
     cvar_t	*m_vars;
 
     cvar_t *FindVar ( const char *var_name ) const;
     cvar_t*	Set2( const char *var_name, const char *value, bool force );
 
+    const uint32_t  Count( void ) const;
     const char* BitInfo ( const uint32_t bit ) const;
     
     static void Set_f (void);
