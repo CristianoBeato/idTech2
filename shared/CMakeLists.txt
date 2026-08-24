@@ -6,6 +6,8 @@ set( SHARED_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/q_Hunk.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/q_shared.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/q_string.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/q_string.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/q_vector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/q_vector.hpp
     )
@@ -31,6 +33,7 @@ target_precompile_headers( qShared
         <cstddef>
         <cassert>
         <cmath>
+        <new>
         <cstring>
         <ctime>
         <cctype>

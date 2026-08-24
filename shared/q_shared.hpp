@@ -115,7 +115,6 @@ inline constexpr uint32_t PRINT_ALL			= 0;
 inline constexpr uint32_t PRINT_DEVELOPER	= 1;		// only print when "developer 1"
 inline constexpr uint32_t PRINT_ALERT		= 2;		
 
-
 // destination class for gi.multicast()
 typedef enum
 {
@@ -127,6 +126,35 @@ typedef enum
 	MULTICAST_PVS_R
 } multicast_t;
 
+class qFile
+{
+public:
+	virtual ~qFile( void )
+	{
+		Close();
+	};
+
+	virtual void		Close( void ) = 0;
+	virtual size_t		Size( void ) const = 0;
+	virtual intptr_t	Tell( void ) const = 0;
+	virtual intptr_t	Seek( const intptr_t offset, const int whence ) = 0;
+	virtual intptr_t	Read( const size_t in_size, const uint32_t in_count, void* in_data ) = 0;
+	virtual intptr_t	Write( const size_t in_size, const uint32_t in_count, const void* in_data ) = 0;
+
+	template<typename _t>
+	inline intptr_t	Read( _t* in_type, const uint32_t in_count )
+	{
+		Read( sizeof(_t), in_count, in_type );	
+	}
+
+	template<typename _t>
+	inline intptr_t	Write( const _t* in_type, const uint32_t in_count )
+	{
+		Write( sizeof(_t), in_count, in_type );
+	}
+};
+
+extern qFile* Sys_Open( const char* in_path, const char* in_mode );
 
 /*
 ==============================================================
@@ -219,6 +247,8 @@ int Q_stricmp ( const char *s1, const char *s2 );
 int Q_strcasecmp ( const char *s1, const char *s2 );
 int Q_strncasecmp ( const char *s1, const char *s2, int n );
 
+#include "q_string.hpp"
+
 //=============================================
 
 short		BigShort(short l);
@@ -310,8 +340,8 @@ enum cvar_flags_e : uint32_t
 // nothing outside the Cvar_*() functions should modify these fields!
 typedef struct cvar_s
 {
-	char		*name;
-	char		*string;
+	qString		name;
+	qString		string;
 	char		*latched_string;	// for CVAR_LATCH vars
 	uint32_t	flags;
 	bool		modified;	// set each time the cvar is changed
@@ -1260,10 +1290,13 @@ public:
 	/// @brief returns 0 if not defined or non numeric
     virtual float   VariableValue ( const char *var_name ) const = 0;
 
+	virtual void WriteSave( qFile* save_file ) const = 0;
+
 	/// @brief called by ExecuteString() when Argv(0) doesn't match a known
     /// command.  Returns true if the command was a variable reference that
     /// was handled. (print or change)
     virtual bool Command (void) = 0;
 };
+
 
 #endif //!__Q_SHARED_H__
